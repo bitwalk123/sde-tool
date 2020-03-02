@@ -942,8 +942,8 @@ class Img(Gtk.Image):
     IMG_FOLDER = "img/folder-128.png"
     IMG_INFO = "img/info-128.png"
     IMG_PDF = "img/pdf.png"
-    IMG_QUEST = "img/question.png"
-    IMG_WARNING = "img/warning.png"
+    IMG_QUEST = "img/question-128.png"
+    IMG_WARNING = "img/warning-128.png"
 
     def __init__(self):
         Gtk.Image.__init__(self)
