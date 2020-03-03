@@ -518,9 +518,7 @@ class DlgConfigPart(Gtk.Dialog):
 
         self.store = Gtk.ListStore(str, str, str)
         for id_part in id_part_list:
-            #sql = "SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = " + str(id_part) + " ORDER BY id_part, num_revision"
             sql = self.obj.make_sql("SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = ? ORDER BY id_part, num_revision", [id_part])
-            print(sql)
             out = self.obj.get(sql)
             for row in out:
                 self.store.append([str(row[0]), str(row[1]), row[2]])
@@ -591,18 +589,14 @@ class DlgConfigPart(Gtk.Dialog):
     def revise_part(self):
         # revise
         name_file = self.get_filename()
-        #sql = "SELECT MAX(num_revision) FROM part_revision WHERE id_part = " + self.id_part_selected
         sql = self.obj.make_sql("SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?", [self.id_part_selected])
-        print(sql)
         out = self.obj.get(sql)
         rev = out[0][0]
         if rev is None:
             rev = 1
         else:
             rev += 1
-        #self.sql_action = "INSERT INTO part_revision VALUES(NULL, " + str(self.id_part_selected) + ", " + str(rev) + ", '" + name_file + "')"
         self.sql_action = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, ?, '?')", [self.id_part_selected, rev, name_file])
-        print(self.sql_action)
         self.store.append([str(self.id_part_selected), str(rev), name_file])
 
     # -------------------------------------------------------------------------
@@ -623,24 +617,16 @@ class DlgConfigPart(Gtk.Dialog):
             id_part = out[0][0] + 1
             self.id_partStr = "id_part = " + str(id_part)
             # obtaine name of project owner
-            #sql = "SELECT DISTINCT name_owner FROM project WHERE " + id_projectStr + " AND " + id_supplierStr
             sql = self.obj.make_sql("SELECT DISTINCT name_owner FROM project WHERE ? AND ?", [id_projectStr, id_supplierStr])
-            print(sql)
             out = self.obj.get(sql)
             name_owner = out[0][0]
 
             id_project = self.get_id(id_projectStr, 'id_project = (.+)')
             id_supplier = self.get_id(id_supplierStr, 'id_supplier = (.+)')
 
-            #sql1 = "INSERT INTO project VALUES(" + str(id_project) + ", " + str(id_supplier) + ", " + str(id_part) + ", '" + name_owner + "')"
             sql1 = self.obj.make_sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
-            print(sql1)
-            #sql2 = "INSERT INTO part VALUES(NULL, '" + num_part + "', '" + description + "', '" + name_product + "')"
             sql2 = self.obj.make_sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
-            print(sql2)
-            sql3 = "INSERT INTO part_revision VALUES(NULL, " + str(id_part) + ", 1, '" + name_file + "')"
             sql3 = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
-            print(sql3)
             self.sql_action = [sql1, sql2, sql3]
             self.store.append([str(id_part), "1", name_file])
         else:
@@ -713,9 +699,7 @@ class DlgConfigStage(Gtk.Dialog):
         iter_grand_parent = model.iter_parent(iter_parent)
         id_stageStr = model[iter][5]
         id_projectStr = model[iter_grand_parent][5]
-        #sql = "SELECT id_data FROM data WHERE " + id_projectStr + " AND " + id_stageStr
         sql = self.obj.make_sql("SELECT id_data FROM data WHERE ? AND ?", [id_projectStr, id_stageStr])
-        print(sql)
         out = self.obj.get(sql)
         for row in out:
             self.get_revised_data(row)
@@ -765,9 +749,7 @@ class DlgConfigStage(Gtk.Dialog):
 
     def get_revised_data(self, row):
         id_data = row[0]
-        #sql = "SELECT num_revision, name_file FROM data_revision WHERE id_data = " + str(id_data)
         sql = self.obj.make_sql("SELECT num_revision, name_file FROM data_revision WHERE id_data = ?", [id_data])
-        print(sql)
         out = self.obj.get(sql)
         for row in out:
             num_revision = row[0]
