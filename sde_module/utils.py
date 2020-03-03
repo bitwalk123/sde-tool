@@ -144,9 +144,7 @@ class DlgAddOrReviseFile(Gtk.Dialog):
         return self.file.get_text()
 
     def get_filename(self, basedir):
-        dialog = Gtk.FileChooserDialog(title='select file',
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(Img().get_file('file'))
         dialog.set_current_folder(str(basedir))
         dialog.add_buttons(
@@ -264,9 +262,7 @@ class DlgAddNewPart2Project(Gtk.Dialog):
         return self.file.get_text()
 
     def get_filename(self):
-        dialog = Gtk.FileChooserDialog(title='select file',
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(Img().get_file('file'))
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
@@ -390,9 +386,7 @@ class DlgAddNewProject(Gtk.Dialog):
         return self.file.get_text()
 
     def get_filename(self):
-        dialog = Gtk.FileChooserDialog(title='select file',
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(Img().get_file('file'))
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
@@ -518,7 +512,7 @@ class DlgConfigPart(Gtk.Dialog):
 
         self.store = Gtk.ListStore(str, str, str)
         for id_part in id_part_list:
-            sql = self.obj.make_sql("SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = ? ORDER BY id_part, num_revision", [id_part])
+            sql = self.obj.sql("SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = ? ORDER BY id_part, num_revision", [id_part])
             out = self.obj.get(sql)
             for row in out:
                 self.store.append([str(row[0]), str(row[1]), row[2]])
@@ -589,14 +583,14 @@ class DlgConfigPart(Gtk.Dialog):
     def revise_part(self):
         # revise
         name_file = self.get_filename()
-        sql = self.obj.make_sql("SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?", [self.id_part_selected])
+        sql = self.obj.sql("SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?", [self.id_part_selected])
         out = self.obj.get(sql)
         rev = out[0][0]
         if rev is None:
             rev = 1
         else:
             rev += 1
-        self.sql_action = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, ?, '?')", [self.id_part_selected, rev, name_file])
+        self.sql_action = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, ?, '?')", [self.id_part_selected, rev, name_file])
         self.store.append([str(self.id_part_selected), str(rev), name_file])
 
     # -------------------------------------------------------------------------
@@ -617,16 +611,16 @@ class DlgConfigPart(Gtk.Dialog):
             id_part = out[0][0] + 1
             self.id_partStr = "id_part = " + str(id_part)
             # obtaine name of project owner
-            sql = self.obj.make_sql("SELECT DISTINCT name_owner FROM project WHERE ? AND ?", [id_projectStr, id_supplierStr])
+            sql = self.obj.sql("SELECT DISTINCT name_owner FROM project WHERE ? AND ?", [id_projectStr, id_supplierStr])
             out = self.obj.get(sql)
             name_owner = out[0][0]
 
             id_project = self.get_id(id_projectStr, 'id_project = (.+)')
             id_supplier = self.get_id(id_supplierStr, 'id_supplier = (.+)')
 
-            sql1 = self.obj.make_sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
-            sql2 = self.obj.make_sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
-            sql3 = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
+            sql1 = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
+            sql2 = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
+            sql3 = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
             self.sql_action = [sql1, sql2, sql3]
             self.store.append([str(id_part), "1", name_file])
         else:
@@ -635,9 +629,7 @@ class DlgConfigPart(Gtk.Dialog):
 
     # -------------------------------------------------------------------------
     def get_filename(self):
-        dialog = Gtk.FileChooserDialog(title='select file',
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(Img().get_file('file'))
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
@@ -699,7 +691,7 @@ class DlgConfigStage(Gtk.Dialog):
         iter_grand_parent = model.iter_parent(iter_parent)
         id_stageStr = model[iter][5]
         id_projectStr = model[iter_grand_parent][5]
-        sql = self.obj.make_sql("SELECT id_data FROM data WHERE ? AND ?", [id_projectStr, id_stageStr])
+        sql = self.obj.sql("SELECT id_data FROM data WHERE ? AND ?", [id_projectStr, id_stageStr])
         out = self.obj.get(sql)
         for row in out:
             self.get_revised_data(row)
@@ -749,7 +741,7 @@ class DlgConfigStage(Gtk.Dialog):
 
     def get_revised_data(self, row):
         id_data = row[0]
-        sql = self.obj.make_sql("SELECT num_revision, name_file FROM data_revision WHERE id_data = ?", [id_data])
+        sql = self.obj.sql("SELECT num_revision, name_file FROM data_revision WHERE id_data = ?", [id_data])
         out = self.obj.get(sql)
         for row in out:
             num_revision = row[0]
@@ -930,7 +922,7 @@ class HandleDB():
         con.close()
         return out
 
-    def make_sql(self, sentense, parameters):
+    def sql(self, sentense, parameters):
         for param in parameters:
             sentense = sentense.replace('?', str(param), 1)
         return sentense

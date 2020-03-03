@@ -43,7 +43,7 @@ class SDETool(Gtk.Window):
         if not os.path.exists(self.dbname):
             self.obj.init()
 
-        #print(self.basedir)
+        # print(self.basedir)
 
         # ---------------------------------------------------------------------
         # GUI
@@ -128,26 +128,28 @@ class SDETool(Gtk.Window):
         container.pack_end(but_info, expand=False, fill=True, padding=0)
 
         # status bar
-        self.status = Gtk.Statusbar(name='Status')
-        self.context_id = self.status.get_context_id('sde')
+        self.statusbar = Gtk.Statusbar(name='Status')
+        self.context_id = self.statusbar.get_context_id('sde')
 
         # widget layout management
         box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
         box.pack_start(frame, expand=False, fill=True, padding=0)
         box.pack_start(scrwin, expand=True, fill=True, padding=0)
-        box.pack_start(self.status, expand=False, fill=True, padding=0)
+        box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
         self.add(box)
 
     # -------------------------------------------------------------------------
+    #  add new Part
     def add_new_part(self, id_partStr):
         path = self.DlgFileChooserPDF()
         if path is not None:
             id_part = self.get_id(id_partStr, 'id_part = (.+)')
             # SQL for insert new link of file to table part_revision
-            sql = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, path])
+            sql = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, path])
             self.obj.put(sql)
 
     # -------------------------------------------------------------------------
+    #  add new Project
     def add_new_project(self, id_supplier, iter, tree):
         dialog = utils.DlgAddNewProject(self)
         response = dialog.run()
@@ -160,14 +162,14 @@ class SDETool(Gtk.Window):
             dialog.destroy()
 
             # insert new part
-            sql = self.obj.make_sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, product])
+            sql = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, product])
             self.obj.put(sql)
 
             # get maxium id_part
             sql = "SELECT MAX(id_part) FROM part"
             id_part = self.obj.get(sql)[0][0]
             name_file = name_file.replace("'", "''")
-            sql = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
+            sql = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
             self.obj.put(sql)
 
             # get maxium id_project
@@ -179,7 +181,7 @@ class SDETool(Gtk.Window):
                 id_project = 1
 
             # insert new object
-            sql = self.obj.make_sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
+            sql = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
             self.obj.put(sql)
 
             # PROJECT
@@ -212,7 +214,7 @@ class SDETool(Gtk.Window):
     #  add New Supplier
     def add_new_supplier(self, new_supplier):
         # SQL for getting id_supplier from supplier table where name=supplier is new_supplier
-        sql = self.obj.make_sql("SELECT id_supplier FROM supplier WHERE name_supplier = '?'", [new_supplier])
+        sql = self.obj.sql("SELECT id_supplier FROM supplier WHERE name_supplier = '?'", [new_supplier])
         out = self.obj.get(sql)
         for row_supplier in out:
             id_supplier = str(row_supplier[0])
@@ -221,28 +223,28 @@ class SDETool(Gtk.Window):
             self.store.append(None, [new_supplier, None, None, progress, '', id_name])
 
     # -------------------------------------------------------------------------
-    # add Part
+    #  add Part
     def add_part(self, iter_project, id_project):
         # label 'PART' node
         iter_part = self.store.append(iter_project, ['PART', None, None, 0, '', 'lbl_part'])
         # SQL for getting id_part from project table under specific id_project
-        sql = self.obj.make_sql("SELECT id_part FROM project WHERE id_project = ?", [id_project])
+        sql = self.obj.sql("SELECT id_part FROM project WHERE id_project = ?", [id_project])
         out = self.obj.get(sql)
 
         for row_part in out:
             id_part = str(row_part[0])
             id_name = 'id_part = ' + id_part;  # id_name for this node
             # SQL for num_part and description from part table under specific id_part
-            sql2 = self.obj.make_sql("SELECT num_part, description FROM part WHERE ?", [id_name])
+            sql2 = self.obj.sql("SELECT num_part, description FROM part WHERE ?", [id_name])
             out2 = self.obj.get(sql2)
             for part_info in out2:
                 self.store.append(iter_part, [None, part_info[0], part_info[1], 0, '', id_name])
 
     # -------------------------------------------------------------------------
-    # add Project
+    #  add Project
     def add_project(self, iter_none, id_supplier):
         # SQL for getting unique list of id_project from project table under specific id_supplier
-        sql = self.obj.make_sql("SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC", [id_supplier])
+        sql = self.obj.sql("SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC", [id_supplier])
         out = self.obj.get(sql)
         for row_project in out:
             id_project = str(row_project[0])
@@ -255,40 +257,58 @@ class SDETool(Gtk.Window):
             self.add_stage(iter_project, id_project)
 
     # -------------------------------------------------------------------------
-    # add Stage
+    #  add Stage
     def add_stage(self, iter_project, id_project):
         progress = 0
         iter_stage = self.store.append(iter_project, ['STAGE', None, None, progress, '', 'lbl_stage'])
-        sql1 = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
-        out1 = self.obj.get(sql1)
+        sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
+        out = self.obj.get(sql)
+        self.add_stage_sub_1(id_project, iter_stage, out)
+
+    # -------------------------------------------------------------------------
+    #  add Stage sub 1
+    def add_stage_sub_1(self, id_project, iter_stage, out1):
         # EACH STAGE
         for row_stage in out1:
             id_stage = row_stage[0]
             name_stage = row_stage[1]
             id_name = 'id_stage = ' + str(id_stage)
             iter_stage_each = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
-            sql2 = self.obj.make_sql("SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC", [id_project, id_stage])
-            out2 = self.obj.get(sql2)
-            # DATA for EACH STAGE
-            for row_data in out2:
-                id_data = row_data[0]
-                # PLACEFOLDER CHECK
-                sql3 = self.obj.make_sql("SELECT placefolder FROM data WHERE id_data = ?", [id_data])
-                out3 = self.obj.get(sql3)
-                placefolder = out3[0][0]
-                # LATEST REVISION CHECK
-                sql4 = self.obj.make_sql("SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?", [id_data])
-                out4 = self.obj.get(sql4)
-                num_revision = out4[0][0]
-                sql5 = self.obj.make_sql("SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?", [id_data, num_revision])
-                out5 = self.obj.get(sql5)
-                for row_file in out5:
-                    name_file = row_file[0]
-                    self.add_stage_data(id_data, iter_stage_each, name_file, placefolder)
+            sql = self.obj.sql("SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC", [id_project, id_stage])
+            out = self.obj.get(sql)
+            self.add_stage_sub_2(iter_stage_each, out)
 
     # -------------------------------------------------------------------------
-    #  add state data
-    def add_stage_data(self, id_data, iter, name_file, disp_file=''):
+    #  add Stage sub 2
+    def add_stage_sub_2(self, iter_stage_each, out):
+        # DATA for EACH STAGE
+        for row_data in out:
+            id_data = row_data[0]
+            self.add_stage_sub_3(id_data, iter_stage_each)
+
+    # -------------------------------------------------------------------------
+    #  add Stage sub 3
+    def add_stage_sub_3(self, id_data, iter_stage_each):
+        # PLACEFOLDER CHECK
+        sql1 = self.obj.sql("SELECT placefolder FROM data WHERE id_data = ?", [id_data])
+        out1 = self.obj.get(sql1)
+        placefolder = out1[0][0]
+
+        # LATEST REVISION CHECK
+        sql2 = self.obj.sql("SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?", [id_data])
+        out2 = self.obj.get(sql2)
+        num_revision = out2[0][0]
+
+        # GET LATEST FILE LINK
+        sql3 = self.obj.sql("SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?", [id_data, num_revision])
+        out3 = self.obj.get(sql3)
+        for row_file in out3:
+            name_file = row_file[0]
+            self.add_stage_sub_4(id_data, iter_stage_each, name_file, placefolder)
+
+    # -------------------------------------------------------------------------
+    #  add Stage sub 4
+    def add_stage_sub_4(self, id_data, iter, name_file, disp_file=''):
         if len(disp_file) == 0:
             disp_file = pathlib.PurePath(name_file).name
 
@@ -346,7 +366,51 @@ class SDETool(Gtk.Window):
         del dialog
 
     # -------------------------------------------------------------------------
-    #  model create
+    def config_stage_file(self, iter, model, name):
+        #  dialog for editing stage file
+        dialog = utils.DlgConfigStage(self, title=name, model=model, iter=iter, obj=self.obj, basedir=self.basedir)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            store = dialog.get_result()
+            if len(store) > 0:
+                # iteration of dialog
+                store_iter = 0
+
+                iter_parent = model.iter_parent(iter)
+                iter_grand_parent = model.iter_parent(iter_parent)
+                # ip_stage
+                id_stage = self.get_id_with_model(iter, model, "id_stage")
+                # ip_project
+                id_project = self.get_id_with_model(iter_grand_parent, model, "id_project")
+
+                while store_iter < len(store):
+                    if store[store_iter][4] == 'new':
+                        sql = self.obj.sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
+                        self.obj.put(sql)
+                        sql = "SELECT MAX(id_data) FROM data"
+                        out = self.obj.get(sql)
+                        id_data = out[0][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        self.basedir = pathlib.Path(name_file).parent
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+                        self.add_stage_sub_4(id_data, iter, name_file)
+                    elif store[store_iter][4] == 'revise':
+                        id_data = store[store_iter][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+
+                    store_iter += 1
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
+    #  create Tree on the GUI
     def create_tree(self):
         # add Supplier Model
         self.add_supplier()
@@ -355,10 +419,10 @@ class SDETool(Gtk.Window):
     #  display Data
     def display_data(self, id_dataStr):
         # SQL for getting name_file from part table under specific id_part
-        sql1 = self.obj.make_sql("SELECT MAX(num_revision) FROM data_revision WHERE ?", [id_dataStr])
+        sql1 = self.obj.sql("SELECT MAX(num_revision) FROM data_revision WHERE ?", [id_dataStr])
         out1 = self.obj.get(sql1)
         num_revision = out1[0][0]
-        sql2 = self.obj.make_sql("SELECT name_file FROM data_revision WHERE ? AND num_revision = ?", [id_dataStr, num_revision])
+        sql2 = self.obj.sql("SELECT name_file FROM data_revision WHERE ? AND num_revision = ?", [id_dataStr, num_revision])
         out2 = self.obj.get(sql2)
         for info in out2:
             name_file = info[0]
@@ -368,16 +432,16 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     #  display Part
     def display_part(self, id_partStr):
-        sql = self.obj.make_sql("SELECT COUNT(*) FROM part_revision WHERE ?", [id_partStr])
+        sql = self.obj.sql("SELECT COUNT(*) FROM part_revision WHERE ?", [id_partStr])
         out = self.obj.get(sql)
 
         if out[0][0] > 0:
-            sql = self.obj.make_sql("SELECT MAX(num_revision) FROM part_revision WHERE ?", [id_partStr])
+            sql = self.obj.sql("SELECT MAX(num_revision) FROM part_revision WHERE ?", [id_partStr])
             out = self.obj.get(sql)
             revision_latest = str(out[0][0])
 
             # SQL for getting name_file from part table under specific id_part
-            sql = self.obj.make_sql("SELECT name_file FROM part_revision WHERE ? AND num_revision = ?", [id_partStr, revision_latest])
+            sql = self.obj.sql("SELECT name_file FROM part_revision WHERE ? AND num_revision = ?", [id_partStr, revision_latest])
             out = self.obj.get(sql)
 
             # the part drawing is already registered on the db
@@ -392,16 +456,19 @@ class SDETool(Gtk.Window):
                 self.add_new_part(id_partStr)
 
     # -------------------------------------------------------------------------
-    #  make TreeViewColumn for CellRenderText
-    def make_treeviewcolumn_str(self, tree, title, col, visible=True):
-        cell = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn()
-        tree.append_column(column)
-        column.set_title(title)
-        column.pack_start(cell, True)
-        column.add_attribute(cell, 'text', col)
-        column.set_resizable(True)
-        column.set_visible(visible)
+    #  get Id
+    def get_id(self, source, pattern):
+        p = re.compile(pattern)
+        m = p.match(source)
+        id = m.group(1)
+        return int(id)
+
+    # -------------------------------------------------------------------------
+    #  get Id  with Model iter
+    def get_id_with_model(self, iter, model, label):
+        id_string = model[iter][5]
+        pattern = label + ' = (.+)'
+        return self.get_id(id_string, pattern)
 
     # -------------------------------------------------------------------------
     #  make TreeViewColumn for CellRenderProgress
@@ -414,6 +481,50 @@ class SDETool(Gtk.Window):
         column.add_attribute(cell, 'value', col)
         column.set_resizable(False)
 
+    # -------------------------------------------------------------------------
+    #  make TreeViewColumn for CellRenderText
+    def make_treeviewcolumn_str(self, tree, title, col, visible=True):
+        cell = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn()
+        tree.append_column(column)
+        column.set_title(title)
+        column.pack_start(cell, True)
+        column.add_attribute(cell, 'text', col)
+        column.set_resizable(True)
+        column.set_visible(visible)
+
+    # -------------------------------------------------------------------------
+    # openFileWithApp
+    #
+    # argument
+    #   name_file   file to open
+    # -------------------------------------------------------------------------
+    def open_file_with_app(self, name_file):
+        link_file = pathlib.PurePath(name_file)
+        extention = (os.path.splitext(link_file)[1][1:]).upper()
+
+        if extention == 'DOC' or extention == 'DOCX':
+            app_name = self.app_word
+        elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
+            app_name = self.app_excel
+        elif extention == 'PPT' or extention == 'PPTX':
+            app_name = self.app_ppt
+        elif extention == 'PDF':
+            app_name = self.app_pdf
+        else:
+            self.DlgWarnNoAppAssoc(extention)
+            return
+
+        subprocess.Popen([app_name, link_file], shell=False)
+
+    # -------------------------------------------------------------------------
+    def print_rows(self, store, treeiter, indent):
+        while treeiter is not None:
+            if store.iter_has_child(treeiter):
+                childiter = store.iter_children(treeiter)
+                self.print_rows(store, childiter, indent + "\t")
+            treeiter = store.iter_next(treeiter)
+
     # =========================================================================
     #  Statusbar
     # =========================================================================
@@ -421,14 +532,14 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     #  display file name to status bar
     # -------------------------------------------------------------------------
-    def display_text_from_db_to_statusbar(self, sql):
+    def statusbar_from_db(self, sql):
         out = self.obj.get(sql)
         if len(out) > 0:
             for info in out:
                 name_file = str(pathlib.PurePath(str(info[0])))
-                self.status.push(self.context_id, name_file)
+                self.statusbar.push(self.context_id, name_file)
         else:
-            self.status.push(self.context_id, 'No like to file')
+            self.statusbar.push(self.context_id, 'No like to file')
 
     # =========================================================================
     #  Event Handling
@@ -474,20 +585,6 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
-    #  Row Selection on the TreeView
-    # -------------------------------------------------------------------------
-    def on_tree_selection_changed(self, selection):
-        model, treeiter = selection.get_selected()
-        if treeiter is not None:
-            key = model[treeiter][5]
-            if key.startswith('id_part'):
-                sql = self.obj.make_sql("SELECT name_file FROM part_revision WHERE ?", [key])
-                self.display_text_from_db_to_statusbar(sql)
-            if key.startswith('id_data'):
-                sql = self.obj.make_sql("SELECT name_file FROM data_revision WHERE ?", [key])
-                self.display_text_from_db_to_statusbar(sql)
-
-    # -------------------------------------------------------------------------
     #  TreeView row double-clicked
     # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
@@ -518,7 +615,7 @@ class SDETool(Gtk.Window):
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Stage related row
         if key.startswith('id_stage'):
-            sql = self.obj.make_sql("SELECT name_stage from stage WHERE ?", [key])
+            sql = self.obj.sql("SELECT name_stage from stage WHERE ?", [key])
             out = self.obj.get(sql)
             name = out[0][0]
 
@@ -535,93 +632,18 @@ class SDETool(Gtk.Window):
             return
 
     # -------------------------------------------------------------------------
-    def config_stage_file(self, iter, model, name):
-        #  dialog for editing stage file
-        dialog = utils.DlgConfigStage(self, title=name, model=model, iter=iter, obj=self.obj, basedir=self.basedir)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            store = dialog.get_result()
-            if len(store) > 0:
-                # iteration of dialog
-                store_iter = 0
-
-                iter_parent = model.iter_parent(iter)
-                iter_grand_parent = model.iter_parent(iter_parent)
-                # ip_stage
-                id_stage = self.get_id_with_model(iter, model, "id_stage")
-                # ip_project
-                id_project = self.get_id_with_model(iter_grand_parent, model, "id_project")
-
-                while store_iter < len(store):
-                    if store[store_iter][4] == 'new':
-                        sql = self.obj.make_sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
-                        self.obj.put(sql)
-                        sql = "SELECT MAX(id_data) FROM data"
-                        out = self.obj.get(sql)
-                        id_data = out[0][0]
-                        num_revision = store[store_iter][1]
-                        name_file = store[store_iter][3]
-                        name_file = name_file.replace("'", "''")
-                        self.basedir = pathlib.Path(name_file).parent
-                        sql = self.obj.make_sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
-                        self.obj.put(sql)
-                        self.add_stage_data(id_data, iter, name_file)
-                    elif store[store_iter][4] == 'revise':
-                        id_data = store[store_iter][0]
-                        num_revision = store[store_iter][1]
-                        name_file = store[store_iter][3]
-                        name_file = name_file.replace("'", "''")
-                        sql = self.obj.make_sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
-                        self.obj.put(sql)
-
-                    store_iter += 1
-
-        dialog.destroy()
-
+    #  Row Selection on the TreeView
     # -------------------------------------------------------------------------
-    def get_id_with_model(self, iter, model, label):
-        id_string = model[iter][5]
-        pattern = label + ' = (.+)'
-        return self.get_id(id_string, pattern)
-
-    # -------------------------------------------------------------------------
-    def get_id(self, source, pattern):
-        p = re.compile(pattern)
-        m = p.match(source)
-        id = m.group(1)
-        return int(id)
-
-    # -------------------------------------------------------------------------
-    # openFileWithApp
-    #
-    # argument
-    #   name_file   file to open
-    # -------------------------------------------------------------------------
-    def open_file_with_app(self, name_file):
-        link_file = pathlib.PurePath(name_file)
-        extention = (os.path.splitext(link_file)[1][1:]).upper()
-
-        if extention == 'DOC' or extention == 'DOCX':
-            app_name = self.app_word
-        elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
-            app_name = self.app_excel
-        elif extention == 'PPT' or extention == 'PPTX':
-            app_name = self.app_ppt
-        elif extention == 'PDF':
-            app_name = self.app_pdf
-        else:
-            self.DlgWarnNoAppAssoc(extention)
-            return
-
-        subprocess.Popen([app_name, link_file], shell=False)
-
-    # -------------------------------------------------------------------------
-    def print_rows(self, store, treeiter, indent):
-        while treeiter is not None:
-            if store.iter_has_child(treeiter):
-                childiter = store.iter_children(treeiter)
-                self.print_rows(store, childiter, indent + "\t")
-            treeiter = store.iter_next(treeiter)
+    def on_tree_selection_changed(self, selection):
+        model, treeiter = selection.get_selected()
+        if treeiter is not None:
+            key = model[treeiter][5]
+            if key.startswith('id_part'):
+                sql = self.obj.sql("SELECT name_file FROM part_revision WHERE ?", [key])
+                self.statusbar_from_db(sql)
+            if key.startswith('id_data'):
+                sql = self.obj.sql("SELECT name_file FROM data_revision WHERE ?", [key])
+                self.statusbar_from_db(sql)
 
     # =========================================================================
     #  DIALOGs
@@ -635,9 +657,7 @@ class SDETool(Gtk.Window):
     #    selected file path with POSIX format
     # -------------------------------------------------------------------------
     def DlgFileChooserPDF(self):
-        dialog = Gtk.FileChooserDialog(title='select file',
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(utils.Img().get_file('pdf'))
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
@@ -659,11 +679,7 @@ class SDETool(Gtk.Window):
 
     # -------------------------------------------------------------------------
     def DlgWarnNoAppAssoc(self, extStr):
-        dialog = Gtk.MessageDialog(parent=self,
-                                   flags=0,
-                                   message_type=Gtk.MessageType.WARNING,
-                                   buttons=Gtk.ButtonsType.OK,
-                                   text='No application!')
+        dialog = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK, text='No application!')
         dialog.set_icon_from_file(utils.Img().get_file("warning"))
         dialog.format_secondary_text('No application found associated with ' + extStr)
         dialog.run()
@@ -679,11 +695,7 @@ class SDETool(Gtk.Window):
     #      Gtk.ResponseType.NO
     # -------------------------------------------------------------------------
     def DlgWarnNoLinkFile(self):
-        dialog = Gtk.MessageDialog(parent=self,
-                                   flags=0,
-                                   message_type=Gtk.MessageType.WARNING,
-                                   buttons=Gtk.ButtonsType.YES_NO,
-                                   text='Link is empty!')
+        dialog = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.YES_NO, text='Link is empty!')
         dialog.set_icon_from_file(utils.Img().get_file('warning'))
         dialog.format_secondary_text('Do you want to create link?')
 
