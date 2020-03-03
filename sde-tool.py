@@ -24,6 +24,7 @@ class SDETool(Gtk.Window):
 
     # -------------------------------------------------------------------------
     def __init__(self, confFile):
+        Gtk.Window.__init__(self, title="SDE Tool")
         # Config
         config = configparser.ConfigParser()
         config.read(confFile, 'UTF-8')
@@ -44,21 +45,64 @@ class SDETool(Gtk.Window):
         if not os.path.exists(self.dbname):
             self.obj.init()
 
-        # print(self.basedir)
-
-        # ---------------------------------------------------------------------
-        # GUI
-        Gtk.Window.__init__(self, title="SDE Tool")
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            self.provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-        # self.set_icon_from_file(utils.Img().get_file("logo"))
+        # CSS
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.set_icon_from_file(utils.Img().get_file("logo"))
         self.set_margin_start(2)
         self.set_margin_end(2)
         self.set_default_size(800, 600)
 
+        # widget layout management for main part
+        box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
+        self.add(box)
+
+        # frame bar
+        frame = self.main_frame_bar()
+        box.pack_start(frame, expand=False, fill=True, padding=0)
+
+        # main pabel
+        scrwin = self.main_tree_panel()
+        notebook = Gtk.Notebook()
+        notebook.append_page(scrwin, Gtk.Label(label="Main"))
+        box.pack_start(notebook, expand=True, fill=True, padding=0)
+
+        # status bar
+        self.statusbar = Gtk.Statusbar(name='Status')
+        self.context_id = self.statusbar.get_context_id('sde')
+        box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
+
+    # -------------------------------------------------------------------------
+    def main_frame_bar(self):
+        frame = Gtk.Frame()
+        container = Gtk.Box()
+        frame.add(container)
+        # config button
+        but_config = Gtk.Button(name='Button')
+        but_config.add(utils.Img().get_image('config'))
+        but_config.set_tooltip_text('App Config')
+        container.pack_start(but_config, expand=False, fill=True, padding=0)
+        # add button
+        but_add = Gtk.Button(name='Button')
+        but_add.add(utils.Img().get_image('add'))
+        but_add.set_tooltip_text('Add Supplier')
+        but_add.connect('clicked', self.on_click_add_new_supplier)
+        container.pack_start(but_add, expand=False, fill=True, padding=0)
+        # exit button
+        but_exit = Gtk.Button(name='Button')
+        but_exit.add(utils.Img().get_image('exit'))
+        but_exit.set_tooltip_text('Exit this app')
+        but_exit.connect('clicked', self.on_click_app_exit)
+        container.pack_end(but_exit, expand=False, fill=True, padding=0)
+        # info button
+        but_info = Gtk.Button(name='Button')
+        but_info.add(utils.Img().get_image('info'))
+        but_info.set_tooltip_text('About this app')
+        but_info.connect('clicked', self.on_click_app_info)
+        container.pack_end(but_info, expand=False, fill=True, padding=0)
+        return frame
+
+    # -------------------------------------------------------------------------
+    def main_tree_panel(self):
         # ---------------------------------------------------------------------
         # store field
         # 1. str : Name
@@ -82,67 +126,17 @@ class SDETool(Gtk.Window):
         self.make_treeviewcolumn_str(tree, '', 4)
         # 6. str : id for padding right space
         self.make_treeviewcolumn_str(tree, 'id', 5, False)
-
         # scrollbar
         scrwin = Gtk.ScrolledWindow()
         scrwin.add(tree)
         scrwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-
         # event handling for double-click on the row of the tree
         tree.set_activate_on_single_click(False)
         tree.connect('row-activated', self.on_tree_doubleclicked)
-
         # event handling for selection on the row of the tree
         select = tree.get_selection()
         select.connect('changed', self.on_tree_selection_changed)
-
-        # frame
-        frame = Gtk.Frame()
-        container = Gtk.Box()
-        frame.add(container)
-
-        # config button
-        but_config = Gtk.Button(name='Button')
-        but_config.add(utils.Img().get_image('config'))
-        but_config.set_tooltip_text('App Config')
-        container.pack_start(but_config, expand=False, fill=True, padding=0)
-
-        # add button
-        but_add = Gtk.Button(name='Button')
-        but_add.add(utils.Img().get_image('add'))
-        but_add.set_tooltip_text('Add Supplier')
-        but_add.connect('clicked', self.on_click_add_new_supplier)
-        container.pack_start(but_add, expand=False, fill=True, padding=0)
-
-        # exit button
-        but_exit = Gtk.Button(name='Button')
-        but_exit.add(utils.Img().get_image('exit'))
-        but_exit.set_tooltip_text('Exit this app')
-        but_exit.connect('clicked', self.on_click_app_exit)
-        container.pack_end(but_exit, expand=False, fill=True, padding=0)
-
-        # info button
-        but_info = Gtk.Button(name='Button')
-        but_info.add(utils.Img().get_image('info'))
-        but_info.set_tooltip_text('About this app')
-        but_info.connect('clicked', self.on_click_app_info)
-        container.pack_end(but_info, expand=False, fill=True, padding=0)
-
-        # status bar
-        self.statusbar = Gtk.Statusbar(name='Status')
-        self.context_id = self.statusbar.get_context_id('sde')
-
-        # widget layout management
-        box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
-        box.pack_start(frame, expand=False, fill=True, padding=0)
-
-        notebook = Gtk.Notebook()
-        notebook.append_page(scrwin, Gtk.Label(label="Main"))
-        box.pack_start(notebook, expand=True, fill=True, padding=0)
-
-        box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
-
-        self.add(box)
+        return scrwin
 
     # -------------------------------------------------------------------------
     #  add new Part

@@ -940,6 +940,7 @@ class Img(Gtk.Image):
     IMG_FILE = "img/file-128.png"
     IMG_FOLDER = "img/folder-128.png"
     IMG_INFO = "img/info-128.png"
+    IMG_LOGO = "img/logo-128.png"
     IMG_PDF = "img/pdf.png"
     IMG_QUEST = "img/question-128.png"
     IMG_WARNING = "img/warning-128.png"
@@ -970,6 +971,8 @@ class Img(Gtk.Image):
             name_file = self.IMG_FOLDER
         elif image_name == "info":
             name_file = self.IMG_INFO
+        elif image_name == "logo":
+            name_file = self.IMG_LOGO
         elif image_name == "pdf":
             name_file = self.IMG_PDF
         elif image_name == "quest":
