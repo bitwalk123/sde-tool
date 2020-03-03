@@ -144,7 +144,7 @@ class SDETool(Gtk.Window):
         if path is not None:
             id_part = self.get_id(id_partStr, 'id_part = (.+)')
             # SQL for insert new link of file to table part_revision
-            #sql = "INSERT INTO part_revision VALUES(NULL, " + str(id_part) + ", 1, '" + path + "')"
+            # sql = "INSERT INTO part_revision VALUES(NULL, " + str(id_part) + ", 1, '" + path + "')"
             sql = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, path])
             print(sql)
             self.obj.put(sql)
@@ -162,7 +162,7 @@ class SDETool(Gtk.Window):
             dialog.destroy()
 
             # insert new part
-            #sql = "INSERT INTO part VALUES(NULL, '" + num_part + "', '" + description + "', '" + product + "')"
+            # sql = "INSERT INTO part VALUES(NULL, '" + num_part + "', '" + description + "', '" + product + "')"
             sql = self.obj.make_sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, product])
             print(sql)
             self.obj.put(sql)
@@ -171,7 +171,7 @@ class SDETool(Gtk.Window):
             sql = "SELECT MAX(id_part) FROM part"
             id_part = self.obj.get(sql)[0][0]
             name_file = name_file.replace("'", "''")
-            #sql = "INSERT INTO part_revision VALUES(NULL, " + str(id_part) + ", 1, '" + name_file.replace("'", "''") + "')"
+            # sql = "INSERT INTO part_revision VALUES(NULL, " + str(id_part) + ", 1, '" + name_file.replace("'", "''") + "')"
             sql = self.obj.make_sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
             print(sql)
             self.obj.put(sql)
@@ -185,7 +185,7 @@ class SDETool(Gtk.Window):
                 id_project = 1
 
             # insert new object
-            #sql = "INSERT INTO project VALUES(" + str(id_project) + ", " + str(id_supplier) + ", " + str(id_part) + ", '" + name_owner + "')"
+            # sql = "INSERT INTO project VALUES(" + str(id_project) + ", " + str(id_supplier) + ", " + str(id_part) + ", '" + name_owner + "')"
             sql = self.obj.make_sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
             print(sql)
             self.obj.put(sql)
@@ -220,7 +220,7 @@ class SDETool(Gtk.Window):
     #  add New Supplier
     def add_new_supplier(self, new_supplier):
         # SQL for getting id_supplier from supplier table where name=supplier is new_supplier
-        #sql = "SELECT id_supplier FROM supplier WHERE name_supplier = '" + new_supplier + "'"
+        # sql = "SELECT id_supplier FROM supplier WHERE name_supplier = '" + new_supplier + "'"
         sql = self.obj.make_sql("SELECT id_supplier FROM supplier WHERE name_supplier = '?'", [new_supplier])
         print(sql)
         out = self.obj.get(sql)
@@ -236,7 +236,7 @@ class SDETool(Gtk.Window):
         # label 'PART' node
         iter_part = self.store.append(iter_project, ['PART', None, None, 0, '', 'lbl_part'])
         # SQL for getting id_part from project table under specific id_project
-        #sql = "SELECT id_part FROM project WHERE id_project = " + id_project
+        # sql = "SELECT id_part FROM project WHERE id_project = " + id_project
         sql = self.obj.make_sql("SELECT id_part FROM project WHERE id_project = ?", [id_project])
         print(sql)
         out = self.obj.get(sql)
@@ -245,7 +245,7 @@ class SDETool(Gtk.Window):
             id_part = str(row_part[0])
             id_name = 'id_part = ' + id_part;  # id_name for this node
             # SQL for num_part and description from part table under specific id_part
-            #sql2 = "SELECT num_part, description FROM part WHERE " + id_name
+            # sql2 = "SELECT num_part, description FROM part WHERE " + id_name
             sql2 = self.obj.make_sql("SELECT num_part, description FROM part WHERE ?", [id_name])
             print(sql2)
             out2 = self.obj.get(sql2)
@@ -256,7 +256,7 @@ class SDETool(Gtk.Window):
     # add Project
     def add_project(self, iter_none, id_supplier):
         # SQL for getting unique list of id_project from project table under specific id_supplier
-        #sql = "SELECT DISTINCT id_project FROM project WHERE id_supplier = " + id_supplier + " ORDER BY id_project ASC"
+        # sql = "SELECT DISTINCT id_project FROM project WHERE id_supplier = " + id_supplier + " ORDER BY id_project ASC"
         sql = self.obj.make_sql("SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC", [id_supplier])
         print(sql)
         out = self.obj.get(sql)
@@ -283,7 +283,7 @@ class SDETool(Gtk.Window):
             name_stage = row_stage[1]
             id_name = 'id_stage = ' + str(id_stage)
             iter_stage_each = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
-            #sql2 = "SELECT id_data FROM data WHERE id_project = " + id_project + " AND id_stage = " + id_stage + " ORDER BY id_data ASC"
+            # sql2 = "SELECT id_data FROM data WHERE id_project = " + id_project + " AND id_stage = " + id_stage + " ORDER BY id_data ASC"
             sql2 = self.obj.make_sql("SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC", [id_project, id_stage])
             print(sql2)
             out2 = self.obj.get(sql2)
@@ -291,18 +291,18 @@ class SDETool(Gtk.Window):
             for row_data in out2:
                 id_data = row_data[0]
                 # PLACEFOLDER CHECK
-                #sql3 = "SELECT placefolder FROM data WHERE id_data = " + str(id_data)
+                # sql3 = "SELECT placefolder FROM data WHERE id_data = " + str(id_data)
                 sql3 = self.obj.make_sql("SELECT placefolder FROM data WHERE id_data = ?", [id_data])
                 print(sql3)
                 out3 = self.obj.get(sql3)
                 placefolder = out3[0][0]
                 # LATEST REVISION CHECK
-                #sql4 = "SELECT MAX(num_revision) FROM data_revision WHERE id_data = " + str(id_data)
+                # sql4 = "SELECT MAX(num_revision) FROM data_revision WHERE id_data = " + str(id_data)
                 sql4 = self.obj.make_sql("SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?", [id_data])
                 print(sql4)
                 out4 = self.obj.get(sql4)
                 num_revision = out4[0][0]
-                #sql5 = "SELECT name_file FROM data_revision WHERE id_data = " + str(id_data) + " AND num_revision = " + str(num_revision)
+                # sql5 = "SELECT name_file FROM data_revision WHERE id_data = " + str(id_data) + " AND num_revision = " + str(num_revision)
                 sql5 = self.obj.make_sql("SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?", [id_data, num_revision])
                 print(sql5)
                 out5 = self.obj.get(sql5)
@@ -379,12 +379,12 @@ class SDETool(Gtk.Window):
     #  display Data
     def display_data(self, id_dataStr):
         # SQL for getting name_file from part table under specific id_part
-        #sql1 = "SELECT MAX(num_revision) FROM data_revision WHERE " + id_dataStr
+        # sql1 = "SELECT MAX(num_revision) FROM data_revision WHERE " + id_dataStr
         sql1 = self.obj.make_sql("SELECT MAX(num_revision) FROM data_revision WHERE ?", [id_dataStr])
         print(sql1)
         out1 = self.obj.get(sql1)
         num_revision = out1[0][0]
-        #sql2 = "SELECT name_file FROM data_revision WHERE " + id_dataStr + " AND num_revision = " + str(num_revision)
+        # sql2 = "SELECT name_file FROM data_revision WHERE " + id_dataStr + " AND num_revision = " + str(num_revision)
         sql2 = self.obj.make_sql("SELECT name_file FROM data_revision WHERE ? AND num_revision = ?", [id_dataStr, num_revision])
         print(sql2)
         out2 = self.obj.get(sql2)
@@ -396,20 +396,20 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     #  display Part
     def display_part(self, id_partStr):
-        #sql = "SELECT COUNT(*) FROM part_revision WHERE " + id_partStr
+        # sql = "SELECT COUNT(*) FROM part_revision WHERE " + id_partStr
         sql = self.obj.make_sql("SELECT COUNT(*) FROM part_revision WHERE ?", [id_partStr])
         print(sql)
         out = self.obj.get(sql)
 
         if out[0][0] > 0:
-            #sql = "SELECT MAX(num_revision) FROM part_revision WHERE " + id_partStr
+            # sql = "SELECT MAX(num_revision) FROM part_revision WHERE " + id_partStr
             sql = self.obj.make_sql("SELECT MAX(num_revision) FROM part_revision WHERE ?", [id_partStr])
             print(sql)
             out = self.obj.get(sql)
             revision_latest = str(out[0][0])
 
             # SQL for getting name_file from part table under specific id_part
-            #sql = "SELECT name_file FROM part_revision WHERE " + id_partStr + " AND num_revision = " + revision_latest
+            # sql = "SELECT name_file FROM part_revision WHERE " + id_partStr + " AND num_revision = " + revision_latest
             sql = self.obj.make_sql("SELECT name_file FROM part_revision WHERE ? AND num_revision = ?", [id_partStr, revision_latest])
             print(sql)
             out = self.obj.get(sql)
@@ -515,12 +515,12 @@ class SDETool(Gtk.Window):
         if treeiter is not None:
             key = model[treeiter][5]
             if key.startswith('id_part'):
-                #sql = "SELECT name_file FROM part_revision WHERE " + key
+                # sql = "SELECT name_file FROM part_revision WHERE " + key
                 sql = self.obj.make_sql("SELECT name_file FROM part_revision WHERE ?", [key])
                 print(sql)
                 self.display_text_from_db_to_statusbar(sql)
             if key.startswith('id_data'):
-                #sql = "SELECT name_file FROM data_revision WHERE " + key
+                # sql = "SELECT name_file FROM data_revision WHERE " + key
                 sql = self.obj.make_sql("SELECT name_file FROM data_revision WHERE ?", [key])
                 print(sql)
                 self.display_text_from_db_to_statusbar(sql)
@@ -556,7 +556,7 @@ class SDETool(Gtk.Window):
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Stage related row
         if key.startswith('id_stage'):
-            #sql = "SELECT name_stage from stage WHERE " + key
+            # sql = "SELECT name_stage from stage WHERE " + key
             sql = self.obj.make_sql("SELECT name_stage from stage WHERE ?", [key])
             print(sql)
             out = self.obj.get(sql)
@@ -577,7 +577,7 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     def config_stage_file(self, iter, model, name):
         #  dialog for editing stage file
-        dialog = utils.DlgConfigStage(self, title=name, model=model, iter=iter, obj=self.obj, basedir = self.basedir)
+        dialog = utils.DlgConfigStage(self, title=name, model=model, iter=iter, obj=self.obj, basedir=self.basedir)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             store = dialog.get_result()
@@ -594,7 +594,7 @@ class SDETool(Gtk.Window):
 
                 while store_iter < len(store):
                     if store[store_iter][4] == 'new':
-                        #sql = "INSERT INTO data VALUES(NULL, " + str(id_project) + ", " + str(id_stage) + ", '')"
+                        # sql = "INSERT INTO data VALUES(NULL, " + str(id_project) + ", " + str(id_stage) + ", '')"
                         sql = self.obj.make_sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
                         print(sql)
                         self.obj.put(sql)
@@ -605,7 +605,7 @@ class SDETool(Gtk.Window):
                         name_file = store[store_iter][3]
                         name_file = name_file.replace("'", "''")
                         self.basedir = pathlib.Path(name_file).parent
-                        #sql = "INSERT INTO data_revision VALUES(NULL, " + str(id_data) + ", " + str(num_revision) + ", '" + name_file.replace("'", "''") + "')"
+                        # sql = "INSERT INTO data_revision VALUES(NULL, " + str(id_data) + ", " + str(num_revision) + ", '" + name_file.replace("'", "''") + "')"
                         sql = self.obj.make_sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
                         print(sql)
                         self.obj.put(sql)
@@ -615,7 +615,7 @@ class SDETool(Gtk.Window):
                         num_revision = store[store_iter][1]
                         name_file = store[store_iter][3]
                         name_file = name_file.replace("'", "''")
-                        #sql = "INSERT INTO data_revision VALUES(NULL, " + str(id_data) + ", " + str(num_revision) + ", '" + name_file.replace("'", "''") + "')"
+                        # sql = "INSERT INTO data_revision VALUES(NULL, " + str(id_data) + ", " + str(num_revision) + ", '" + name_file.replace("'", "''") + "')"
                         sql = self.obj.make_sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
                         print(sql)
                         self.obj.put(sql)
