@@ -38,6 +38,7 @@ class SDETool(Gtk.Window):
         self.app_excel = config_app['EXCEL']
         self.app_word = config_app['WORD']
         self.app_ppt = config_app['PPT']
+        self.app_filer = config_app['FILER']
 
         self.obj = utils.HandleDB(self)
         if not os.path.exists(self.dbname):
@@ -501,20 +502,24 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     def open_file_with_app(self, name_file):
         link_file = pathlib.PurePath(name_file)
-        extention = (os.path.splitext(link_file)[1][1:]).upper()
-
-        if extention == 'DOC' or extention == 'DOCX':
-            app_name = self.app_word
-        elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
-            app_name = self.app_excel
-        elif extention == 'PPT' or extention == 'PPTX':
-            app_name = self.app_ppt
-        elif extention == 'PDF':
-            app_name = self.app_pdf
+        # check if link is directory or not
+        if os.path.isdir(link_file):
+            app_name = self.app_filer
         else:
-            self.DlgWarnNoAppAssoc(extention)
-            return
+            extention = (os.path.splitext(link_file)[1][1:]).upper()
+            if extention == 'DOC' or extention == 'DOCX':
+                app_name = self.app_word
+            elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
+                app_name = self.app_excel
+            elif extention == 'PPT' or extention == 'PPTX':
+                app_name = self.app_ppt
+            elif extention == 'PDF':
+                app_name = self.app_pdf
+            else:
+                self.DlgWarnNoAppAssoc(extention)
+                return
 
+        # Open File wirh Application
         subprocess.Popen([app_name, link_file], shell=False)
 
     # -------------------------------------------------------------------------
@@ -585,7 +590,7 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
-    #  TreeView row double-clicked
+    #  TreeView row Double-clicked
     # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
