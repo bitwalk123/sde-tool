@@ -43,7 +43,7 @@ class SDETool(Gtk.Window):
         if not os.path.exists(self.dbname):
             self.obj.init()
 
-        print(self.basedir)
+        #print(self.basedir)
 
         # ---------------------------------------------------------------------
         # GUI
