@@ -300,7 +300,7 @@ class DlgAddNewPart2Project(Gtk.Dialog):
 class DlgAddNewProject(Gtk.Dialog):
 
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, parent=parent, title='Add New Project')
+        Gtk.Dialog.__init__(self, parent=parent, title='Supplier')
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.set_icon_from_file(Img().get_file('info'))
@@ -366,7 +366,9 @@ class DlgAddNewProject(Gtk.Dialog):
         grid.attach(but_file, 2, 4, 1, 1)
 
         container = self.get_content_area()
-        container.add(grid)
+        notebook = Gtk.Notebook()
+        container.add(notebook)
+        notebook.append_page(grid, Gtk.Label(label="Add New Project"))
 
         self.show_all()
 

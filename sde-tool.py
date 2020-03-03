@@ -135,8 +135,13 @@ class SDETool(Gtk.Window):
         # widget layout management
         box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
         box.pack_start(frame, expand=False, fill=True, padding=0)
-        box.pack_start(scrwin, expand=True, fill=True, padding=0)
+
+        notebook = Gtk.Notebook()
+        notebook.append_page(scrwin, Gtk.Label(label="Main"))
+        box.pack_start(notebook, expand=True, fill=True, padding=0)
+
         box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
+
         self.add(box)
 
     # -------------------------------------------------------------------------
