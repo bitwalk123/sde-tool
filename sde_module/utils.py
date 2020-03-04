@@ -100,8 +100,8 @@ class DlgAddOrReviseFile(Gtk.Dialog):
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.set_icon_from_file(Img().get_file('file'))
         self.set_default_size(400, 0)
-        self.set_margin_start(2)
-        self.set_margin_end(2)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
         self.set_resizable(True)
 
         grid = Gtk.Grid()
@@ -690,8 +690,8 @@ class DlgConfigStage(Gtk.Dialog):
 
         self.set_icon_from_file(Img().get_file('config'))
         self.set_default_size(800, 400)
-        self.set_margin_start(2)
-        self.set_margin_end(2)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
 
         self.obj = obj
         self.result = ''
