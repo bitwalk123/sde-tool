@@ -72,73 +72,6 @@ class SDETool(Gtk.Window):
         box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
-    def main_frame_bar(self):
-        frame = Gtk.Frame()
-        container = Gtk.Box()
-        frame.add(container)
-        # config button
-        but_config = Gtk.Button(name='Button')
-        but_config.add(utils.Img().get_image('config'))
-        but_config.set_tooltip_text('App Config')
-        container.pack_start(but_config, expand=False, fill=True, padding=0)
-        # add button
-        but_add = Gtk.Button(name='Button')
-        but_add.add(utils.Img().get_image('add'))
-        but_add.set_tooltip_text('Add Supplier')
-        but_add.connect('clicked', self.on_click_add_new_supplier)
-        container.pack_start(but_add, expand=False, fill=True, padding=0)
-        # exit button
-        but_exit = Gtk.Button(name='Button')
-        but_exit.add(utils.Img().get_image('exit'))
-        but_exit.set_tooltip_text('Exit this app')
-        but_exit.connect('clicked', self.on_click_app_exit)
-        container.pack_end(but_exit, expand=False, fill=True, padding=0)
-        # info button
-        but_info = Gtk.Button(name='Button')
-        but_info.add(utils.Img().get_image('info'))
-        but_info.set_tooltip_text('About this app')
-        but_info.connect('clicked', self.on_click_app_info)
-        container.pack_end(but_info, expand=False, fill=True, padding=0)
-        return frame
-
-    # -------------------------------------------------------------------------
-    def main_tree_panel(self):
-        # ---------------------------------------------------------------------
-        # store field
-        # 1. str : Name
-        # 2. str : Value
-        # 3. str : Description
-        # 4. int : status (ProgressBar)
-        # 5. str : dummy for padding right space
-        # 6. str : id (hidden)
-        self.store = Gtk.TreeStore(str, str, str, int, str, str)
-        self.create_tree()
-        tree = Gtk.TreeView(model=self.store)
-        # 1. str : Name
-        self.make_treeviewcolumn_str(tree, 'Name', 0)
-        # 2. str : Value
-        self.make_treeviewcolumn_str(tree, 'Value', 1)
-        # 3. str : Description
-        self.make_treeviewcolumn_str(tree, 'Description', 2)
-        # 4. int : status (ProgressBar)
-        self.make_treeviewcolumn_progress(tree, 'status', 3)
-        # 5. str : dummy for padding right space
-        self.make_treeviewcolumn_str(tree, '', 4)
-        # 6. str : id for padding right space
-        self.make_treeviewcolumn_str(tree, 'id', 5, False)
-        # scrollbar
-        scrwin = Gtk.ScrolledWindow()
-        scrwin.add(tree)
-        scrwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        # event handling for double-click on the row of the tree
-        tree.set_activate_on_single_click(False)
-        tree.connect('row-activated', self.on_tree_doubleclicked)
-        # event handling for selection on the row of the tree
-        select = tree.get_selection()
-        select.connect('changed', self.on_tree_selection_changed)
-        return scrwin
-
-    # -------------------------------------------------------------------------
     #  add new Part
     def add_new_part(self, id_partStr):
         path = self.DlgFileChooserPDF()
@@ -149,66 +82,59 @@ class SDETool(Gtk.Window):
             self.obj.put(sql)
 
     # -------------------------------------------------------------------------
-    #  add new Project
-    def add_new_project(self, id_supplier, iter, tree):
-        dialog = utils.DlgAddNewProject(self)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            name_owner = dialog.get_name_owner()
-            num_part = dialog.get_num_part()
-            description = dialog.get_description()
-            product = dialog.get_product()
-            name_file = dialog.get_file()
-            dialog.destroy()
+    def add_new_project(self, dialog, id_supplier, iter, num_part, tree):
+        name_owner = dialog.get_name_owner()
+        description = dialog.get_description()
+        product = dialog.get_product()
+        name_file = dialog.get_file()
+        dialog.destroy()
 
-            # insert new part
-            sql = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, product])
-            self.obj.put(sql)
+        # insert new part
+        sql = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, product])
+        self.obj.put(sql)
 
-            # get maxium id_part
-            sql = "SELECT MAX(id_part) FROM part"
-            id_part = self.obj.get(sql)[0][0]
-            name_file = name_file.replace("'", "''")
-            sql = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
-            self.obj.put(sql)
+        # get maxium id_part
+        sql = "SELECT MAX(id_part) FROM part"
+        id_part = self.obj.get(sql)[0][0]
+        name_file = name_file.replace("'", "''")
+        sql = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
+        self.obj.put(sql)
 
-            # get maxium id_project
-            sql = "SELECT MAX(id_project) FROM project"
-            num = self.obj.get(sql)[0][0]
-            if num is not None:
-                id_project = int(num) + 1
-            else:
-                id_project = 1
-
-            # insert new object
-            sql = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
-            self.obj.put(sql)
-
-            # PROJECT
-            iter_project = self.store.append(iter, ["Project", str(id_project), None, 0, '', 'id_project = ' + str(id_project)])
-
-            # PART
-            iter_part = self.store.append(iter_project, ["PART", None, None, 0, '', 'lbl_part'])
-            self.store.append(iter_part, [None, num_part, description, 0, '', 'id_part = ' + str(id_part)])
-
-            # STAGE
-            iter_stage = self.store.append(iter_project, ["STAGE", None, None, 0, '', 'lbl_stage'])
-
-            # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
-            sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
-            out = self.obj.get(sql)
-            for row_stage in out:
-                id_stage = str(row_stage[0])
-                name_stage = str(row_stage[1])
-                id_name = 'id_stage = ' + id_stage;  # id_name for this node
-                iter_stage_2 = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
-
-            # expand added rows
-            model = tree.get_model()
-            path = model.get_path(iter_project)
-            tree.expand_to_path(path)
+        # get maxium id_project
+        sql = "SELECT MAX(id_project) FROM project"
+        num = self.obj.get(sql)[0][0]
+        if num is not None:
+            id_project = int(num) + 1
         else:
-            dialog.destroy()
+            id_project = 1
+
+        # insert new object to database
+        sql = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
+        self.obj.put(sql)
+
+        # insert new project to tree
+        # PROJECT
+        iter_project = self.store.append(iter, ["Project", str(id_project), None, 0, '', 'id_project = ' + str(id_project)])
+        # PART
+        iter_part = self.store.append(iter_project, ["PART", None, None, 0, '', 'lbl_part'])
+        self.store.append(iter_part, [None, num_part, description, 0, '', 'id_part = ' + str(id_part)])
+        # STAGE
+        iter_stage = self.store.append(iter_project, ["STAGE", None, None, 0, '', 'lbl_stage'])
+
+        # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
+        sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
+        out = self.obj.get(sql)
+        for row_stage in out:
+            id_stage = str(row_stage[0])
+            name_stage = str(row_stage[1])
+            id_name = 'id_stage = ' + id_stage;  # id_name for this node
+            iter_stage_2 = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
+
+        # ---------------------------------------------------------------------
+        # expand added rows
+        model = tree.get_model()
+        path = model.get_path(iter_project)
+        tree.expand_to_path(path)
 
     # -------------------------------------------------------------------------
     #  add New Supplier
@@ -410,6 +336,20 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
+    #  config Supplier
+    def config_supplier(self, id_supplier, iter, tree):
+        dialog = utils.DlgConfigSupplier(self)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            # check if new part is added ot not
+            num_part = dialog.get_num_part()
+            if len(num_part) > 0:
+                self.add_new_project(dialog, id_supplier, iter, num_part, tree)
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
     #  create Tree on the GUI
     def create_tree(self):
         # add Supplier Model
@@ -469,6 +409,73 @@ class SDETool(Gtk.Window):
         id_string = model[iter][5]
         pattern = label + ' = (.+)'
         return self.get_id(id_string, pattern)
+
+    # -------------------------------------------------------------------------
+    def main_frame_bar(self):
+        frame = Gtk.Frame()
+        container = Gtk.Box()
+        frame.add(container)
+        # config button
+        but_config = Gtk.Button(name='Button')
+        but_config.add(utils.Img().get_image('config'))
+        but_config.set_tooltip_text('App Config')
+        container.pack_start(but_config, expand=False, fill=True, padding=0)
+        # add button
+        but_add = Gtk.Button(name='Button')
+        but_add.add(utils.Img().get_image('add'))
+        but_add.set_tooltip_text('Add Supplier')
+        but_add.connect('clicked', self.on_click_add_new_supplier)
+        container.pack_start(but_add, expand=False, fill=True, padding=0)
+        # exit button
+        but_exit = Gtk.Button(name='Button')
+        but_exit.add(utils.Img().get_image('exit'))
+        but_exit.set_tooltip_text('Exit this app')
+        but_exit.connect('clicked', self.on_click_app_exit)
+        container.pack_end(but_exit, expand=False, fill=True, padding=0)
+        # info button
+        but_info = Gtk.Button(name='Button')
+        but_info.add(utils.Img().get_image('info'))
+        but_info.set_tooltip_text('About this app')
+        but_info.connect('clicked', self.on_click_app_info)
+        container.pack_end(but_info, expand=False, fill=True, padding=0)
+        return frame
+
+    # -------------------------------------------------------------------------
+    def main_tree_panel(self):
+        # ---------------------------------------------------------------------
+        # store field
+        # 1. str : Name
+        # 2. str : Value
+        # 3. str : Description
+        # 4. int : status (ProgressBar)
+        # 5. str : dummy for padding right space
+        # 6. str : id (hidden)
+        self.store = Gtk.TreeStore(str, str, str, int, str, str)
+        self.create_tree()
+        tree = Gtk.TreeView(model=self.store)
+        # 1. str : Name
+        self.make_treeviewcolumn_str(tree, 'Name', 0)
+        # 2. str : Value
+        self.make_treeviewcolumn_str(tree, 'Value', 1)
+        # 3. str : Description
+        self.make_treeviewcolumn_str(tree, 'Description', 2)
+        # 4. int : status (ProgressBar)
+        self.make_treeviewcolumn_progress(tree, 'status', 3)
+        # 5. str : dummy for padding right space
+        self.make_treeviewcolumn_str(tree, '', 4)
+        # 6. str : id for padding right space
+        self.make_treeviewcolumn_str(tree, 'id', 5, False)
+        # scrollbar
+        scrwin = Gtk.ScrolledWindow()
+        scrwin.add(tree)
+        scrwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        # event handling for double-click on the row of the tree
+        tree.set_activate_on_single_click(False)
+        tree.connect('row-activated', self.on_tree_doubleclicked)
+        # event handling for selection on the row of the tree
+        select = tree.get_selection()
+        select.connect('changed', self.on_tree_selection_changed)
+        return scrwin
 
     # -------------------------------------------------------------------------
     #  make TreeViewColumn for CellRenderProgress
@@ -589,7 +596,7 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
-    #  TreeView row Double-clicked
+    #  TreeView row Double clicked
     # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
@@ -603,7 +610,7 @@ class SDETool(Gtk.Window):
         #  check if double-clicked row is Supplier related row
         if key.startswith('id_supplier'):
             id_supplier = self.get_id(key, 'id_supplier = (.+)')
-            self.add_new_project(id_supplier, iter, tree)
+            self.config_supplier(id_supplier, iter, tree)
             return
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Part related row

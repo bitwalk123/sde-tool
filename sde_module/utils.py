@@ -297,21 +297,34 @@ class DlgAddNewPart2Project(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
-class DlgAddNewProject(Gtk.Dialog):
+class DlgConfigSupplier(Gtk.Dialog):
 
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, parent=parent, title='Supplier')
+        Gtk.Dialog.__init__(self, parent=parent, title='Supplier Setting')
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        self.set_icon_from_file(Img().get_file('info'))
+        self.set_icon_from_file(Img().get_file('config'))
         self.set_default_size(400, 0)
         self.set_resizable(True)
-        # -----------------------------------------------------------
+
+        container = self.get_content_area()
+        notebook = Gtk.Notebook()
+        container.add(notebook)
+
+        # New Project
+        grid = self.page_new_project()
+        notebook.append_page(grid, Gtk.Label(label="Add New Project"))
+
+        self.show_all()
+
+    # -------------------------------------------------------------------------
+    # New Project page
+    def page_new_project(self):
         # Label for Project Owner
         lab_name_owner = Gtk.Label(label='Project Owner', name="Label")
         lab_name_owner.set_hexpand(False)
         lab_name_owner.set_halign(Gtk.Align.END)
-        # Entry for PART No.
+        # Entry for Project Owner
         self.name_owner = Gtk.Entry()
         self.name_owner.set_hexpand(True)
 
@@ -365,37 +378,33 @@ class DlgAddNewProject(Gtk.Dialog):
         grid.attach(self.file, 1, 4, 1, 1)
         grid.attach(but_file, 2, 4, 1, 1)
 
-        container = self.get_content_area()
-        notebook = Gtk.Notebook()
-        container.add(notebook)
-        notebook.append_page(grid, Gtk.Label(label="Add New Project"))
+        return grid
 
-        self.show_all()
-
+    # -------------------------------------------------------------------------
     def get_name_owner(self):
         return self.name_owner.get_text()
 
+    # -------------------------------------------------------------------------
     def get_num_part(self):
         return self.num_part.get_text()
 
+    # -------------------------------------------------------------------------
     def get_description(self):
         return self.description.get_text()
 
+    # -------------------------------------------------------------------------
     def get_product(self):
         return self.product.get_text()
 
+    # -------------------------------------------------------------------------
     def get_file(self):
         return self.file.get_text()
 
+    # -------------------------------------------------------------------------
     def get_filename(self):
         dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(Img().get_file('file'))
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL,
-            Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN,
-            Gtk.ResponseType.OK
-        )
+        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         self.addFileFiltersALL(dialog)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -408,6 +417,7 @@ class DlgAddNewProject(Gtk.Dialog):
             dialog.destroy()
             return None
 
+    # -------------------------------------------------------------------------
     def on_click_choose_file(self, widget):
         filename = self.get_filename()
         self.file.set_text(filename)
