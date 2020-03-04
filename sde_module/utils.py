@@ -869,7 +869,7 @@ class HandleDB():
     def init(self):
         init_sql = [
             "CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier TEXT NOT NULL)",
-            "CREATE TABLE address (id_address INTEGER PRIMARY KEY, id_supplier INTEGER, name_site TEXT, name_address TEXT, num_telephone TEXT, num_facsimile TEXT)",
+            "CREATE TABLE address (id_address INTEGER PRIMARY KEY, id_supplier INTEGER, name_site TEXT, name_address TEXT, num_telephone TEXT, num_facsimile TEXT, url TEXT)",
             "CREATE TABLE part (id_part INTEGER PRIMARY KEY, num_part TEXT NOT NULL, description TEXT, name_product TEXT)",
             "CREATE TABLE part_revision (id_revision INTEGER PRIMARY KEY, id_part INTEGER, num_revision INTEGER, name_file TEXT)",
             "CREATE TABLE project (id_project INTEGER, id_supplier INTEGER, id_part INTEGER, name_owner TEXT)",
