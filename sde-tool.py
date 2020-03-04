@@ -48,8 +48,8 @@ class SDETool(Gtk.Window):
         # CSS
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         self.set_icon_from_file(utils.Img().get_file("logo"))
-        self.set_margin_start(2)
-        self.set_margin_end(2)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
         self.set_default_size(800, 600)
 
         # widget layout management for main part
@@ -413,6 +413,7 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     def main_frame_bar(self):
         frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         container = Gtk.Box()
         frame.add(container)
         # config button

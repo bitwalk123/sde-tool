@@ -549,6 +549,7 @@ class DlgConfigPart(Gtk.Dialog):
 
         # frame
         frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         container = Gtk.Box()
         frame.add(container)
 
@@ -728,6 +729,7 @@ class DlgConfigStage(Gtk.Dialog):
 
         # frame
         frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         container = Gtk.Box()
         frame.add(container)
 
