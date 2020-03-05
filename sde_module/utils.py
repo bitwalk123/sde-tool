@@ -62,6 +62,8 @@ SDETOOL_CSS = '''
 
 
 # -----------------------------------------------------------------------------
+#  DlgAddOrRevisePart
+# -----------------------------------------------------------------------------
 class DlgAddOrRevisePart(Gtk.Dialog):
 
     def __init__(self, parent, id_part_selected):
@@ -92,6 +94,8 @@ class DlgAddOrRevisePart(Gtk.Dialog):
             return 'revise'
 
 
+# -----------------------------------------------------------------------------
+#  DlgAddOrReviseFile
 # -----------------------------------------------------------------------------
 class DlgAddOrReviseFile(Gtk.Dialog):
 
@@ -187,6 +191,8 @@ class DlgAddOrReviseFile(Gtk.Dialog):
         dialog.add_filter(filter_any)
 
 
+# -----------------------------------------------------------------------------
+#  DlgAddNewPart2Project
 # -----------------------------------------------------------------------------
 class DlgAddNewPart2Project(Gtk.Dialog):
     def __init__(self, parent):
@@ -297,6 +303,8 @@ class DlgAddNewPart2Project(Gtk.Dialog):
         dialog.add_filter(filter_any)
 
 
+# -----------------------------------------------------------------------------
+#  DlgConfigSupplier
 # -----------------------------------------------------------------------------
 class DlgConfigSupplier(Gtk.Dialog):
 
@@ -434,6 +442,8 @@ class DlgConfigSupplier(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
+#  DlgAddNewSupplier
+# -----------------------------------------------------------------------------
 class DlgAddNewSupplier(Gtk.Dialog):
 
     def __init__(self, parent):
@@ -460,6 +470,8 @@ class DlgAddNewSupplier(Gtk.Dialog):
         return self.name_supplier.get_text()
 
 
+# -----------------------------------------------------------------------------
+#  DlgAppAbout
 # -----------------------------------------------------------------------------
 class DlgAppAbout(Gtk.Dialog):
 
@@ -717,6 +729,8 @@ class DlgConfigPart(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
+#  DlgConfigStage
+# -----------------------------------------------------------------------------
 class DlgConfigStage(Gtk.Dialog):
     id_data_selected = None
 
@@ -866,6 +880,8 @@ class DlgConfigStage(Gtk.Dialog):
             self.store.append([str(self.id_data_selected), str(rev), False, filename, 'revise'])
 
 
+# -----------------------------------------------------------------------------
+#  DlgOK
 # -----------------------------------------------------------------------------
 class DlgOK(Gtk.Dialog):
 
