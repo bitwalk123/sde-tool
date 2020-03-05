@@ -33,6 +33,7 @@ class SDETool(Gtk.Window):
             confFile = 'sde.conf'
         else:
             confFile = 'sde_posix.conf'
+
         # Config
         self.config = configparser.ConfigParser()
         self.config.read(confFile, 'UTF-8')
@@ -90,6 +91,7 @@ class SDETool(Gtk.Window):
             self.obj.put(sql)
 
     # -------------------------------------------------------------------------
+    #  add_new_projec
     def add_new_project(self, dialog, id_supplier, iter, num_part, tree):
         name_owner = dialog.get_name_owner()
         description = dialog.get_description()
@@ -300,6 +302,7 @@ class SDETool(Gtk.Window):
         del dialog
 
     # -------------------------------------------------------------------------
+    #  config_stage_file
     def config_stage_file(self, iter, model, name):
         #  dialog for editing stage file
         dialog = utils.DlgConfigStage(self, title=name, model=model, iter=iter, obj=self.obj, basedir=self.basedir)
@@ -419,6 +422,7 @@ class SDETool(Gtk.Window):
         return self.get_id(id_string, pattern)
 
     # -------------------------------------------------------------------------
+    #  main_frame_bar
     def main_frame_bar(self):
         frame = Gtk.Frame()
         frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
@@ -606,6 +610,7 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
+    #  on_click_config_app
     def on_click_config_app(self, widget):
         dialog = utils.DlgConfigApp(self, self.config)
         response = dialog.run()
@@ -617,7 +622,6 @@ class SDETool(Gtk.Window):
 
     # -------------------------------------------------------------------------
     #  TreeView row Double clicked
-    # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
         iter = model.get_iter(path)
@@ -664,7 +668,6 @@ class SDETool(Gtk.Window):
 
     # -------------------------------------------------------------------------
     #  Row Selection on the TreeView
-    # -------------------------------------------------------------------------
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:
@@ -709,6 +712,7 @@ class SDETool(Gtk.Window):
             return None
 
     # -------------------------------------------------------------------------
+    #  DlgWarnNoAppAssoc
     def DlgWarnNoAppAssoc(self, extStr):
         dialog = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK, text='No application!')
         dialog.set_icon_from_file(utils.Img().get_file("warning"))
