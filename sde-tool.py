@@ -12,7 +12,10 @@ from gi.repository import Gtk, Gdk
 
 from sde_module import utils
 
-
+# -----------------------------------------------------------------------------
+#  SDETool
+#  Supplier Development Engineering Tool
+# -----------------------------------------------------------------------------
 class SDETool(Gtk.Window):
     # Application Version
     app_version = "0.1"
