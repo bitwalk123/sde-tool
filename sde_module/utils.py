@@ -503,6 +503,21 @@ class DlgAppAbout(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
+class DlgConfigApp(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, parent=parent, title='App Config', flags=0)
+        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+
+        self.set_icon_from_file(Img().get_file('config'))
+        self.set_default_size(0, 0)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
+
+        self.show_all()
+
+
+# -----------------------------------------------------------------------------
 class DlgConfigPart(Gtk.Dialog):
     id_part_selected = None
     sql_action = None
@@ -827,21 +842,6 @@ class DlgConfigStage(Gtk.Dialog):
                 store_iter += 1
             rev += 1
             self.store.append([str(self.id_data_selected), str(rev), False, filename, 'revise'])
-
-
-# -----------------------------------------------------------------------------
-class DlgConfigSystem(Gtk.Dialog):
-    def __init__(self, parent, title):
-        Gtk.Dialog.__init__(self, parent=parent, title=title, flags=0)
-        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-
-        self.set_icon_from_file(Img().get_file('config'))
-        self.set_default_size(0, 0)
-        self.set_margin_start(1)
-        self.set_margin_end(1)
-
-        self.show_all()
 
 
 # -----------------------------------------------------------------------------

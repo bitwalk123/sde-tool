@@ -599,7 +599,7 @@ class SDETool(Gtk.Window):
 
     # -------------------------------------------------------------------------
     def on_click_config_system(self, widget):
-        dialog = utils.DlgConfigSystem(self, "Config")
+        dialog = utils.DlgConfigApp(self)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             dialog.destroy()
