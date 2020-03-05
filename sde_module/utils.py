@@ -830,6 +830,21 @@ class DlgConfigStage(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
+class DlgConfigSystem(Gtk.Dialog):
+    def __init__(self, parent, title):
+        Gtk.Dialog.__init__(self, parent=parent, title=title, flags=0)
+        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+
+        self.set_icon_from_file(Img().get_file('config'))
+        self.set_default_size(0, 0)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
+
+        self.show_all()
+
+
+# -----------------------------------------------------------------------------
 class DlgOK(Gtk.Dialog):
 
     def __init__(self, parent, title, text):

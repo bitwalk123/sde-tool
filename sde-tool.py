@@ -420,6 +420,7 @@ class SDETool(Gtk.Window):
         but_config = Gtk.Button(name='Button')
         but_config.add(utils.Img().get_image('config'))
         but_config.set_tooltip_text('App Config')
+        but_config.connect('clicked', self.on_click_config_system)
         container.pack_start(but_config, expand=False, fill=True, padding=0)
         # add button
         but_add = Gtk.Button(name='Button')
@@ -595,6 +596,16 @@ class SDETool(Gtk.Window):
         dialog = utils.DlgAppAbout(self)
         dialog.run()
         dialog.destroy()
+
+    # -------------------------------------------------------------------------
+    def on_click_config_system(self, widget):
+        dialog = utils.DlgConfigSystem(self, "Config")
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            dialog.destroy()
+        elif response == Gtk.ResponseType.CANCEL:
+            dialog.destroy()
+
 
     # -------------------------------------------------------------------------
     #  TreeView row Double clicked
