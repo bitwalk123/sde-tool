@@ -23,8 +23,13 @@ class SDETool(Gtk.Window):
     provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
 
     # -------------------------------------------------------------------------
-    def __init__(self, confFile):
+    def __init__(self):
         Gtk.Window.__init__(self, title="SDE Tool")
+        # read Config File
+        if os.name == 'nt':
+            confFile = 'sde.conf'
+        else:
+            confFile = 'sde_posix.conf'
         # Config
         self.config = configparser.ConfigParser()
         self.config.read(confFile, 'UTF-8')
@@ -766,13 +771,7 @@ class SDETool(Gtk.Window):
 # -----------------------------------------------------------------------------
 # MAIN
 if __name__ == "__main__":
-    # read Config File
-    if os.name == 'nt':
-        CONF_FILEPATH = 'sde.conf'
-    else:
-        CONF_FILEPATH = 'sde_posix.conf'
-
-    win = SDETool(CONF_FILEPATH)
+    win = SDETool()
     win.connect('destroy', Gtk.main_quit)
     win.show_all()
     Gtk.main()
