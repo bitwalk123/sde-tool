@@ -26,15 +26,15 @@ class SDETool(Gtk.Window):
     def __init__(self, confFile):
         Gtk.Window.__init__(self, title="SDE Tool")
         # Config
-        config = configparser.ConfigParser()
-        config.read(confFile, 'UTF-8')
+        self.config = configparser.ConfigParser()
+        self.config.read(confFile, 'UTF-8')
 
         # Config for Database
-        config_db = config['Database']
+        config_db = self.config['Database']
         self.dbname = config_db['DBNAME']
 
         # Config for Application
-        config_app = config['Application']
+        config_app = self.config['Application']
         self.app_pdf = config_app['PDF']
         self.app_excel = config_app['EXCEL']
         self.app_word = config_app['WORD']
@@ -420,7 +420,7 @@ class SDETool(Gtk.Window):
         but_config = Gtk.Button(name='Button')
         but_config.add(utils.Img().get_image('config'))
         but_config.set_tooltip_text('App Config')
-        but_config.connect('clicked', self.on_click_config_system)
+        but_config.connect('clicked', self.on_click_config_app)
         container.pack_start(but_config, expand=False, fill=True, padding=0)
         # add button
         but_add = Gtk.Button(name='Button')
@@ -598,8 +598,8 @@ class SDETool(Gtk.Window):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
-    def on_click_config_system(self, widget):
-        dialog = utils.DlgConfigApp(self)
+    def on_click_config_app(self, widget):
+        dialog = utils.DlgConfigApp(self, self.config)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             dialog.destroy()

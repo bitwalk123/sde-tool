@@ -1,3 +1,4 @@
+import configparser
 import pathlib
 import re
 import sqlite3
@@ -503,20 +504,41 @@ class DlgAppAbout(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
+#  DlgConfigApp
+# -----------------------------------------------------------------------------
 class DlgConfigApp(Gtk.Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent, config):
         Gtk.Dialog.__init__(self, parent=parent, title='App Config', flags=0)
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.config = config
+
+        # Config for Database
+        config_db = self.config['Database']
+        self.dbname = config_db['DBNAME']
+
+        # Config for Application
+        config_app = self.config['Application']
+        self.app_pdf = config_app['PDF']
+        self.app_excel = config_app['EXCEL']
+        self.app_word = config_app['WORD']
+        self.app_ppt = config_app['PPT']
+        self.app_filer = config_app['FILER']
+
+        print(self.dbname)
 
         self.set_icon_from_file(Img().get_file('config'))
         self.set_default_size(0, 0)
         self.set_margin_start(1)
         self.set_margin_end(1)
 
+        box = self.get_content_area()
+
         self.show_all()
 
 
+# -----------------------------------------------------------------------------
+#  DlgConfigPart
 # -----------------------------------------------------------------------------
 class DlgConfigPart(Gtk.Dialog):
     id_part_selected = None
