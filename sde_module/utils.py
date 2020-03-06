@@ -545,7 +545,9 @@ class DlgConfigApp(Gtk.Dialog):
         box = self.get_content_area()
         box.add(grid)
 
+        # database information
         lab_db = Gtk.Label(label='database', name='Label')
+        lab_db.set_justify(Gtk.Justification.RIGHT)
         ent_db = Gtk.Entry()
         ent_db.set_text(self.dbname)
         ent_db.set_hexpand(True)
@@ -553,6 +555,9 @@ class DlgConfigApp(Gtk.Dialog):
         ent_db.set_can_focus(False)
         but_db = Gtk.Button()
         but_db.add(Img().get_image('folder'))
+        # TODO
+        # implement to choose database
+        #but_db.connect('clicked', #####)
 
         grid.attach(lab_db, 0, 0, 1, 1)
         grid.attach(ent_db, 1, 0, 1, 1)
