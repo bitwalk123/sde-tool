@@ -1,7 +1,6 @@
 import configparser
 import os.path
 import pathlib
-import random
 import re
 import subprocess
 
