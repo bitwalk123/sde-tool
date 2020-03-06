@@ -1,4 +1,3 @@
-import configparser
 import pathlib
 import re
 import sqlite3
