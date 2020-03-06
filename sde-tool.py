@@ -15,6 +15,8 @@ from sde_module import utils
 # -----------------------------------------------------------------------------
 #  SDETool
 #  Supplier Development Engineering Tool
+#
+#  COPYRIGHT 2020 Keiichi Takahashi
 # -----------------------------------------------------------------------------
 class SDETool(Gtk.Window):
     # Application Version
