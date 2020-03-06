@@ -536,8 +536,6 @@ class DlgConfigApp(Gtk.Dialog):
         self.app_ppt = config_app['PPT']
         self.app_filer = config_app['FILER']
 
-        print(self.dbname)
-
         self.set_icon_from_file(Img().get_file('config'))
         self.set_default_size(0, 0)
         self.set_margin_start(1)
