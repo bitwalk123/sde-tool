@@ -541,7 +541,22 @@ class DlgConfigApp(Gtk.Dialog):
         self.set_margin_start(1)
         self.set_margin_end(1)
 
+        grid = Gtk.Grid()
         box = self.get_content_area()
+        box.add(grid)
+
+        lab_db = Gtk.Label(label='database', name='Label')
+        ent_db = Gtk.Entry()
+        ent_db.set_text(self.dbname)
+        ent_db.set_hexpand(True)
+        ent_db.set_editable(False)
+        ent_db.set_can_focus(False)
+        but_db = Gtk.Button()
+        but_db.add(Img().get_image('folder'))
+
+        grid.attach(lab_db, 0, 0, 1, 1)
+        grid.attach(ent_db, 1, 0, 1, 1)
+        grid.attach(but_db, 2, 0, 1, 1)
 
         self.show_all()
 
