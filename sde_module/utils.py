@@ -8,7 +8,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from gi.repository.GdkPixbuf import Pixbuf
 
-# CSS
+# CSS for GUI
 SDETOOL_CSS = '''
 #About {
     background-color: white;
