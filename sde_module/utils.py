@@ -537,7 +537,7 @@ class DlgConfigApp(Gtk.Dialog):
         self.app_filer = config_app['FILER']
 
         self.set_icon_from_file(Img().get_file('config'))
-        self.set_default_size(0, 0)
+        self.set_default_size(600, 0)
         self.set_margin_start(1)
         self.set_margin_end(1)
 
@@ -546,8 +546,10 @@ class DlgConfigApp(Gtk.Dialog):
         box.add(grid)
 
         # database information
-        lab_db = Gtk.Label(label='database', name='Label')
+        lab_db = Gtk.Label(label='Database', name='Label')
+        lab_db.set_hexpand(False)
         lab_db.set_justify(Gtk.Justification.RIGHT)
+        lab_db.set_halign(Gtk.Align.END)
         ent_db = Gtk.Entry()
         ent_db.set_text(self.dbname)
         ent_db.set_hexpand(True)
@@ -562,6 +564,34 @@ class DlgConfigApp(Gtk.Dialog):
         grid.attach(lab_db, 0, 0, 1, 1)
         grid.attach(ent_db, 1, 0, 1, 1)
         grid.attach(but_db, 2, 0, 1, 1)
+
+        # application information
+        list_app_info = [
+            ['PDF', self.app_pdf, 1],
+            ['EXCEL', self.app_excel, 2],
+            ['WORD', self.app_word, 3],
+            ['PPT', self.app_ppt, 4],
+            ['FILER', self.app_filer, 5],
+        ]
+        for app_info in list_app_info:
+            lab = Gtk.Label(label=app_info[0], name='Label')
+            lab.set_hexpand(False)
+            lab.set_justify(Gtk.Justification.RIGHT)
+            lab.set_halign(Gtk.Align.END)
+            ent = Gtk.Entry()
+            ent.set_text(app_info[1])
+            ent.set_hexpand(True)
+            ent.set_editable(False)
+            ent.set_can_focus(False)
+            but = Gtk.Button()
+            but.add(Img().get_image('folder'))
+            # TODO
+            # implement to choose database
+            #but_db.connect('clicked', #####)
+
+            grid.attach(lab, 0, app_info[2], 1, 1)
+            grid.attach(ent, 1, app_info[2], 1, 1)
+            grid.attach(but, 2, app_info[2], 1, 1)
 
         self.show_all()
 
