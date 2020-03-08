@@ -541,9 +541,16 @@ class DlgConfigApp(Gtk.Dialog):
         self.set_margin_start(1)
         self.set_margin_end(1)
 
-        grid = Gtk.Grid()
         box = self.get_content_area()
-        box.add(grid)
+
+        notebook = Gtk.Notebook()
+        box.add(notebook)
+
+        # ---------------------------------------------------------------------
+        #  TAB 1
+        # ---------------------------------------------------------------------
+        tab1 = Gtk.Grid()
+        notebook.append_page(tab1, Gtk.Label(label='Database'))
 
         # database information
         lab_db = Gtk.Label(label='Database', name='Label')
@@ -561,17 +568,23 @@ class DlgConfigApp(Gtk.Dialog):
         # implement to choose database
         #but_db.connect('clicked', #####)
 
-        grid.attach(lab_db, 0, 0, 1, 1)
-        grid.attach(ent_db, 1, 0, 1, 1)
-        grid.attach(but_db, 2, 0, 1, 1)
+        tab1.attach(lab_db, 0, 0, 1, 1)
+        tab1.attach(ent_db, 1, 0, 1, 1)
+        tab1.attach(but_db, 2, 0, 1, 1)
+
+        # ---------------------------------------------------------------------
+        #  TAB 2
+        # ---------------------------------------------------------------------
+        tab2 = Gtk.Grid()
+        notebook.append_page(tab2, Gtk.Label(label='Application'))
 
         # application information
         list_app_info = [
-            ['PDF', self.app_pdf, 1],
-            ['EXCEL', self.app_excel, 2],
-            ['WORD', self.app_word, 3],
-            ['PPT', self.app_ppt, 4],
-            ['FILER', self.app_filer, 5],
+            ['PDF', self.app_pdf, 0],
+            ['EXCEL', self.app_excel, 1],
+            ['WORD', self.app_word, 2],
+            ['PPT', self.app_ppt, 3],
+            ['FILER', self.app_filer, 4],
         ]
         for app_info in list_app_info:
             lab = Gtk.Label(label=app_info[0], name='Label')
@@ -589,9 +602,9 @@ class DlgConfigApp(Gtk.Dialog):
             # implement to choose database
             #but_db.connect('clicked', #####)
 
-            grid.attach(lab, 0, app_info[2], 1, 1)
-            grid.attach(ent, 1, app_info[2], 1, 1)
-            grid.attach(but, 2, app_info[2], 1, 1)
+            tab2.attach(lab, 0, app_info[2], 1, 1)
+            tab2.attach(ent, 1, app_info[2], 1, 1)
+            tab2.attach(but, 2, app_info[2], 1, 1)
 
         self.show_all()
 
