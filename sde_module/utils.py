@@ -1,3 +1,4 @@
+import os
 import pathlib
 import re
 import sqlite3
@@ -596,6 +597,11 @@ class DlgConfigApp(Gtk.Dialog):
             ent.set_hexpand(True)
             ent.set_editable(False)
             ent.set_can_focus(False)
+            if os.path.isfile(app_info[1]):
+                icon = Gtk.STOCK_YES
+            else:
+                icon = Gtk.STOCK_NO
+            img = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
             but = Gtk.Button()
             but.add(Img().get_image('folder'))
             # TODO
@@ -604,7 +610,8 @@ class DlgConfigApp(Gtk.Dialog):
 
             tab2.attach(lab, 0, app_info[2], 1, 1)
             tab2.attach(ent, 1, app_info[2], 1, 1)
-            tab2.attach(but, 2, app_info[2], 1, 1)
+            tab2.attach(img, 2, app_info[2], 1, 1)
+            tab2.attach(but, 3, app_info[2], 1, 1)
 
         self.show_all()
 
@@ -1061,6 +1068,8 @@ class HandleDB():
 class Img(Gtk.Image):
     IMG_ADD = "img/add-128.png"
     IMG_CONFIG = "img/config-128.png"
+    IMG_CROSS = "img/cross-128.png"
+    IMG_DONE = "img/done-128.png"
     IMG_EXIT = "img/exit-128.png"
     IMG_FILE = "img/file-128.png"
     IMG_FOLDER = "img/folder-128.png"
@@ -1088,6 +1097,10 @@ class Img(Gtk.Image):
             name_file = self.IMG_ADD
         elif image_name == "config":
             name_file = self.IMG_CONFIG
+        elif image_name == "cross":
+            name_file = self.IMG_CROSS
+        elif image_name == "done":
+            name_file = self.IMG_DONE
         elif image_name == "exit":
             name_file = self.IMG_EXIT
         elif image_name == "file":
