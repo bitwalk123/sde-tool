@@ -522,26 +522,32 @@ class SDETool(Gtk.Window):
     #   name_file   file to open
     # -------------------------------------------------------------------------
     def open_file_with_app(self, name_file):
+        # TODO
+        # more testing is needed!
         link_file = pathlib.PurePath(name_file)
+        subprocess.Popen(['explorer', link_file], shell=False)
+        return
         # check if link is directory or not
-        if os.path.isdir(link_file):
-            app_name = self.app_filer
-        else:
-            extention = (os.path.splitext(link_file)[1][1:]).upper()
-            if extention == 'DOC' or extention == 'DOCX':
-                app_name = self.app_word
-            elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
-                app_name = self.app_excel
-            elif extention == 'PPT' or extention == 'PPTX':
-                app_name = self.app_ppt
-            elif extention == 'PDF':
-                app_name = self.app_pdf
-            else:
-                self.DlgWarnNoAppAssoc(extention)
-                return
+        #if os.path.isdir(link_file):
+        #    app_name = self.app_filer
+        #else:
+        #    subprocess.Popen(['explorer', link_file], shell=False)
+        #    return
+        #    extention = (os.path.splitext(link_file)[1][1:]).upper()
+        #    if extention == 'DOC' or extention == 'DOCX':
+        #        app_name = self.app_word
+        #    elif extention == 'XLS' or extention == 'XLSX' or extention == 'XLSM':
+        #        app_name = self.app_excel
+        #    elif extention == 'PPT' or extention == 'PPTX':
+        #        app_name = self.app_ppt
+        #    elif extention == 'PDF':
+        #        app_name = self.app_pdf
+        #    else:
+        #        self.DlgWarnNoAppAssoc(extention)
+        #        return
 
         # Open File wirh Application
-        subprocess.Popen([app_name, link_file], shell=False)
+        #subprocess.Popen([app_name, link_file], shell=False)
 
     # -------------------------------------------------------------------------
     def print_rows(self, store, treeiter, indent):
