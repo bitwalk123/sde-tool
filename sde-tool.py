@@ -525,7 +525,7 @@ class SDETool(Gtk.Window):
         # TODO
         # more testing is needed!
         link_file = pathlib.PurePath(name_file)
-        subprocess.Popen(['explorer', link_file], shell=False)
+        subprocess.Popen(['explorer', link_file])
         return
         # check if link is directory or not
         #if os.path.isdir(link_file):
