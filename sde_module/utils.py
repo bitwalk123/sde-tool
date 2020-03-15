@@ -531,14 +531,14 @@ class DlgConfigApp(Gtk.Dialog):
 
         # Config for Application
         config_app = self.config['Application']
-        self.app_pdf = config_app['PDF']
-        self.app_excel = config_app['EXCEL']
-        self.app_word = config_app['WORD']
-        self.app_ppt = config_app['PPT']
-        self.app_filer = config_app['FILER']
+        #self.app_pdf = config_app['PDF']
+        #self.app_excel = config_app['EXCEL']
+        #self.app_word = config_app['WORD']
+        #self.app_ppt = config_app['PPT']
+        #self.app_filer = config_app['FILER']
 
         self.set_icon_from_file(Img().get_file('config'))
-        self.set_default_size(600, 0)
+        self.set_default_size(400, 300)
         self.set_margin_start(1)
         self.set_margin_end(1)
 
@@ -576,42 +576,42 @@ class DlgConfigApp(Gtk.Dialog):
         # ---------------------------------------------------------------------
         #  TAB 2
         # ---------------------------------------------------------------------
-        tab2 = Gtk.Grid()
-        notebook.append_page(tab2, Gtk.Label(label='Application'))
+        #tab2 = Gtk.Grid()
+        #notebook.append_page(tab2, Gtk.Label(label='Application'))
 
         # application information
-        list_app_info = [
-            ['PDF', self.app_pdf, 0],
-            ['EXCEL', self.app_excel, 1],
-            ['WORD', self.app_word, 2],
-            ['PPT', self.app_ppt, 3],
-            ['FILER', self.app_filer, 4],
-        ]
-        for app_info in list_app_info:
-            lab = Gtk.Label(label=app_info[0], name='Label')
-            lab.set_hexpand(False)
-            lab.set_justify(Gtk.Justification.RIGHT)
-            lab.set_halign(Gtk.Align.END)
-            ent = Gtk.Entry()
-            ent.set_text(app_info[1])
-            ent.set_hexpand(True)
-            ent.set_editable(False)
-            ent.set_can_focus(False)
-            if os.path.isfile(app_info[1]):
-                icon = Gtk.STOCK_YES
-            else:
-                icon = Gtk.STOCK_NO
-            img = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
-            but = Gtk.Button()
-            but.add(Img().get_image('folder'))
+        #list_app_info = [
+        #    ['PDF', self.app_pdf, 0],
+        #    ['EXCEL', self.app_excel, 1],
+        #    ['WORD', self.app_word, 2],
+        #    ['PPT', self.app_ppt, 3],
+        #    ['FILER', self.app_filer, 4],
+        #]
+        #for app_info in list_app_info:
+        #    lab = Gtk.Label(label=app_info[0], name='Label')
+        #    lab.set_hexpand(False)
+        #    lab.set_justify(Gtk.Justification.RIGHT)
+        #    lab.set_halign(Gtk.Align.END)
+        #    ent = Gtk.Entry()
+        #    ent.set_text(app_info[1])
+        #    ent.set_hexpand(True)
+        #    ent.set_editable(False)
+        #    ent.set_can_focus(False)
+        #    if os.path.isfile(app_info[1]):
+        #        icon = Gtk.STOCK_YES
+        #    else:
+        #        icon = Gtk.STOCK_NO
+        #    img = Gtk.Image.new_from_icon_name(icon, Gtk.IconSize.MENU)
+        #    but = Gtk.Button()
+        #    but.add(Img().get_image('folder'))
             # TODO
             # implement to choose database
             #but_db.connect('clicked', #####)
 
-            tab2.attach(lab, 0, app_info[2], 1, 1)
-            tab2.attach(ent, 1, app_info[2], 1, 1)
-            tab2.attach(img, 2, app_info[2], 1, 1)
-            tab2.attach(but, 3, app_info[2], 1, 1)
+        #    tab2.attach(lab, 0, app_info[2], 1, 1)
+        ##    tab2.attach(ent, 1, app_info[2], 1, 1)
+        #    tab2.attach(img, 2, app_info[2], 1, 1)
+        #    tab2.attach(but, 3, app_info[2], 1, 1)
 
         self.show_all()
 

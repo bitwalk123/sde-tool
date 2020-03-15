@@ -44,12 +44,12 @@ class SDETool(Gtk.Window):
         self.dbname = config_db['DBNAME']
 
         # Config for Application
-        config_app = self.config['Application']
-        self.app_pdf = config_app['PDF']
-        self.app_excel = config_app['EXCEL']
-        self.app_word = config_app['WORD']
-        self.app_ppt = config_app['PPT']
-        self.app_filer = config_app['FILER']
+        #config_app = self.config['Application']
+        #self.app_pdf = config_app['PDF']
+        #self.app_excel = config_app['EXCEL']
+        #self.app_word = config_app['WORD']
+        #self.app_ppt = config_app['PPT']
+        #self.app_filer = config_app['FILER']
 
         self.obj = utils.HandleDB(self)
         if not os.path.exists(self.dbname):
