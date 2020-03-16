@@ -408,6 +408,11 @@ class SDETool(Gtk.Window):
                 self.add_new_part(id_partStr)
 
     # -------------------------------------------------------------------------
+    #  get_vpp_version
+    def get_app_version(self):
+        return self.app_version
+
+    # -------------------------------------------------------------------------
     #  get Id
     def get_id(self, source, pattern):
         p = re.compile(pattern)
@@ -606,7 +611,7 @@ class SDETool(Gtk.Window):
     #  Exit Application
     # -------------------------------------------------------------------------
     def on_click_app_exit(self, widget):
-        Gtk.main_quit()
+        self.emit('destroy')
 
     # -------------------------------------------------------------------------
     #  Application Information
@@ -783,9 +788,17 @@ class SDETool(Gtk.Window):
 
 
 # -----------------------------------------------------------------------------
+# Application Exit
+def app_exit(obj):
+    #print("Exit application!", type(obj), obj.get_app_version())
+    print("Exit application,", type(obj))
+    Gtk.main_quit()
+
+# -----------------------------------------------------------------------------
 # MAIN
 if __name__ == "__main__":
     win = SDETool()
-    win.connect('destroy', Gtk.main_quit)
+    win.connect('destroy', app_exit)
     win.show_all()
     Gtk.main()
+
