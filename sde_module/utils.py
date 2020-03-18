@@ -108,6 +108,7 @@ class DlgAddOrReviseFile(Gtk.Dialog):
         self.set_margin_start(1)
         self.set_margin_end(1)
         self.set_resizable(True)
+        self.set_modal(True)
 
         grid = Gtk.Grid()
 
@@ -202,6 +203,7 @@ class DlgAddNewPart2Project(Gtk.Dialog):
         self.set_icon_from_file(Img().get_file('info'))
         self.set_default_size(400, 0)
         self.set_resizable(True)
+        self.set_modal(True)
 
         # Label for PART No.
         lab_num_part = Gtk.Label(label='PART No.', name="Label")
@@ -630,7 +632,7 @@ class DlgConfigPart(Gtk.Dialog):
     id_partStr = None
 
     def __init__(self, parent, id_supplierStr, id_projectStr, id_part_list, obj):
-        Gtk.Dialog.__init__(self, parent=parent, title='Config File')
+        Gtk.Dialog.__init__(self, parent=parent, title='Config Part')
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.set_icon_from_file(Img().get_file('config'))
@@ -672,7 +674,7 @@ class DlgConfigPart(Gtk.Dialog):
         # add button
         but_add = Gtk.Button(name='Button')
         but_add.add(Img().get_image('add'))
-        but_add.set_tooltip_text('Add / Revice File')
+        but_add.set_tooltip_text('Add / Revise File')
         but_add.connect('clicked', self.on_click_add_revise, id_supplierStr, id_projectStr)
         container.pack_start(but_add, expand=False, fill=True, padding=0)
 
