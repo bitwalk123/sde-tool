@@ -13,7 +13,7 @@ from sde_module import utils
 
 # -----------------------------------------------------------------------------
 #  SDETool
-#  Supplier Development Engineering Tool to manage supplier information
+#  Supplier Development Engineering Tool to organize supplier information
 #
 #  COPYRIGHT 2020 Keiichi Takahashi
 # -----------------------------------------------------------------------------

@@ -489,7 +489,7 @@ class DlgAppAbout(Gtk.Dialog):
         lab3 = Gtk.Label(label='© 2020 Keiichi Takahashi', name='Author')
 
         msg = Gtk.TextBuffer()
-        text = "This SDE Tool is a helper application for supplier development engineering to organize imformation relevant to suppliers."
+        text = "This SDE Tool is a helper application for supplier development engineering to organize supplier information."
         msg.set_text(text)
         desc = Gtk.TextView(name='Desc')
         desc.set_buffer(msg)
