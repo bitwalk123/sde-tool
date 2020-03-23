@@ -1,5 +1,6 @@
 import os
 import pathlib
+import platform
 import re
 import sqlite3
 
@@ -40,6 +41,12 @@ SDETOOL_CSS = '''
 }
 #Label {
     margin-left: 5px;
+    margin-right: 10px;
+}
+#PyVer {
+    font-size: 9pt;
+    font-family: sans-serif;
+    margin-left: 10px;
     margin-right: 10px;
 }
 #Status {
@@ -487,6 +494,7 @@ class DlgAppAbout(Gtk.Dialog):
         lab1 = Gtk.Label(label='SDE Tool', name='Title')
         lab2 = Gtk.Label(label='version ' + parent.app_version, name='Version')
         lab3 = Gtk.Label(label='© 2020 Keiichi Takahashi', name='Author')
+        lab4 = Gtk.Label(label='running on python ' + platform.python_version(), name='PyVer')
 
         msg = Gtk.TextBuffer()
         text = "This SDE Tool is a helper application for supplier development engineering to organize supplier information."
@@ -502,19 +510,20 @@ class DlgAppAbout(Gtk.Dialog):
         box.pack_start(lab1, expand=False, fill=False, padding=0)
         box.pack_start(lab2, expand=False, fill=False, padding=0)
         box.pack_start(lab3, expand=False, fill=False, padding=0)
+        box.pack_start(lab4, expand=False, fill=False, padding=0)
         box.pack_start(desc, expand=False, fill=False, padding=0)
 
         self.show_all()
 
-    def create_corp_logo(self):
+    def create_app_logo(self):
         liststore = Gtk.ListStore(Pixbuf)
         pixbuf = Img().get_pixbuf('logo')
         liststore.append([pixbuf])
-        corp_logo = Gtk.IconView()
-        corp_logo.set_model(liststore)
-        corp_logo.set_pixbuf_column(0)
-        corp_logo.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
-        return corp_logo
+        app_logo = Gtk.IconView()
+        app_logo.set_model(liststore)
+        app_logo.set_pixbuf_column(0)
+        app_logo.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
+        return app_logo
 
 
 # -----------------------------------------------------------------------------

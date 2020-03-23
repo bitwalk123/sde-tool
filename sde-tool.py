@@ -21,7 +21,6 @@ class SDETool(Gtk.Window):
     # Application Version
     app_version = "0.1"
     basedir = pathlib.Path('C:/').resolve()
-
     # CSS
     provider = Gtk.CssProvider()
     provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
