@@ -6,7 +6,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+import os.path
 import pathlib
+import subprocess
 
 from . import pcs
 
@@ -141,3 +143,68 @@ class PanelMain(Gtk.Notebook):
             if key.startswith('id_data'):
                 sql = self.obj.sql("SELECT name_file FROM data_revision WHERE ?", [key])
                 self.statusbar_from_db(sql)
+
+    # =========================================================================
+    #  FUNCTIONS
+    # =========================================================================
+
+    # -------------------------------------------------------------------------
+    #  display_data - display Data
+    #
+    #  argument
+    #    id_dataStr: id_data in string format
+    # -------------------------------------------------------------------------
+    def display_data(self, id_dataStr):
+        # SQL for getting name_file from part table under specific id_part
+        sql1 = self.obj.sql("SELECT MAX(num_revision) FROM data_revision WHERE ?", [id_dataStr])
+        out1 = self.obj.get(sql1)
+        revision_latest = out1[0][0]
+        sql2 = self.obj.sql("SELECT name_file FROM data_revision WHERE ? AND num_revision = ?", [id_dataStr, revision_latest])
+        out2 = self.obj.get(sql2)
+
+        for info in out2:
+            name_file = info[0]
+            if name_file is not None:
+                self.open_file_with_app(name_file)
+
+    # -------------------------------------------------------------------------
+    #  display_part - display Part
+    #
+    #  argument
+    #    id_partStr: id_part in string format
+    # -------------------------------------------------------------------------
+    def display_part(self, id_partStr):
+        sql = self.obj.sql("SELECT COUNT(*) FROM part_revision WHERE ?", [id_partStr])
+        out = self.obj.get(sql)
+
+        if out[0][0] > 0:
+            sql = self.obj.sql("SELECT MAX(num_revision) FROM part_revision WHERE ?", [id_partStr])
+            out = self.obj.get(sql)
+            revision_latest = str(out[0][0])
+
+            # SQL for getting name_file from part table under specific id_part
+            sql = self.obj.sql("SELECT name_file FROM part_revision WHERE ? AND num_revision = ?", [id_partStr, revision_latest])
+            out = self.obj.get(sql)
+
+            # the part drawing is already registered on the db
+            for info in out:
+                name_file = info[0]
+                self.open_file_with_app(name_file)
+        else:
+            # the part drawing is not registered.
+            # show dialog to ask if drawing is to be registered or not.
+            response = self.DlgWarnNoLinkFile()
+            if response == Gtk.ResponseType.YES:
+                self.add_new_part(id_partStr)
+
+    # -------------------------------------------------------------------------
+    # open_file_with_app
+    #
+    # argument
+    #   name_file   file to open
+    # -------------------------------------------------------------------------
+    def open_file_with_app(self, name_file):
+        link_file = pathlib.PurePath(name_file)
+        # Explorer can cover all cases on Windows NT
+        subprocess.Popen(['explorer', link_file])
+
