@@ -60,7 +60,7 @@ class SDETool(Gtk.Window):
         self.set_icon_from_file(utils.Img().get_file("logo"))
         self.set_margin_start(1)
         self.set_margin_end(1)
-        self.set_default_size(800, 600)
+        self.set_default_size(900, 600)
 
         # widget layout management for main part
         box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
