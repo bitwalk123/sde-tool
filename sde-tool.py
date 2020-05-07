@@ -40,7 +40,7 @@ class SDETool(Gtk.Window):
         # Config for Database
         config_db = self.config['Database']
         self.dbname = config_db['DBNAME']
-
+        # get database instance
         self.obj = db.HandleDB(self)
         if not os.path.exists(self.dbname):
             self.obj.init()
@@ -51,13 +51,13 @@ class SDETool(Gtk.Window):
         # CSS
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),
                                                  self.provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
+        # decoration for top level window
         self.set_icon_from_file(rc.Img().get_file("logo"))
         self.set_margin_start(1)
         self.set_margin_end(1)
         self.set_default_size(800, 600)
 
-        # widget layout management for main part
+        # top level widget layout management
         box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
         self.add(box)
 
@@ -65,9 +65,9 @@ class SDETool(Gtk.Window):
         menubar = mbar.menubar_main()
         box.pack_start(menubar, expand=False, fill=True, padding=0)
 
-        # info button clicked
+        # info button clicked event
         (menubar.get_obj('info')).connect('clicked', self.on_click_app_info)
-        # exit button clicked
+        # exit button clicked event
         (menubar.get_obj('exit')).connect('clicked', self.on_click_app_exit)
 
         ### main pabel

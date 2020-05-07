@@ -37,6 +37,8 @@ class store(Gtk.TreeStore):
         # SQL for getting id_supplier and name_supplier from supplier table
         sql = "SELECT id_supplier, name_supplier FROM supplier ORDER BY name_supplier ASC"
         out = self.obj.get(sql)
+
+        # EACH SUPPLIER
         for row_supplier in out:
             id_supplier = str(row_supplier[0])
             name_supplier = str(row_supplier[1])
@@ -54,6 +56,8 @@ class store(Gtk.TreeStore):
         # SQL for getting unique list of id_project from project table under specific id_supplier
         sql = self.obj.sql("SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC", [id_supplier])
         out = self.obj.get(sql)
+
+        # EACH PROJECT
         for row_project in out:
             id_project = str(row_project[0])
             id_name = 'id_project = ' + id_project;  # id_name for this node
@@ -75,7 +79,8 @@ class store(Gtk.TreeStore):
         # SQL for getting id_part from project table under specific id_project
         sql = self.obj.sql("SELECT id_part FROM project WHERE id_project = ?", [id_project])
         out = self.obj.get(sql)
-        # EACH STAGE
+
+        # EACH PART
         for row_part in out:
             id_part = str(row_part[0])
             id_name = 'id_part = ' + id_part;  # id_name for this node
