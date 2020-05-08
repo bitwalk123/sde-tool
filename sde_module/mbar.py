@@ -32,20 +32,6 @@ class MenuBar(Gtk.Frame):
     def get_box(self):
         return self.box
 
-    # -------------------------------------------------------------------------
-    #  get_obj
-    #  get object instance of button
-    #
-    #  argument:
-    #    image - image name of button
-    # -------------------------------------------------------------------------
-    def get_obj(self, image):
-        if image == 'exit':
-            return self.but_exit
-        if image == 'info':
-            return self.but_info
-
-
 # -----------------------------------------------------------------------------
 #  menubar_button --- button class for menubar class
 # -----------------------------------------------------------------------------
@@ -83,3 +69,21 @@ class menuBar_main(MenuBar):
         # info button
         self.but_info = menubar_button(name='Button', image='info', tooltip='About this app')
         box.pack_end(self.but_info, expand=False, fill=True, padding=0)
+
+    # -------------------------------------------------------------------------
+    #  get_obj
+    #  get object instance of button
+    #
+    #  argument:
+    #    image - image name of button
+    # -------------------------------------------------------------------------
+    def get_obj(self, name_image):
+        if name_image == 'config':
+            return self.but_config
+        if name_image == 'add':
+            return self.but_supplier
+        if name_image == 'exit':
+            return self.but_exit
+        if name_image == 'info':
+            return self.but_info
+

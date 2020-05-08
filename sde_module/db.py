@@ -3,7 +3,6 @@
 # -----------------------------------------------------------------------------
 import sqlite3
 
-from . import dlg
 
 # -------------------------------------------------------------------------
 #  HandleDB
@@ -15,6 +14,7 @@ class HandleDB():
 
     # -------------------------------------------------------------------------
     #  initialize database
+    # -------------------------------------------------------------------------
     def init(self):
         init_sql = [
             'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier TEXT NOT NULL)',
@@ -50,24 +50,38 @@ class HandleDB():
         con.commit()
         con.close()
 
-        # dialog
+        # dialog, calling parent method
+        title = 'New database'
         text = "No database is found. Then, new database is created."
-        dialog = dlg.ok(self.parent, "New database", text)
-        dialog.run()
-        dialog.destroy()
+        self.parent.showOKDialog(title, text)
 
+    # -------------------------------------------------------------------------
+    #  add_supplier - add supplier
+    #
+    #
+    #  argument:
+    #    name_supplier : supplier name
+    # -------------------------------------------------------------------------
     def add_supplier(self, name_supplier):
         # check duplicate
+        # TODO: need to use sql function with ?
         sql1 = "SELECT id_supplier FROM supplier WHERE name_supplier = '" + name_supplier + "'"
         out = self.get(sql1)
         if len(out) == 0:
+            # TODO: need to use sql function with ?
             sql2 = "INSERT INTO supplier VALUES(NULL, '" + name_supplier + "')"
             self.put(sql2)
             return 0;  # no duplication
         else:
-            print(name_supplier, "already exists")
             return 1;  # dupplication, error
 
+    # -------------------------------------------------------------------------
+    #  put - execute SQL
+    #
+    #
+    #  argument:
+    #    sql : SQL statement
+    # -------------------------------------------------------------------------
     def put(self, sql):
         con = sqlite3.connect(self.dbname)
         cur = con.cursor()
@@ -75,6 +89,16 @@ class HandleDB():
         con.commit()
         con.close()
 
+    # -------------------------------------------------------------------------
+    #  get - query with SQL
+    #
+    #
+    #  argument:
+    #    sql : SQL statement
+    #
+    #  return
+    #    out : matrix of output
+    # -------------------------------------------------------------------------
     def get(self, sql):
         con = sqlite3.connect(self.dbname)
         cur = con.cursor()
@@ -83,6 +107,17 @@ class HandleDB():
         con.close()
         return out
 
+    # -------------------------------------------------------------------------
+    #  sql - create sql replacing ?s by parameters
+    #
+    #
+    #  argument:
+    #    sentense   : SQL statement with ?s
+    #    parameters : parameters to replace
+    #
+    #  return
+    #    sentense : full SQL replaced with parameters
+    # -------------------------------------------------------------------------
     def sql(self, sentense, parameters):
         for param in parameters:
             sentense = sentense.replace('?', str(param), 1)
