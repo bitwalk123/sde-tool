@@ -6,19 +6,20 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-import os.path
 import pathlib
+import re
 import subprocess
 
-from . import pcs
+from . import dlg, pcs
 
 
 # -----------------------------------------------------------------------------
 #  PanelMain - main GUI of SDE Tool
 # -----------------------------------------------------------------------------
 class PanelMain(Gtk.Notebook):
-    def __init__(self, obj):
+    def __init__(self, parent, obj):
         Gtk.Notebook.__init__(self)
+        self.parent = parent
         self.obj = obj
 
         panel_main = self.create_panel_main()
@@ -149,6 +150,26 @@ class PanelMain(Gtk.Notebook):
     # =========================================================================
 
     # -------------------------------------------------------------------------
+    #  config_supplier - config Supplier
+    #
+    #  argument
+    #    id_supplier :  supplier id
+    #    iter        :  iteration
+    #    tree        :  instance of this tree widget
+    # -------------------------------------------------------------------------
+    def config_supplier(self, id_supplier, iter, tree):
+        dialog = dlg.setting_supplier(self.parent)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            # check if new part is added ot not
+            num_part = dialog.get_num_part()
+            if len(num_part) > 0:
+                self.add_new_project(dialog, id_supplier, iter, num_part, tree)
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
     #  display_data - display Data
     #
     #  argument
@@ -171,7 +192,7 @@ class PanelMain(Gtk.Notebook):
     #  display_part - display Part
     #
     #  argument
-    #    id_partStr: id_part in string format
+    #    id_partStr:  id_part in string format
     # -------------------------------------------------------------------------
     def display_part(self, id_partStr):
         sql = self.obj.sql("SELECT COUNT(*) FROM part_revision WHERE ?", [id_partStr])
@@ -198,13 +219,26 @@ class PanelMain(Gtk.Notebook):
                 self.add_new_part(id_partStr)
 
     # -------------------------------------------------------------------------
-    # open_file_with_app
+    #  get_id - get Id
     #
-    # argument
-    #   name_file   file to open
+    #  argument
+    #    source :  string
+    #    pattern:  regular expression
+    # -------------------------------------------------------------------------
+    def get_id(self, source, pattern):
+        p = re.compile(pattern)
+        m = p.match(source)
+        id = m.group(1)
+
+        return int(id)
+
+    # -------------------------------------------------------------------------
+    #  open_file_with_app
+    #
+    #  argument
+    #    name_file:  file to open
     # -------------------------------------------------------------------------
     def open_file_with_app(self, name_file):
         link_file = pathlib.PurePath(name_file)
         # Explorer can cover all cases on Windows NT
         subprocess.Popen(['explorer', link_file])
-

@@ -62,7 +62,7 @@ class SDETool(Gtk.Window):
         self.add(box)
 
         ### menubar
-        menubar = mbar.menubar_main()
+        menubar = mbar.menuBar_main()
         box.pack_start(menubar, expand=False, fill=True, padding=0)
 
         # info button clicked event
@@ -71,7 +71,7 @@ class SDETool(Gtk.Window):
         (menubar.get_obj('exit')).connect('clicked', self.on_click_app_exit)
 
         ### main pabel
-        mainpanel = panel.PanelMain(self.obj)
+        mainpanel = panel.PanelMain(self, self.obj)
         box.pack_start(mainpanel, expand=True, fill=True, padding=0)
 
         ### status bar

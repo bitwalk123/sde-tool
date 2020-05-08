@@ -10,9 +10,9 @@ from . import rc
 
 
 # =============================================================================
-#  menubar --- menubar class for SDE Tool, base class
+#  MenuBar --- menubar class (template)
 # =============================================================================
-class menubar(Gtk.Frame):
+class MenuBar(Gtk.Frame):
     def __init__(self):
         Gtk.Frame.__init__(self)
         self.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
@@ -20,14 +20,14 @@ class menubar(Gtk.Frame):
         self.add(self.box)
 
     # -------------------------------------------------------------------------
-    #  get_container
+    #  get_box
     #  get container instance for layouting widgets on it
     #
     #  argument:
     #    (none)
     #
     #  return
-    #    container - Gtk.Box() layout instance
+    #    Gtk.Box() layout instance
     # -------------------------------------------------------------------------
     def get_box(self):
         return self.box
@@ -63,9 +63,9 @@ class menubar_button(Gtk.Button):
 # -----------------------------------------------------------------------------
 #  menubar_main --- menubar class for main panel of SDE Tool
 # -----------------------------------------------------------------------------
-class menubar_main(menubar):
+class menuBar_main(MenuBar):
     def __init__(self):
-        menubar.__init__(self)
+        MenuBar.__init__(self)
         box = self.get_box()
 
         # config button
