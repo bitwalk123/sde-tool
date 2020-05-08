@@ -54,7 +54,10 @@ class store(Gtk.TreeStore):
     # -------------------------------------------------------------------------
     def node_2_project(self, iter_none, id_supplier):
         # SQL for getting unique list of id_project from project table under specific id_supplier
-        sql = self.obj.sql("SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC", [id_supplier])
+        sql = self.obj.sql(
+            "SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC",
+            [id_supplier]
+        )
         out = self.obj.get(sql)
 
         # EACH PROJECT
@@ -77,7 +80,10 @@ class store(Gtk.TreeStore):
         iter_part = self.append(iter_project, ['PART', None, None, 0, '', 'lbl_part'])
 
         # SQL for getting id_part from project table under specific id_project
-        sql = self.obj.sql("SELECT id_part FROM project WHERE id_project = ?", [id_project])
+        sql = self.obj.sql(
+            "SELECT id_part FROM project WHERE id_project = ?",
+            [id_project]
+        )
         out = self.obj.get(sql)
 
         # EACH PART
@@ -85,7 +91,10 @@ class store(Gtk.TreeStore):
             id_part = str(row_part[0])
             id_name = 'id_part = ' + id_part;  # id_name for this node
             # SQL for num_part and description from part table under specific id_part
-            sql2 = self.obj.sql("SELECT num_part, description FROM part WHERE ?", [id_name])
+            sql2 = self.obj.sql(
+                "SELECT num_part, description FROM part WHERE ?",
+                [id_name]
+            )
             out2 = self.obj.get(sql2)
             for part_info in out2:
                 self.append(iter_part, [None, part_info[0], part_info[1], 0, '', id_name])
@@ -106,7 +115,10 @@ class store(Gtk.TreeStore):
             name_stage = row_stage[1]
             id_name = 'id_stage = ' + str(id_stage)
             iter_stage_each = self.append(iter_stage, [name_stage, None, None, 0, '', id_name])
-            sql = self.obj.sql("SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC", [id_project, id_stage])
+            sql = self.obj.sql(
+                "SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC",
+                [id_project, id_stage]
+            )
             out = self.obj.get(sql)
             self.node_4_stage_data(iter_stage_each, out)
 
@@ -119,17 +131,26 @@ class store(Gtk.TreeStore):
             id_data = row_data[0]
 
             # PLACEFOLDER CHECK
-            sql1 = self.obj.sql("SELECT placefolder FROM data WHERE id_data = ?", [id_data])
+            sql1 = self.obj.sql(
+                "SELECT placefolder FROM data WHERE id_data = ?",
+                [id_data]
+            )
             out1 = self.obj.get(sql1)
             placefolder = out1[0][0]
 
             # LATEST REVISION CHECK
-            sql2 = self.obj.sql("SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?", [id_data])
+            sql2 = self.obj.sql(
+                "SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?",
+                [id_data]
+            )
             out2 = self.obj.get(sql2)
             num_revision = out2[0][0]
 
             # GET LATEST FILE LINK
-            sql3 = self.obj.sql("SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?", [id_data, num_revision])
+            sql3 = self.obj.sql(
+                "SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?",
+                [id_data, num_revision]
+            )
             out3 = self.obj.get(sql3)
             for row_file in out3:
                 name_file = row_file[0]
