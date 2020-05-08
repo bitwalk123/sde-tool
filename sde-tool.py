@@ -83,6 +83,23 @@ class SDETool(Gtk.Window):
         mainpanel.set_statusbar_info(self.statusbar, self.context_id)
 
     # -------------------------------------------------------------------------
+    #  add_new_supplier - add New Supplier
+    #
+    #  argument:
+    #    new_supplier : name of new supplier
+    # -------------------------------------------------------------------------
+    def add_new_supplier(self, new_supplier):
+        # SQL for getting id_supplier from supplier table where name=supplier is new_supplier
+        sql = self.obj.sql("SELECT id_supplier FROM supplier WHERE name_supplier = '?'", [new_supplier])
+        out = self.obj.get(sql)
+        for row_supplier in out:
+            id_supplier = str(row_supplier[0])
+            id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
+            progress = 0
+            self.store.append(None, [new_supplier, None, None, progress, '', id_name])
+
+
+    # -------------------------------------------------------------------------
     #  show OKDialog
     # -------------------------------------------------------------------------
     def showOKDialog(self, title, text):
@@ -101,7 +118,7 @@ class SDETool(Gtk.Window):
     # -------------------------------------------------------------------------
     def on_click_add_new_supplier(self, widget):
         # Dialog for adding new supplier
-        dialog = dlg.DlgAddNewSupplier(self)
+        dialog = dlg.add_new_supplier(self)
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:

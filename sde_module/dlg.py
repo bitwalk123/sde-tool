@@ -14,13 +14,21 @@ from . import rc
 
 
 # =============================================================================
-#  NBDialog --- dialog with notebook class (template)
+#  CancelOKDialog -- dialog with Cancel & OK buttons class (templete)
 # =============================================================================
-class NBDialog(Gtk.Dialog):
+class CancelOKDialog(Gtk.Dialog):
     def __init__(self, parent, title):
         Gtk.Dialog.__init__(self, parent=parent, title=title)
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.parent = parent
+
+# =============================================================================
+#  NBDialog --- dialog with notebook class (template)
+# =============================================================================
+class NBDialog(CancelOKDialog):
+    def __init__(self, parent, title):
+        CancelOKDialog.__init__(self, parent=parent, title=title)
         self.set_icon_from_file(rc.Img().get_file('config'))
         self.set_default_size(600, 0)
         self.set_resizable(True)
@@ -77,6 +85,35 @@ class GridPane(Gtk.Grid):
         filter_any.add_pattern('*')
         dialog.add_filter(filter_any)
 
+# =============================================================================
+#  implementation
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+#  add_new_supplier
+# -----------------------------------------------------------------------------
+class add_new_supplier(CancelOKDialog):
+
+    def __init__(self, parent):
+        CancelOKDialog.__init__(self, parent=parent, title='Add New Supplier')
+        self.set_icon_from_file(rc.Img().get_file('add'))
+        self.set_default_size(400, 0)
+        self.set_resizable(True)
+
+        lab_supplier = Gtk.Label(label='Supplier', name="Label")
+        self.name_supplier = Gtk.Entry()
+
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox.pack_start(lab_supplier, expand=False, fill=False, padding=0)
+        hbox.pack_start(self.name_supplier, expand=True, fill=True, padding=0)
+
+        container = self.get_content_area()
+        container.add(hbox)
+
+        self.show_all()
+
+    def get_supplier_name(self):
+        return self.name_supplier.get_text()
 
 # -----------------------------------------------------------------------------
 #  app_about
@@ -269,3 +306,5 @@ class setting_supplier_new_proj(GridPane):
         filename = self.get_filename()
         if filename is not None:
             self.file.set_text(filename)
+
+

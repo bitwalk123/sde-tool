@@ -71,11 +71,10 @@ class menuBar_main(MenuBar):
         box.pack_end(self.but_info, expand=False, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
-    #  get_obj
-    #  get object instance of button
+    #  get_obj - get object instance of button
     #
     #  argument:
-    #    image - image name of button
+    #    image : image name of button
     # -------------------------------------------------------------------------
     def get_obj(self, name_image):
         if name_image == 'config':
