@@ -2,12 +2,13 @@
 #  db.py --- database class for SDE Tool
 # -----------------------------------------------------------------------------
 import sqlite3
+from . import utils
 
 
 # -------------------------------------------------------------------------
-#  HandleDB
+#  handle Database
 # -------------------------------------------------------------------------
-class HandleDB():
+class handle_db():
     def __init__(self, parent):
         self.parent = parent
         self.dbname = parent.dbname
@@ -53,7 +54,7 @@ class HandleDB():
         # dialog, calling parent method
         title = 'New database'
         text = "No database is found. Then, new database is created."
-        self.parent.show_ok_dialog(title, text)
+        utils.show_ok_dialog(self.parent, title, text)
 
     # -------------------------------------------------------------------------
     #  add_supplier - add supplier
@@ -120,3 +121,6 @@ class HandleDB():
         for param in parameters:
             sentense = sentense.replace('?', str(param), 1)
         return sentense
+
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

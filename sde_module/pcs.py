@@ -2,11 +2,10 @@
 #  sde.py --- SDE related data
 # -----------------------------------------------------------------------------
 import gi
+import pathlib
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-
-import pathlib
 
 
 # -----------------------------------------------------------------------------
@@ -206,3 +205,6 @@ class store(Gtk.TreeStore):
         column.add_attribute(cell, 'text', col)
         column.set_resizable(True)
         column.set_visible(visible)
+
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

@@ -1,11 +1,10 @@
 import configparser
 import gi
+import os.path
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
-
-import os.path
-from sde_module import dlg, db, mbar, panel, rc
+from sde_module import db, dlg, mbar, panel, utils
 
 
 # -----------------------------------------------------------------------------
@@ -23,8 +22,11 @@ class SDETool(Gtk.Window):
 
     # CSS
     provider = Gtk.CssProvider()
-    provider.load_from_data((rc.SDETOOL_CSS).encode('utf-8'))
+    provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
 
+    # -------------------------------------------------------------------------
+    #  CONSTRUCTOR
+    # -------------------------------------------------------------------------
     def __init__(self):
         Gtk.Window.__init__(self, title="SDE Tool")
 
@@ -35,14 +37,14 @@ class SDETool(Gtk.Window):
         self.config.read(self.confFile, 'UTF-8')
 
         # ---------------------------------------------------------------------
-        #  DATABASE
+        #  DATABASE CONNECTION
         # ---------------------------------------------------------------------
         # Config for Database
         config_db = self.config['Database']
         self.dbname = config_db['DBNAME']
 
         # get database instance
-        self.obj = db.HandleDB(self)
+        self.obj = db.handle_db(self)
         if not os.path.exists(self.dbname):
             # If database does not exist, create new database.
             self.obj.init()
@@ -57,7 +59,7 @@ class SDETool(Gtk.Window):
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
         # decoration for top level window
-        self.set_icon_from_file(rc.img().get_file("logo"))
+        self.set_icon_from_file(utils.img().get_file("logo"))
         self.set_margin_start(1)
         self.set_margin_end(1)
         self.set_default_size(800, 600)
@@ -77,7 +79,8 @@ class SDETool(Gtk.Window):
         ### status bar
         self.statusbar = Gtk.Statusbar(name='Status')
         box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
-        #
+
+        # statusbar registration to mainpanel
         self.context_id = self.statusbar.get_context_id('sde')
         self.mainpanel.set_statusbar_info(self.statusbar, self.context_id)
 
@@ -99,14 +102,6 @@ class SDETool(Gtk.Window):
             'clicked',
             self.on_click_app_exit
         )
-
-    # -------------------------------------------------------------------------
-    #  show OK Dialog
-    # -------------------------------------------------------------------------
-    def show_ok_dialog(self, title, text, image='info'):
-        dialog = dlg.ok(self, title, text, image)
-        dialog.run()
-        dialog.destroy()
 
     # =========================================================================
     #  EVENT HANDLING
@@ -142,3 +137,6 @@ if __name__ == "__main__":
     win.connect('destroy', app_exit)
     win.show_all()
     Gtk.main()
+
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

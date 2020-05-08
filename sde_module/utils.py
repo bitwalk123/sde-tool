@@ -1,10 +1,12 @@
 # -----------------------------------------------------------------------------
-#  rc.py --- resource class for SDE Tool
+#  utils.py --- resource class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
+import pathlib
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk, GdkPixbuf
+from . import dlg
 
 # CSS for GUI
 SDETOOL_CSS = '''
@@ -64,7 +66,6 @@ SDETOOL_CSS = '''
     margin-bottom: 5px;
 }
 '''
-
 
 
 # -----------------------------------------------------------------------------
@@ -128,6 +129,10 @@ class img(Gtk.Image):
         return name_file
 
 
+# =============================================================================
+#  METHODS for GENERAL PURPOSE
+# =============================================================================
+
 # -----------------------------------------------------------------------------
 #  concat - concatenate strings
 # -----------------------------------------------------------------------------
@@ -137,3 +142,45 @@ def concat(*args):
         result = result + str
 
     return result
+
+
+# -------------------------------------------------------------------------
+#  filename_filter_all - filter for ALL
+# -------------------------------------------------------------------------
+def filename_filter_all(dialog):
+    filter_any = Gtk.FileFilter()
+    filter_any.set_name('All File')
+    filter_any.add_pattern('*')
+    dialog.add_filter(filter_any)
+
+
+# -------------------------------------------------------------------------
+#  filename_get
+# -------------------------------------------------------------------------
+def filename_get(parent):
+    dialog = Gtk.FileChooserDialog(title='select file', parent=parent, action=Gtk.FileChooserAction.OPEN)
+    dialog.set_icon_from_file(img().get_file('file'))
+    dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+    filename_filter_all(dialog)
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        p = pathlib.Path(dialog.get_filename())
+        dialog.destroy()
+        # change path separator '\' to '/' to avoid unexpected errors
+        name_file = str(p.as_posix())
+        return name_file
+    elif response == Gtk.ResponseType.CANCEL:
+        dialog.destroy()
+        return None
+
+
+# -------------------------------------------------------------------------
+#  show OK Dialog
+# -------------------------------------------------------------------------
+def show_ok_dialog(parent, title, text, image='info'):
+    dialog = dlg.ok(parent, title, text, image)
+    dialog.run()
+    dialog.destroy()
+
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

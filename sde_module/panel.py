@@ -2,15 +2,14 @@
 #  panel.py --- panel widgets for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
-
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
+import os
 import pathlib
 import re
 import subprocess
 
-from . import dlg, pcs, rc
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from . import dlg, pcs, utils
 
 
 # -----------------------------------------------------------------------------
@@ -105,16 +104,16 @@ class main(Gtk.Notebook):
                     self.supplier_add_new(new_supplier)
                 elif response == 1:
                     title = "Duplication"
-                    text = rc.concat(
+                    text = utils.concat(
                         "Supplier, '",
                         new_supplier,
                         "' already exists on the database."
                     )
-                    self.parent.show_ok_dialog(title, text, 'error')
+                    utils.show_ok_dialog(self.parent, title, text, 'error')
                 else:
                     title = "Error"
                     text = "Unknown error occured!"
-                    self.parent.show_ok_dialog(title, text, 'error')
+                    utils.show_ok_dialog(self.parent, title, text, 'error')
         else:
             dialog.destroy()
 
@@ -139,13 +138,13 @@ class main(Gtk.Notebook):
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Part related row
         if key.startswith('id_part'):
-            self.display_part(key)
+            self.part_display(key)
             return
 
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Data related row
         if key.startswith('id_data'):
-            self.display_data(key)
+            self.data_display(key)
             return
 
         # ---------------------------------------------------------------------
@@ -198,12 +197,12 @@ class main(Gtk.Notebook):
     # =========================================================================
 
     # -------------------------------------------------------------------------
-    #  display_data - display Data
+    #  data_display - display Data
     #
     #  argument
     #    id_dataStr: id_data in string format
     # -------------------------------------------------------------------------
-    def display_data(self, id_dataStr):
+    def data_display(self, id_dataStr):
         # SQL for getting name_file from part table under specific id_part
         sql1 = self.obj.sql(
             "SELECT MAX(num_revision) FROM data_revision WHERE ?",
@@ -224,12 +223,52 @@ class main(Gtk.Notebook):
                 self.open_file_with_app(name_file)
 
     # -------------------------------------------------------------------------
-    #  display_part - display Part
+    #  get_id - get Id
+    #
+    #  argument
+    #    source :  string
+    #    pattern:  regular expression
+    # -------------------------------------------------------------------------
+    def get_id(self, source, pattern):
+        p = re.compile(pattern)
+        m = p.match(source)
+        id = m.group(1)
+
+        return int(id)
+
+    # -------------------------------------------------------------------------
+    #  open_file_with_app
+    #
+    #  argument
+    #    name_file:  file to open
+    # -------------------------------------------------------------------------
+    def open_file_with_app(self, name_file):
+        link_file = pathlib.PurePath(name_file)
+        # Explorer can cover all cases on Windows NT
+        subprocess.Popen(['explorer', link_file])
+
+    # -------------------------------------------------------------------------
+    #  add new Part
+    # -------------------------------------------------------------------------
+    def part_add_new(self, id_partStr):
+        path = utils.filename_get(self.parent)
+        if path is not None:
+            id_part = self.get_id(id_partStr, 'id_part = (.+)')
+            # SQL for insert new link of file to table part_revision
+            sql = self.obj.sql(
+                "INSERT INTO part_revision VALUES(NULL, ?, 1, '?')",
+                [id_part, path]
+            )
+            self.obj.put(sql)
+
+
+    # -------------------------------------------------------------------------
+    #  part_display - display Part
     #
     #  argument
     #    id_partStr:  id_part in string format
     # -------------------------------------------------------------------------
-    def display_part(self, id_partStr):
+    def part_display(self, id_partStr):
         sql1 = self.obj.sql(
             "SELECT COUNT(*) FROM part_revision WHERE ?",
             [id_partStr]
@@ -258,34 +297,107 @@ class main(Gtk.Notebook):
         else:
             # the part drawing is not registered.
             # show dialog to ask if drawing is to be registered or not.
-            response = self.DlgWarnNoLinkFile()
+            response = self.part_display_no_file()
             if response == Gtk.ResponseType.YES:
-                self.add_new_part(id_partStr)
+                self.part_add_new(id_partStr)
 
     # -------------------------------------------------------------------------
-    #  get_id - get Id
+    #  part_display_no_file
+    #  Warning dialog when no link file found in database
     #
-    #  argument
-    #    source :  string
-    #    pattern:  regular expression
+    #  return
+    #    enum:
+    #      Gtk.ResponseType.YES
+    #      Gtk.ResponseType.NO
     # -------------------------------------------------------------------------
-    def get_id(self, source, pattern):
-        p = re.compile(pattern)
-        m = p.match(source)
-        id = m.group(1)
+    def part_display_no_file(self):
+        dialog = Gtk.MessageDialog(
+            parent=self.parent,
+            flags=0,
+            message_type=Gtk.MessageType.WARNING,
+            buttons=Gtk.ButtonsType.YES_NO,
+            text='Filename is empty!'
+        )
+        dialog.set_icon_from_file(utils.img().get_file('warning'))
+        dialog.format_secondary_text('Do you want to create link?')
 
-        return int(id)
+        response = dialog.run()
+        dialog.destroy()
+        return response
+
 
     # -------------------------------------------------------------------------
-    #  open_file_with_app
-    #
-    #  argument
-    #    name_file:  file to open
+    #  project_add_new
     # -------------------------------------------------------------------------
-    def open_file_with_app(self, name_file):
-        link_file = pathlib.PurePath(name_file)
-        # Explorer can cover all cases on Windows NT
-        subprocess.Popen(['explorer', link_file])
+    def project_add_new(self, dialog, id_supplier, iter, num_part, tree):
+        name_owner = dialog.get_name_owner()
+        description = dialog.get_description()
+        product = dialog.get_product()
+        name_file = dialog.get_file()
+        dialog.destroy()
+
+        # insert new part
+        sql = self.obj.sql(
+            "INSERT INTO part VALUES(NULL, '?', '?', '?')",
+            [num_part, description, product]
+        )
+        self.obj.put(sql)
+
+        # get maxium id_part, since newest part has largest id_part
+        sql = "SELECT MAX(id_part) FROM part"
+        id_part = self.obj.get(sql)[0][0]
+
+        # add file link to part_revision table
+        if (len(name_file) > 0) and os.path.exists(name_file):
+            name_file = name_file.replace("'", "''")
+            sql = self.obj.sql(
+                "INSERT INTO part_revision VALUES(NULL, ?, 1, '?')",
+                [id_part, name_file]
+            )
+            self.obj.put(sql)
+
+        # get maxium id_project
+        # note: id_project is not PRIMARY KEY
+        sql = "SELECT MAX(id_project) FROM project"
+        num = self.obj.get(sql)[0][0]
+        if num is not None:
+            id_project = int(num) + 1
+        else:
+            id_project = 1
+
+        # insert new object to database
+        sql = self.obj.sql(
+            "INSERT INTO project VALUES(?, ?, ?, '?')",
+            [id_project, id_supplier, id_part, name_owner]
+        )
+        self.obj.put(sql)
+
+        # insert new project to tree
+        # PROJECT
+        iter_project = self.store.append(
+            iter,
+            ["Project", str(id_project), None, 0, '', 'id_project = ' + str(id_project)]
+        )
+        # PART
+        iter_part = self.store.append(iter_project, ["PART", None, None, 0, '', 'lbl_part'])
+        self.store.append(iter_part, [None, num_part, description, 0, '', 'id_part = ' + str(id_part)])
+        # STAGE
+        iter_stage = self.store.append(iter_project, ["STAGE", None, None, 0, '', 'lbl_stage'])
+
+        # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
+        sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
+        out = self.obj.get(sql)
+        for row_stage in out:
+            id_stage = str(row_stage[0])
+            name_stage = str(row_stage[1])
+            id_name = 'id_stage = ' + id_stage;  # id_name for this node
+            iter_stage_2 = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
+
+        # ---------------------------------------------------------------------
+        # expand added rows
+        model = tree.get_model()
+        path = model.get_path(iter_project)
+        tree.expand_to_path(path)
 
     # -------------------------------------------------------------------------
     #  supplier_add_new - add New Supplier
@@ -315,13 +427,16 @@ class main(Gtk.Notebook):
     #    tree        :  instance of this tree widget
     # -------------------------------------------------------------------------
     def supplier_setting(self, id_supplier, iter, tree):
-        dialog = dlg.setting_supplier(self.parent)
+        dialog = dlg.supplier_setting(self.parent)
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
             # check if new part is added ot not
             num_part = dialog.get_num_part()
             if len(num_part) > 0:
-                self.add_new_project(dialog, id_supplier, iter, num_part, tree)
+                self.project_add_new(dialog, id_supplier, iter, num_part, tree)
 
         dialog.destroy()
+
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

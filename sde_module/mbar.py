@@ -5,8 +5,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-
-from . import rc
+from . import utils
 
 
 # =============================================================================
@@ -32,13 +31,14 @@ class MenuBar(Gtk.Frame):
     def get_box(self):
         return self.box
 
+
 # -----------------------------------------------------------------------------
 #  menubar_button --- button class for menubar class
 # -----------------------------------------------------------------------------
 class menubar_button(Gtk.Button):
     def __init__(self, name, image, tooltip):
         Gtk.Button.__init__(self, name=name)
-        self.add(rc.img().get_image(image))
+        self.add(utils.img().get_image(image))
         self.set_tooltip_text(tooltip)
 
 
@@ -86,3 +86,5 @@ class main(MenuBar):
         if name_image == 'info':
             return self.but_info
 
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM

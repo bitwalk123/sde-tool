@@ -2,15 +2,13 @@
 #  dlg.py --- dialog class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
+import pathlib
+import platform
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 from gi.repository.GdkPixbuf import Pixbuf
-
-import pathlib
-import platform
-
-from . import rc
+from . import utils
 
 
 # =============================================================================
@@ -23,13 +21,14 @@ class CancelOKDialog(Gtk.Dialog):
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.parent = parent
 
+
 # =============================================================================
 #  NBDialog --- dialog with notebook class (template)
 # =============================================================================
 class NBDialog(CancelOKDialog):
     def __init__(self, parent, title):
         CancelOKDialog.__init__(self, parent=parent, title=title)
-        self.set_icon_from_file(rc.img().get_file('config'))
+        self.set_icon_from_file(utils.img().get_file('config'))
         self.set_default_size(600, 0)
         self.set_resizable(True)
 
@@ -61,29 +60,8 @@ class GridPane(Gtk.Grid):
 
     # -------------------------------------------------------------------------
     def get_filename(self):
-        dialog = Gtk.FileChooserDialog(title='select file', parent=self.parent, action=Gtk.FileChooserAction.OPEN)
-        dialog.set_icon_from_file(rc.img().get_file('file'))
-        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-        self.addFileFiltersALL(dialog)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            p = pathlib.Path(dialog.get_filename())
-            dialog.destroy()
-            # change path separator '\' to '/' to avoid unexpected errors
-            name_file = str(p.as_posix())
-            return name_file
-        elif response == Gtk.ResponseType.CANCEL:
-            dialog.destroy()
-            return None
+        return utils.filename_get(self.parent)
 
-    # -------------------------------------------------------------------------
-    # addFileFiltersALL - filter for ALL
-    # -------------------------------------------------------------------------
-    def addFileFiltersALL(self, dialog):
-        filter_any = Gtk.FileFilter()
-        filter_any.set_name('All File')
-        filter_any.add_pattern('*')
-        dialog.add_filter(filter_any)
 
 # =============================================================================
 #  implementation
@@ -96,7 +74,7 @@ class add_new_supplier(CancelOKDialog):
 
     def __init__(self, parent):
         CancelOKDialog.__init__(self, parent=parent, title='Add New Supplier')
-        self.set_icon_from_file(rc.img().get_file('add'))
+        self.set_icon_from_file(utils.img().get_file('add'))
         self.set_default_size(400, 0)
         self.set_resizable(True)
 
@@ -115,6 +93,7 @@ class add_new_supplier(CancelOKDialog):
     def get_supplier_name(self):
         return self.name_supplier.get_text()
 
+
 # -----------------------------------------------------------------------------
 #  app_about
 # -----------------------------------------------------------------------------
@@ -123,7 +102,7 @@ class app_about(Gtk.Dialog):
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, parent=parent, title='About This App')
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        self.set_icon_from_file(rc.img().get_file('info'))
+        self.set_icon_from_file(utils.img().get_file('info'))
         self.set_default_size(400, 0)
         self.set_resizable(False)
 
@@ -153,7 +132,7 @@ class app_about(Gtk.Dialog):
 
     def create_app_logo(self):
         liststore = Gtk.ListStore(Pixbuf)
-        pixbuf = rc.img().get_pixbuf('logo')
+        pixbuf = utils.img().get_pixbuf('logo')
         liststore.append([pixbuf])
         app_logo = Gtk.IconView()
         app_logo.set_model(liststore)
@@ -170,7 +149,7 @@ class ok(Gtk.Dialog):
     def __init__(self, parent, title, text, image):
         Gtk.Dialog.__init__(self, parent=parent, title=title)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        self.set_icon_from_file(rc.img().get_file(image))
+        self.set_icon_from_file(utils.img().get_file(image))
         self.set_default_size(200, 0)
         self.set_resizable(False)
 
@@ -194,45 +173,45 @@ class ok(Gtk.Dialog):
 
 
 # -----------------------------------------------------------------------------
-#  setting_supplier
+#  supplier_setting
 # -----------------------------------------------------------------------------
-class setting_supplier(NBDialog):
+class supplier_setting(NBDialog):
 
     def __init__(self, parent):
         NBDialog.__init__(self, parent=parent, title='Supplier Setting')
         notebook = self.get_notebook()
 
         # New Project
-        self.pane_new_proj = setting_supplier_new_proj(parent)
+        self.pane_new_proj = supplier_setting_new_proj(parent)
         notebook.append_page(self.pane_new_proj, Gtk.Label(label="Add New Project"))
 
         self.show_all()
 
     # -------------------------------------------------------------------------
     def get_name_owner(self):
-        return self.pane_new_proj.name_owner.get_text()
+        return self.pane_new_proj.name_owner.get_text().strip()
 
     # -------------------------------------------------------------------------
     def get_num_part(self):
-        return self.pane_new_proj.num_part.get_text()
+        return self.pane_new_proj.num_part.get_text().strip()
 
     # -------------------------------------------------------------------------
     def get_description(self):
-        return self.pane_new_proj.description.get_text()
+        return self.pane_new_proj.description.get_text().strip()
 
     # -------------------------------------------------------------------------
     def get_product(self):
-        return self.pane_new_proj.product.get_text()
+        return self.pane_new_proj.product.get_text().strip()
 
     # -------------------------------------------------------------------------
     def get_file(self):
-        return self.pane_new_proj.file.get_text()
+        return self.pane_new_proj.file.get_text().strip()
 
 
 # -----------------------------------------------------------------------------
-#  setting_supplier_new_proj
+#  supplier_setting_new_proj
 # -----------------------------------------------------------------------------
-class setting_supplier_new_proj(GridPane):
+class supplier_setting_new_proj(GridPane):
     def __init__(self, parent):
         GridPane.__init__(self, parent=parent)
 
@@ -278,7 +257,7 @@ class setting_supplier_new_proj(GridPane):
         self.product.set_hexpand(True)
         # Button for File
         but_file = Gtk.Button()
-        but_file.add(rc.img().get_image('folder', 16))
+        but_file.add(utils.img().get_image('folder', 16))
         but_file.connect('clicked', self.on_click_choose_file)
         but_file.set_hexpand(False)
         # ---------------------------------------------------------------------
@@ -307,4 +286,5 @@ class setting_supplier_new_proj(GridPane):
         if filename is not None:
             self.file.set_text(filename)
 
-
+# -----------------------------------------------------------------------------
+#  END OF PROGRAM
