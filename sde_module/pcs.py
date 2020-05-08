@@ -43,10 +43,15 @@ class store(Gtk.TreeStore):
             name_supplier = str(row_supplier[1])
             id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
             progress = 0
-            iter_none = self.append(None, [name_supplier, None, None, progress, '', id_name])
-
+            # _/_/_/_/_/_/_/_/_/
+            #  ADD NODE (ROW)
+            iter_none = self.append(
+                None,
+                [name_supplier, None, None, progress, '', id_name]
+            )
             # add Project Node
             self.node_2_project(iter_none, id_supplier)
+
 
     # -------------------------------------------------------------------------
     #  node_2_project
@@ -64,8 +69,12 @@ class store(Gtk.TreeStore):
             id_project = str(row_project[0])
             id_name = 'id_project = ' + id_project;  # id_name for this node
             progress = 0
-            iter_project = self.append(iter_none, ['Project', id_project, None, progress, '', id_name])
-
+            # _/_/_/_/_/_/_/_/_/
+            #  ADD NODE (ROW)
+            iter_project = self.append(
+                iter_none,
+                ['Project', id_project, None, progress, '', id_name]
+            )
             # add Part Node
             self.node_3_part(iter_project, id_project)
             # add Stage Node
@@ -76,8 +85,12 @@ class store(Gtk.TreeStore):
     # -------------------------------------------------------------------------
     def node_3_part(self, iter_project, id_project):
         # label 'PART' node
-        iter_part = self.append(iter_project, ['PART', None, None, 0, '', 'lbl_part'])
-
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        iter_part = self.append(
+            iter_project,
+            ['PART', None, None, 0, '', 'lbl_part']
+        )
         # SQL for getting id_part from project table under specific id_project
         sql = self.obj.sql(
             "SELECT id_part FROM project WHERE id_project = ?",
@@ -96,7 +109,12 @@ class store(Gtk.TreeStore):
             )
             out2 = self.obj.get(sql2)
             for part_info in out2:
-                self.append(iter_part, [None, part_info[0], part_info[1], 0, '', id_name])
+                # _/_/_/_/_/_/_/_/_/
+                #  ADD NODE (ROW)
+                self.append(
+                    iter_part,
+                    [None, part_info[0], part_info[1], 0, '', id_name]
+                )
 
     # -------------------------------------------------------------------------
     #  node_3_stage
@@ -104,8 +122,12 @@ class store(Gtk.TreeStore):
     def node_3_stage(self, iter_project, id_project):
         progress = 0
         # label 'STAGE' node
-        iter_stage = self.append(iter_project, ['STAGE', None, None, progress, '', 'lbl_stage'])
-
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        iter_stage = self.append(
+            iter_project,
+            ['STAGE', None, None, progress, '', 'lbl_stage']
+        )
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
         out = self.obj.get(sql)
         # EACH STAGE
@@ -113,7 +135,12 @@ class store(Gtk.TreeStore):
             id_stage = row_stage[0]
             name_stage = row_stage[1]
             id_name = 'id_stage = ' + str(id_stage)
-            iter_stage_each = self.append(iter_stage, [name_stage, None, None, 0, '', id_name])
+            # _/_/_/_/_/_/_/_/_/
+            #  ADD NODE (ROW)
+            iter_stage_each = self.append(
+                iter_stage,
+                [name_stage, None, None, 0, '', id_name]
+            )
             sql = self.obj.sql(
                 "SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC",
                 [id_project, id_stage]
@@ -158,7 +185,12 @@ class store(Gtk.TreeStore):
 
                 label_id = 'id_data = ' + str(id_data)
                 progress = 0
-                self.append(iter, [None, placefolder, None, progress, '', label_id])
+                # _/_/_/_/_/_/_/_/_/
+                #  ADD NODE (ROW)
+                self.append(
+                    iter,
+                    [None, placefolder, None, progress, '', label_id]
+                )
 
     # =========================================================================
     #  HEADER CREATION ON THE TREE WIDGET

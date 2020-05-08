@@ -4,7 +4,6 @@
 import gi
 import os
 import pathlib
-import re
 import subprocess
 
 gi.require_version('Gtk', '3.0')
@@ -131,7 +130,7 @@ class main(Gtk.Notebook):
         # ---------------------------------------------------------------------
         #  check if double-clicked row is Supplier related row
         if key.startswith('id_supplier'):
-            id_supplier = self.get_id(key, 'id_supplier = (.+)')
+            id_supplier = utils.get_id(key, 'id_supplier = (.+)')
             self.supplier_setting(id_supplier, iter, tree)
             return
 
@@ -193,7 +192,7 @@ class main(Gtk.Notebook):
                 self.statusbar_from_db(sql)
 
     # =========================================================================
-    #  FUNCTIONS
+    #  GENERAL METHODS
     # =========================================================================
 
     # -------------------------------------------------------------------------
@@ -223,20 +222,6 @@ class main(Gtk.Notebook):
                 self.open_file_with_app(name_file)
 
     # -------------------------------------------------------------------------
-    #  get_id - get Id
-    #
-    #  argument
-    #    source :  string
-    #    pattern:  regular expression
-    # -------------------------------------------------------------------------
-    def get_id(self, source, pattern):
-        p = re.compile(pattern)
-        m = p.match(source)
-        id = m.group(1)
-
-        return int(id)
-
-    # -------------------------------------------------------------------------
     #  open_file_with_app
     #
     #  argument
@@ -253,7 +238,7 @@ class main(Gtk.Notebook):
     def part_add_new(self, id_partStr):
         path = utils.filename_get(self.parent)
         if path is not None:
-            id_part = self.get_id(id_partStr, 'id_part = (.+)')
+            id_part = utils.get_id(id_partStr, 'id_part = (.+)')
             # SQL for insert new link of file to table part_revision
             sql = self.obj.sql(
                 "INSERT INTO part_revision VALUES(NULL, ?, 1, '?')",
@@ -374,16 +359,32 @@ class main(Gtk.Notebook):
 
         # insert new project to tree
         # PROJECT
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
         iter_project = self.store.append(
             iter,
             ["Project", str(id_project), None, 0, '', 'id_project = ' + str(id_project)]
         )
         # PART
-        iter_part = self.store.append(iter_project, ["PART", None, None, 0, '', 'lbl_part'])
-        self.store.append(iter_part, [None, num_part, description, 0, '', 'id_part = ' + str(id_part)])
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        iter_part = self.store.append(
+            iter_project,
+            ["PART", None, None, 0, '', 'lbl_part']
+        )
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        self.store.append(
+            iter_part,
+            [None, num_part, description, 0, '', 'id_part = ' + str(id_part)]
+        )
         # STAGE
-        iter_stage = self.store.append(iter_project, ["STAGE", None, None, 0, '', 'lbl_stage'])
-
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        iter_stage = self.store.append(
+            iter_project,
+            ["STAGE", None, None, 0, '', 'lbl_stage']
+        )
         # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
         out = self.obj.get(sql)
@@ -391,13 +392,15 @@ class main(Gtk.Notebook):
             id_stage = str(row_stage[0])
             name_stage = str(row_stage[1])
             id_name = 'id_stage = ' + id_stage;  # id_name for this node
-            iter_stage_2 = self.store.append(iter_stage, [name_stage, None, None, 0, '', id_name])
+            # _/_/_/_/_/_/_/_/_/
+            #  ADD NODE (ROW)
+            self.store.append(
+                iter_stage, [name_stage, None, None, 0, '', id_name]
+            )
 
         # ---------------------------------------------------------------------
         # expand added rows
-        model = tree.get_model()
-        path = model.get_path(iter_project)
-        tree.expand_to_path(path)
+        utils.tree_node_expand(tree, iter_project)
 
     # -------------------------------------------------------------------------
     #  supplier_add_new - add New Supplier
@@ -416,7 +419,12 @@ class main(Gtk.Notebook):
             id_supplier = str(row_supplier[0])
             id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
             progress = 0
-            self.store.append(None, [new_supplier, None, None, progress, '', id_name])
+            # _/_/_/_/_/_/_/_/_/
+            #  ADD NODE (ROW)
+            self.store.append(
+                None,
+                [new_supplier, None, None, progress, '', id_name]
+            )
 
     # -------------------------------------------------------------------------
     #  supplier_setting - Supplier setting

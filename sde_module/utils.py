@@ -3,6 +3,7 @@
 # -----------------------------------------------------------------------------
 import gi
 import pathlib
+import re
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
@@ -175,12 +176,36 @@ def filename_get(parent):
 
 
 # -------------------------------------------------------------------------
+#  get_id - get Id
+#
+#  argument
+#    source :  string
+#    pattern:  regular expression
+# -------------------------------------------------------------------------
+def get_id(source, pattern):
+    p = re.compile(pattern)
+    m = p.match(source)
+    id = m.group(1)
+
+    return int(id)
+
+
+# -------------------------------------------------------------------------
 #  show OK Dialog
 # -------------------------------------------------------------------------
 def show_ok_dialog(parent, title, text, image='info'):
     dialog = dlg.ok(parent, title, text, image)
     dialog.run()
     dialog.destroy()
+
+
+# -------------------------------------------------------------------------
+#  tree_node_expand
+# -------------------------------------------------------------------------
+def tree_node_expand(tree, iter):
+    model = tree.get_model()
+    path = model.get_path(iter)
+    tree.expand_to_path(path)
 
 # -----------------------------------------------------------------------------
 #  END OF PROGRAM
