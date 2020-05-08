@@ -38,7 +38,7 @@ class MenuBar(Gtk.Frame):
 class menubar_button(Gtk.Button):
     def __init__(self, name, image, tooltip):
         Gtk.Button.__init__(self, name=name)
-        self.add(rc.Img().get_image(image))
+        self.add(rc.img().get_image(image))
         self.set_tooltip_text(tooltip)
 
 
@@ -49,7 +49,7 @@ class menubar_button(Gtk.Button):
 # -----------------------------------------------------------------------------
 #  menubar_main --- menubar class for main panel of SDE Tool
 # -----------------------------------------------------------------------------
-class menuBar_main(MenuBar):
+class main(MenuBar):
     def __init__(self):
         MenuBar.__init__(self)
         box = self.get_box()

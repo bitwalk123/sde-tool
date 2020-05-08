@@ -53,7 +53,7 @@ class HandleDB():
         # dialog, calling parent method
         title = 'New database'
         text = "No database is found. Then, new database is created."
-        self.parent.showOKDialog(title, text)
+        self.parent.show_ok_dialog(title, text)
 
     # -------------------------------------------------------------------------
     #  add_supplier - add supplier
@@ -64,12 +64,10 @@ class HandleDB():
     # -------------------------------------------------------------------------
     def add_supplier(self, name_supplier):
         # check duplicate
-        # TODO: need to use sql function with ?
-        sql1 = "SELECT id_supplier FROM supplier WHERE name_supplier = '" + name_supplier + "'"
+        sql1 = self.sql("SELECT id_supplier FROM supplier WHERE name_supplier = '?'", [name_supplier])
         out = self.get(sql1)
         if len(out) == 0:
-            # TODO: need to use sql function with ?
-            sql2 = "INSERT INTO supplier VALUES(NULL, '" + name_supplier + "')"
+            sql2 = self.sql("INSERT INTO supplier VALUES(NULL, '?')", [name_supplier])
             self.put(sql2)
             return 0;  # no duplication
         else:

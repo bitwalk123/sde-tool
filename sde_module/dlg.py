@@ -29,7 +29,7 @@ class CancelOKDialog(Gtk.Dialog):
 class NBDialog(CancelOKDialog):
     def __init__(self, parent, title):
         CancelOKDialog.__init__(self, parent=parent, title=title)
-        self.set_icon_from_file(rc.Img().get_file('config'))
+        self.set_icon_from_file(rc.img().get_file('config'))
         self.set_default_size(600, 0)
         self.set_resizable(True)
 
@@ -62,7 +62,7 @@ class GridPane(Gtk.Grid):
     # -------------------------------------------------------------------------
     def get_filename(self):
         dialog = Gtk.FileChooserDialog(title='select file', parent=self.parent, action=Gtk.FileChooserAction.OPEN)
-        dialog.set_icon_from_file(rc.Img().get_file('file'))
+        dialog.set_icon_from_file(rc.img().get_file('file'))
         dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         self.addFileFiltersALL(dialog)
         response = dialog.run()
@@ -96,7 +96,7 @@ class add_new_supplier(CancelOKDialog):
 
     def __init__(self, parent):
         CancelOKDialog.__init__(self, parent=parent, title='Add New Supplier')
-        self.set_icon_from_file(rc.Img().get_file('add'))
+        self.set_icon_from_file(rc.img().get_file('add'))
         self.set_default_size(400, 0)
         self.set_resizable(True)
 
@@ -123,7 +123,7 @@ class app_about(Gtk.Dialog):
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, parent=parent, title='About This App')
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        self.set_icon_from_file(rc.Img().get_file('info'))
+        self.set_icon_from_file(rc.img().get_file('info'))
         self.set_default_size(400, 0)
         self.set_resizable(False)
 
@@ -153,7 +153,7 @@ class app_about(Gtk.Dialog):
 
     def create_app_logo(self):
         liststore = Gtk.ListStore(Pixbuf)
-        pixbuf = rc.Img().get_pixbuf('logo')
+        pixbuf = rc.img().get_pixbuf('logo')
         liststore.append([pixbuf])
         app_logo = Gtk.IconView()
         app_logo.set_model(liststore)
@@ -167,10 +167,10 @@ class app_about(Gtk.Dialog):
 # -----------------------------------------------------------------------------
 class ok(Gtk.Dialog):
 
-    def __init__(self, parent, title, text):
-        Gtk.Dialog.__init__(self, title)
+    def __init__(self, parent, title, text, image):
+        Gtk.Dialog.__init__(self, parent=parent, title=title)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
-        self.set_icon_from_file(rc.Img().get_file('info'))
+        self.set_icon_from_file(rc.img().get_file(image))
         self.set_default_size(200, 0)
         self.set_resizable(False)
 
@@ -278,7 +278,7 @@ class setting_supplier_new_proj(GridPane):
         self.product.set_hexpand(True)
         # Button for File
         but_file = Gtk.Button()
-        but_file.add(rc.Img().get_image('folder', 16))
+        but_file.add(rc.img().get_image('folder', 16))
         but_file.connect('clicked', self.on_click_choose_file)
         but_file.set_hexpand(False)
         # ---------------------------------------------------------------------

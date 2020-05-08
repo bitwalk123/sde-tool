@@ -66,14 +66,16 @@ SDETOOL_CSS = '''
 '''
 
 
+
 # -----------------------------------------------------------------------------
-#  Img - Image Facility
+#  img - Image Facility
 # -----------------------------------------------------------------------------
-class Img(Gtk.Image):
+class img(Gtk.Image):
     IMG_ADD = "img/add-128.png"
     IMG_CONFIG = "img/config-128.png"
     IMG_CROSS = "img/cross-128.png"
     IMG_DONE = "img/done-128.png"
+    IMG_ERROR = "img/error-128.png"
     IMG_EXIT = "img/exit-128.png"
     IMG_FILE = "img/file-128.png"
     IMG_FOLDER = "img/folder-128.png"
@@ -105,6 +107,8 @@ class Img(Gtk.Image):
             name_file = self.IMG_CROSS
         elif image_name == "done":
             name_file = self.IMG_DONE
+        elif image_name == "error":
+            name_file = self.IMG_ERROR
         elif image_name == "exit":
             name_file = self.IMG_EXIT
         elif image_name == "file":
@@ -122,3 +126,14 @@ class Img(Gtk.Image):
         elif image_name == "warning":
             name_file = self.IMG_WARNING
         return name_file
+
+
+# -----------------------------------------------------------------------------
+#  concat - concatenate strings
+# -----------------------------------------------------------------------------
+def concat(*args):
+    result = ''
+    for str in args:
+        result = result + str
+
+    return result
