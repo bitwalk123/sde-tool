@@ -252,7 +252,14 @@ class store(Gtk.TreeStore):
         column.pack_start(cell, True)
         column.add_attribute(cell, 'active', col)
         column.set_resizable(False)
+        # TEST
+        cell.connect('toggled', self.on_chk_renderer_toggled)
 
+
+    def on_chk_renderer_toggled(self, cell, path):
+        print(cell.get_active())
+        print(path)
+        self[path][4] = not self[path][4]
 
 # -----------------------------------------------------------------------------
 #  END OF PROGRAM
