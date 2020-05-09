@@ -2,6 +2,7 @@
 #  dlg.py --- dialog class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
+import os
 import pathlib
 import platform
 
@@ -28,6 +29,8 @@ class CancelOKDialog(Gtk.Dialog):
 class NBDialog(CancelOKDialog):
     def __init__(self, parent, title):
         CancelOKDialog.__init__(self, parent=parent, title=title)
+        self.parent = parent
+
         self.set_icon_from_file(utils.img().get_file('config'))
         self.set_default_size(600, 0)
         self.set_resizable(True)
@@ -60,7 +63,8 @@ class GridPane(Gtk.Grid):
 
     # -------------------------------------------------------------------------
     def get_filename(self):
-        return utils.filename_get(self.parent)
+        f = file_chooser(self.parent)
+        return f.get()
 
 
 # =============================================================================
@@ -140,6 +144,56 @@ class app_about(Gtk.Dialog):
         app_logo.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
         return app_logo
 
+# -----------------------------------------------------------------------------
+#  file chooser
+# -----------------------------------------------------------------------------
+class file_chooser():
+    basedir = ''
+    parent = None
+
+    def __init__(self, parent):
+        self.parent = parent
+
+    # -------------------------------------------------------------------------
+    #  get - get filename with dialog (class method)
+    #
+    #  argument
+    #    cls : this class object for this class method
+    # -------------------------------------------------------------------------
+    @classmethod
+    def get(cls):
+        dialog = Gtk.FileChooserDialog(title='select file', parent=cls.parent, action=Gtk.FileChooserAction.OPEN)
+        dialog.set_icon_from_file(utils.img().get_file('file'))
+        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+
+        if os.path.exists(cls.basedir):
+            dialog.set_current_folder(str(cls.basedir))
+
+        cls.filename_filter_all(dialog)
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK:
+            p = pathlib.Path(dialog.get_filename())
+            cls.basedir = os.path.dirname(p)
+            dialog.destroy()
+            # change path separator '\' to '/' to avoid unexpected errors
+            name_file = str(p.as_posix())
+            return name_file
+        elif response == Gtk.ResponseType.CANCEL:
+            dialog.destroy()
+            return None
+
+    # -------------------------------------------------------------------------
+    #  filename_filter_all - filter for ALL
+    #
+    #  argument
+    #    dialog : instance of Gtk.FileChooserDialog to attach this file filter
+    # -------------------------------------------------------------------------
+    def filename_filter_all(dialog):
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name('All File')
+        filter_any.add_pattern('*')
+        dialog.add_filter(filter_any)
 
 # -----------------------------------------------------------------------------
 #  ok dialog
@@ -214,6 +268,7 @@ class supplier_setting(NBDialog):
 class supplier_setting_new_proj(GridPane):
     def __init__(self, parent):
         GridPane.__init__(self, parent=parent)
+        self.parent = parent
 
         # ---------------------------------------------------------------------
         # Label for Project Owner
@@ -282,7 +337,8 @@ class supplier_setting_new_proj(GridPane):
     #  on_click_choose_file
     # -------------------------------------------------------------------------
     def on_click_choose_file(self, widget):
-        filename = self.get_filename()
+        f = file_chooser(self.parent)
+        filename = f.get()
         if filename is not None:
             self.file.set_text(filename)
 

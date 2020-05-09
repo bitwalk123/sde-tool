@@ -16,12 +16,13 @@ from gi.repository import Gtk
 #  2. str : Value
 #  3. str : Description
 #  4. int : Status (ProgressBar)
-#  5. str : Dummy for padding right space
-#  6. str : id (hidden)
+#  5. bool : Check (ToggleButton)
+#  6. str : Dummy for padding right space
+#  7. str : id (hidden)
 # -----------------------------------------------------------------------------
 class store(Gtk.TreeStore):
     def __init__(self, db_instance):
-        Gtk.TreeStore.__init__(self, str, str, str, int, str, str)
+        Gtk.TreeStore.__init__(self, str, str, str, int, bool, str, str)
         self.obj = db_instance
         self.node_1_supplier()
 
@@ -47,7 +48,7 @@ class store(Gtk.TreeStore):
             #  ADD NODE (ROW)
             iter_none = self.append(
                 None,
-                [name_supplier, None, None, progress, '', id_name]
+                [name_supplier, None, None, progress, False, '', id_name]
             )
             # add Project Node
             self.node_2_project(iter_none, id_supplier)
@@ -73,7 +74,7 @@ class store(Gtk.TreeStore):
             #  ADD NODE (ROW)
             iter_project = self.append(
                 iter_none,
-                ['Project', id_project, None, progress, '', id_name]
+                ['Project', id_project, None, progress, False, '', id_name]
             )
             # add Part Node
             self.node_3_part(iter_project, id_project)
@@ -89,7 +90,7 @@ class store(Gtk.TreeStore):
         #  ADD NODE (ROW)
         iter_part = self.append(
             iter_project,
-            ['PART', None, None, 0, '', 'lbl_part']
+            ['PART', None, None, 0, False, '', 'lbl_part']
         )
         # SQL for getting id_part from project table under specific id_project
         sql = self.obj.sql(
@@ -113,7 +114,7 @@ class store(Gtk.TreeStore):
                 #  ADD NODE (ROW)
                 self.append(
                     iter_part,
-                    [None, part_info[0], part_info[1], 0, '', id_name]
+                    [None, part_info[0], part_info[1], 0, False, '', id_name]
                 )
 
     # -------------------------------------------------------------------------
@@ -126,7 +127,7 @@ class store(Gtk.TreeStore):
         #  ADD NODE (ROW)
         iter_stage = self.append(
             iter_project,
-            ['STAGE', None, None, progress, '', 'lbl_stage']
+            ['STAGE', None, None, progress, False, '', 'lbl_stage']
         )
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
         out = self.obj.get(sql)
@@ -139,7 +140,7 @@ class store(Gtk.TreeStore):
             #  ADD NODE (ROW)
             iter_stage_each = self.append(
                 iter_stage,
-                [name_stage, None, None, 0, '', id_name]
+                [name_stage, None, None, 0, False, '', id_name]
             )
             sql = self.obj.sql(
                 "SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC",
@@ -189,7 +190,7 @@ class store(Gtk.TreeStore):
                 #  ADD NODE (ROW)
                 self.append(
                     iter,
-                    [None, placefolder, None, progress, '', label_id]
+                    [None, placefolder, None, progress, False, '', label_id]
                 )
 
     # =========================================================================
@@ -208,10 +209,12 @@ class store(Gtk.TreeStore):
         self.treeviewcolumn_str(tree, 'Description', 2)
         # 4. int : Status (ProgressBar)
         self.treeviewcolumn_progress(tree, 'status', 3)
-        # 5. str : Dummy for padding right space
-        self.treeviewcolumn_str(tree, '', 4)
-        # 6. str : id for padding right space
-        self.treeviewcolumn_str(tree, 'id', 5, False)
+        # 5. bool : Check (ToggleButton)
+        self.treeviewcolumn_toggle(tree, 'check', 4)
+        # 6. str : Dummy for padding right space
+        self.treeviewcolumn_str(tree, '', 5)
+        # 7. str : id for padding right space
+        self.treeviewcolumn_str(tree, 'id', 6, False)
 
     # -------------------------------------------------------------------------
     #  TreeViewColumn for CellRenderProgress
@@ -237,6 +240,19 @@ class store(Gtk.TreeStore):
         column.add_attribute(cell, 'text', col)
         column.set_resizable(True)
         column.set_visible(visible)
+
+    # -------------------------------------------------------------------------
+    #  TreeViewColumn for CellRenderToggle
+    # -------------------------------------------------------------------------
+    def treeviewcolumn_toggle(self, tree, title, col):
+        cell = Gtk.CellRendererToggle()
+        column = Gtk.TreeViewColumn()
+        tree.append_column(column)
+        column.set_title(title)
+        column.pack_start(cell, True)
+        column.add_attribute(cell, 'active', col)
+        column.set_resizable(False)
+
 
 # -----------------------------------------------------------------------------
 #  END OF PROGRAM

@@ -122,7 +122,7 @@ class main(Gtk.Notebook):
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
         iter = model.get_iter(path)
-        key = model[iter][5]
+        key = model[iter][6]
 
         if iter is None:
             return
@@ -236,13 +236,15 @@ class main(Gtk.Notebook):
     #  add new Part
     # -------------------------------------------------------------------------
     def part_add_new(self, id_partStr):
-        path = utils.filename_get(self.parent)
-        if path is not None:
+        f = dlg.file_chooser(self.parent)
+        filename = f.get()
+
+        if filename is not None:
             id_part = utils.get_id(id_partStr, 'id_part = (.+)')
             # SQL for insert new link of file to table part_revision
             sql = self.obj.sql(
                 "INSERT INTO part_revision VALUES(NULL, ?, 1, '?')",
-                [id_part, path]
+                [id_part, filename]
             )
             self.obj.put(sql)
 
@@ -363,27 +365,27 @@ class main(Gtk.Notebook):
         #  ADD NODE (ROW)
         iter_project = self.store.append(
             iter,
-            ["Project", str(id_project), None, 0, '', 'id_project = ' + str(id_project)]
+            ["Project", str(id_project), None, 0, False, '', 'id_project = ' + str(id_project)]
         )
         # PART
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
         iter_part = self.store.append(
             iter_project,
-            ["PART", None, None, 0, '', 'lbl_part']
+            ["PART", None, None, 0, False, '', 'lbl_part']
         )
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
         self.store.append(
             iter_part,
-            [None, num_part, description, 0, '', 'id_part = ' + str(id_part)]
+            [None, num_part, description, 0, False, '', 'id_part = ' + str(id_part)]
         )
         # STAGE
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
         iter_stage = self.store.append(
             iter_project,
-            ["STAGE", None, None, 0, '', 'lbl_stage']
+            ["STAGE", None, None, 0, False, '', 'lbl_stage']
         )
         # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
@@ -395,7 +397,7 @@ class main(Gtk.Notebook):
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
             self.store.append(
-                iter_stage, [name_stage, None, None, 0, '', id_name]
+                iter_stage, [name_stage, None, None, 0, False, '', id_name]
             )
 
         # ---------------------------------------------------------------------
@@ -423,7 +425,7 @@ class main(Gtk.Notebook):
             #  ADD NODE (ROW)
             self.store.append(
                 None,
-                [new_supplier, None, None, progress, '', id_name]
+                [new_supplier, None, None, progress, False, '', id_name]
             )
 
     # -------------------------------------------------------------------------

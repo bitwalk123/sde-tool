@@ -2,7 +2,6 @@
 #  utils.py --- resource class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
-import pathlib
 import re
 
 gi.require_version('Gtk', '3.0')
@@ -136,6 +135,9 @@ class img(Gtk.Image):
 
 # -----------------------------------------------------------------------------
 #  concat - concatenate strings
+#
+#  argument
+#    *args : variable number of string arguments to be concatenated
 # -----------------------------------------------------------------------------
 def concat(*args):
     result = ''
@@ -143,36 +145,6 @@ def concat(*args):
         result = result + str
 
     return result
-
-
-# -------------------------------------------------------------------------
-#  filename_filter_all - filter for ALL
-# -------------------------------------------------------------------------
-def filename_filter_all(dialog):
-    filter_any = Gtk.FileFilter()
-    filter_any.set_name('All File')
-    filter_any.add_pattern('*')
-    dialog.add_filter(filter_any)
-
-
-# -------------------------------------------------------------------------
-#  filename_get
-# -------------------------------------------------------------------------
-def filename_get(parent):
-    dialog = Gtk.FileChooserDialog(title='select file', parent=parent, action=Gtk.FileChooserAction.OPEN)
-    dialog.set_icon_from_file(img().get_file('file'))
-    dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-    filename_filter_all(dialog)
-    response = dialog.run()
-    if response == Gtk.ResponseType.OK:
-        p = pathlib.Path(dialog.get_filename())
-        dialog.destroy()
-        # change path separator '\' to '/' to avoid unexpected errors
-        name_file = str(p.as_posix())
-        return name_file
-    elif response == Gtk.ResponseType.CANCEL:
-        dialog.destroy()
-        return None
 
 
 # -------------------------------------------------------------------------
@@ -192,6 +164,12 @@ def get_id(source, pattern):
 
 # -------------------------------------------------------------------------
 #  show OK Dialog
+#
+#  argument
+#    parent : instance of top level window
+#    title  : title of the dialog
+#    text   : message string of the dialog
+#    image  : icon image of dialog
 # -------------------------------------------------------------------------
 def show_ok_dialog(parent, title, text, image='info'):
     dialog = dlg.ok(parent, title, text, image)
@@ -201,6 +179,10 @@ def show_ok_dialog(parent, title, text, image='info'):
 
 # -------------------------------------------------------------------------
 #  tree_node_expand
+#
+#  argument
+#    tree : instance of the tree widget
+#    iter : the iteration (node) to expand
 # -------------------------------------------------------------------------
 def tree_node_expand(tree, iter):
     model = tree.get_model()
