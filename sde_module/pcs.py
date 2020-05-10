@@ -12,15 +12,25 @@ from gi.repository import Gtk
 #  store for SDE Tool
 #
 #  store field
-#  1. str : Name
-#  2. str : Value
-#  3. str : Description
-#  4. int : Status (ProgressBar)
+#  1. str  : Name
+#  2. str  : Value
+#  3. str  : Description
+#  4. int  : Status (ProgressBar)
 #  5. bool : Check (ToggleButton)
-#  6. str : Dummy for padding right space
-#  7. str : id (hidden)
+#  6. str  : Dummy for padding right space
+#  7. str  : id (hidden)
 # -----------------------------------------------------------------------------
 class store(Gtk.TreeStore):
+    row = {
+        'name': 0,
+        'value': 1,
+        'desc': 2,
+        'progress': 3,
+        'check': 4,
+        'dummy': 5,
+        'id': 6
+    }
+
     def __init__(self, db_instance):
         Gtk.TreeStore.__init__(self, str, str, str, int, bool, str, str)
         self.obj = db_instance
@@ -29,6 +39,27 @@ class store(Gtk.TreeStore):
     # =========================================================================
     #   STRUCTURED STORE DATA
     # =========================================================================
+
+    # -------------------------------------------------------------------------
+    #  node_add
+    #
+    #  arguments
+    #    parent : parent node
+    #    name   : Name
+    #    value  : Value
+    #    desc   : Description
+    #    id     : id
+    #
+    #  return
+    #    iteration (node)
+    # -------------------------------------------------------------------------
+    def node_add(self, parent, name, value, desc, id):
+        progress = 0
+        check = False
+        return self.append(
+            parent,
+            [name, value, desc, progress, check, '', id]
+        )
 
     # -------------------------------------------------------------------------
     #  node_1_supplier
@@ -43,16 +74,17 @@ class store(Gtk.TreeStore):
             id_supplier = str(row_supplier[0])
             name_supplier = str(row_supplier[1])
             id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
-            progress = 0
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
-            iter_none = self.append(
-                None,
-                [name_supplier, None, None, progress, False, '', id_name]
+            iter_none = self.node_add(
+                parent=None,
+                name=name_supplier,
+                value=None,
+                desc=None,
+                id=id_name
             )
             # add Project Node
             self.node_2_project(iter_none, id_supplier)
-
 
     # -------------------------------------------------------------------------
     #  node_2_project
@@ -69,12 +101,14 @@ class store(Gtk.TreeStore):
         for row_project in out:
             id_project = str(row_project[0])
             id_name = 'id_project = ' + id_project;  # id_name for this node
-            progress = 0
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
-            iter_project = self.append(
-                iter_none,
-                ['Project', id_project, None, progress, False, '', id_name]
+            iter_project = self.node_add(
+                parent=iter_none,
+                name='Project',
+                value=id_project,
+                desc=None,
+                id=id_name
             )
             # add Part Node
             self.node_3_part(iter_project, id_project)
@@ -88,9 +122,12 @@ class store(Gtk.TreeStore):
         # label 'PART' node
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        iter_part = self.append(
-            iter_project,
-            ['PART', None, None, 0, False, '', 'lbl_part']
+        iter_part = self.node_add(
+            parent=iter_project,
+            name='PART',
+            value=None,
+            desc=None,
+            id='lbl_part'
         )
         # SQL for getting id_part from project table under specific id_project
         sql = self.obj.sql(
@@ -112,23 +149,22 @@ class store(Gtk.TreeStore):
             for part_info in out2:
                 # _/_/_/_/_/_/_/_/_/
                 #  ADD NODE (ROW)
-                self.append(
-                    iter_part,
-                    [None, part_info[0], part_info[1], 0, False, '', id_name]
+                self.node_add(
+                    parent=iter_part,
+                    name=None,
+                    value=part_info[0],
+                    desc=part_info[1],
+                    id=id_name
                 )
 
     # -------------------------------------------------------------------------
     #  node_3_stage
     # -------------------------------------------------------------------------
     def node_3_stage(self, iter_project, id_project):
-        progress = 0
         # label 'STAGE' node
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        iter_stage = self.append(
-            iter_project,
-            ['STAGE', None, None, progress, False, '', 'lbl_stage']
-        )
+        iter_stage = self.node_add(iter_project, 'STAGE', None, None, 'lbl_stage')
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
         out = self.obj.get(sql)
         # EACH STAGE
@@ -138,9 +174,12 @@ class store(Gtk.TreeStore):
             id_name = 'id_stage = ' + str(id_stage)
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
-            iter_stage_each = self.append(
-                iter_stage,
-                [name_stage, None, None, 0, False, '', id_name]
+            iter_stage_each = self.node_add(
+                parent=iter_stage,
+                name=name_stage,
+                value=None,
+                desc=None,
+                id=id_name
             )
             sql = self.obj.sql(
                 "SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC",
@@ -185,12 +224,14 @@ class store(Gtk.TreeStore):
                     placefolder = pathlib.PurePath(name_file).name
 
                 label_id = 'id_data = ' + str(id_data)
-                progress = 0
                 # _/_/_/_/_/_/_/_/_/
                 #  ADD NODE (ROW)
-                self.append(
-                    iter,
-                    [None, placefolder, None, progress, False, '', label_id]
+                self.node_add(
+                    parent=iter,
+                    name=None,
+                    value=placefolder,
+                    desc=None,
+                    id=label_id
                 )
 
     # =========================================================================
@@ -255,11 +296,10 @@ class store(Gtk.TreeStore):
         # TEST
         cell.connect('toggled', self.on_chk_renderer_toggled)
 
-
     def on_chk_renderer_toggled(self, cell, path):
         print(cell.get_active())
         print(path)
-        self[path][4] = not self[path][4]
+        self[path][4] = not self[path][self.row['check']]
 
 # -----------------------------------------------------------------------------
 #  END OF PROGRAM

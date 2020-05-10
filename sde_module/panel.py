@@ -248,7 +248,6 @@ class main(Gtk.Notebook):
             )
             self.obj.put(sql)
 
-
     # -------------------------------------------------------------------------
     #  part_display - display Part
     #
@@ -312,7 +311,6 @@ class main(Gtk.Notebook):
         dialog.destroy()
         return response
 
-
     # -------------------------------------------------------------------------
     #  project_add_new
     # -------------------------------------------------------------------------
@@ -363,29 +361,41 @@ class main(Gtk.Notebook):
         # PROJECT
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        iter_project = self.store.append(
-            iter,
-            ["Project", str(id_project), None, 0, False, '', 'id_project = ' + str(id_project)]
+        iter_project = self.store.node_add(
+            parent=iter,
+            name="Project",
+            value=str(id_project),
+            desc=None,
+            id='id_project = ' + str(id_project)
         )
         # PART
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        iter_part = self.store.append(
-            iter_project,
-            ["PART", None, None, 0, False, '', 'lbl_part']
+        iter_part = self.store.node_add(
+            parent=iter_project,
+            name="PART",
+            value=None,
+            desc=None,
+            id='lbl_part'
         )
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        self.store.append(
-            iter_part,
-            [None, num_part, description, 0, False, '', 'id_part = ' + str(id_part)]
+        self.store.node_add(
+            parent=iter_part,
+            name=None,
+            value=num_part,
+            desc=description,
+            id='id_part = ' + str(id_part)
         )
         # STAGE
         # _/_/_/_/_/_/_/_/_/
         #  ADD NODE (ROW)
-        iter_stage = self.store.append(
-            iter_project,
-            ["STAGE", None, None, 0, False, '', 'lbl_stage']
+        iter_stage = self.store.node_add(
+            parent=iter_project,
+            name="STAGE",
+            value=None,
+            desc=None,
+            id='lbl_stage'
         )
         # SQL for getting id_stage and name_stage from stage table order by id_stage ascending
         sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
@@ -396,8 +406,12 @@ class main(Gtk.Notebook):
             id_name = 'id_stage = ' + id_stage;  # id_name for this node
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
-            self.store.append(
-                iter_stage, [name_stage, None, None, 0, False, '', id_name]
+            self.store.node_add(
+                parent=iter_stage,
+                name=name_stage,
+                value=None,
+                desc=None,
+                id=id_name
             )
 
         # ---------------------------------------------------------------------
@@ -420,12 +434,14 @@ class main(Gtk.Notebook):
         for row_supplier in out:
             id_supplier = str(row_supplier[0])
             id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
-            progress = 0
             # _/_/_/_/_/_/_/_/_/
             #  ADD NODE (ROW)
-            self.store.append(
-                None,
-                [new_supplier, None, None, progress, False, '', id_name]
+            self.store.node_add(
+                parent=None,
+                name=new_supplier,
+                value=None,
+                desc=None,
+                id=id_name
             )
 
     # -------------------------------------------------------------------------
