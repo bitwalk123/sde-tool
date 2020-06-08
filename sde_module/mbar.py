@@ -9,7 +9,8 @@ from . import utils
 
 
 # =============================================================================
-#  MenuBar --- menubar class (template)
+#  MenuBar
+#  menubar class (template)
 # =============================================================================
 class MenuBar(Gtk.Frame):
     def __init__(self):
@@ -33,7 +34,8 @@ class MenuBar(Gtk.Frame):
 
 
 # -----------------------------------------------------------------------------
-#  menubar_button --- button class for menubar class
+#  menubar_button
+#  button class for menubar class
 # -----------------------------------------------------------------------------
 class menubar_button(Gtk.Button):
     def __init__(self, name, image, tooltip):
@@ -47,7 +49,8 @@ class menubar_button(Gtk.Button):
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-#  menubar_main --- menubar class for main panel of SDE Tool
+#  menubar_main
+#  menubar class for main panel of SDE Tool
 # -----------------------------------------------------------------------------
 class main(MenuBar):
     def __init__(self):
@@ -71,7 +74,8 @@ class main(MenuBar):
         box.pack_end(self.but_info, expand=False, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
-    #  get_obj - get object instance of button
+    #  get_obj
+    #  get object instance of button
     #
     #  argument:
     #    image : image name of button
@@ -86,5 +90,5 @@ class main(MenuBar):
         if name_image == 'info':
             return self.but_info
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM

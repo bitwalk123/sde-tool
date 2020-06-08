@@ -12,7 +12,8 @@ from . import dlg, pcs, utils
 
 
 # -----------------------------------------------------------------------------
-#  main - main GUI of SDE Tool
+#  main
+#  main GUI of SDE Tool
 # -----------------------------------------------------------------------------
 class main(Gtk.Notebook):
     def __init__(self, parent, obj):
@@ -85,7 +86,6 @@ class main(Gtk.Notebook):
 
     # -------------------------------------------------------------------------
     #  on_click_add_new_supplier
-    #
     #  Add New Supplier
     # -------------------------------------------------------------------------
     def on_click_add_new_supplier(self, widget):
@@ -117,7 +117,8 @@ class main(Gtk.Notebook):
             dialog.destroy()
 
     # -------------------------------------------------------------------------
-    #  on_tree_doubleclicked - TreeView row Double clicked
+    #  on_tree_doubleclicked
+    #  TreeView row Double clicked
     # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
@@ -169,7 +170,8 @@ class main(Gtk.Notebook):
             return
 
     # -------------------------------------------------------------------------
-    #  on_tree_selection_changed - Row Selection on the TreeView
+    #  on_tree_selection_changed
+    #  Row Selection on the TreeView
     # -------------------------------------------------------------------------
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
@@ -196,10 +198,11 @@ class main(Gtk.Notebook):
     # =========================================================================
 
     # -------------------------------------------------------------------------
-    #  data_display - display Data
+    #  data_display
+    #  display Data
     #
     #  argument
-    #    id_dataStr: id_data in string format
+    #    id_dataStr : id_data in string format
     # -------------------------------------------------------------------------
     def data_display(self, id_dataStr):
         # SQL for getting name_file from part table under specific id_part
@@ -225,7 +228,7 @@ class main(Gtk.Notebook):
     #  open_file_with_app
     #
     #  argument
-    #    name_file:  file to open
+    #    name_file :  file to open
     # -------------------------------------------------------------------------
     def open_file_with_app(self, name_file):
         link_file = pathlib.PurePath(name_file)
@@ -249,10 +252,11 @@ class main(Gtk.Notebook):
             self.obj.put(sql)
 
     # -------------------------------------------------------------------------
-    #  part_display - display Part
+    #  part_display
+    #  display Part
     #
     #  argument
-    #    id_partStr:  id_part in string format
+    #    id_partStr : id_part in string format
     # -------------------------------------------------------------------------
     def part_display(self, id_partStr):
         sql1 = self.obj.sql(
@@ -292,7 +296,7 @@ class main(Gtk.Notebook):
     #  Warning dialog when no link file found in database
     #
     #  return
-    #    enum:
+    #    enum :
     #      Gtk.ResponseType.YES
     #      Gtk.ResponseType.NO
     # -------------------------------------------------------------------------
@@ -419,9 +423,10 @@ class main(Gtk.Notebook):
         utils.tree_node_expand(tree, iter_project)
 
     # -------------------------------------------------------------------------
-    #  supplier_add_new - add New Supplier
+    #  supplier_add_new
+    #  add New Supplier
     #
-    #  argument:
+    #  argument
     #    new_supplier : name of new supplier
     # -------------------------------------------------------------------------
     def supplier_add_new(self, new_supplier):
@@ -445,9 +450,10 @@ class main(Gtk.Notebook):
             )
 
     # -------------------------------------------------------------------------
-    #  supplier_setting - Supplier setting
+    #  supplier_setting
+    #  Supplier setting
     #
-    #  argument
+    #  arguments
     #    id_supplier :  supplier id
     #    iter        :  iteration
     #    tree        :  instance of this tree widget
@@ -464,5 +470,5 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM

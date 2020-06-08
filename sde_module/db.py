@@ -57,11 +57,15 @@ class handle_db():
         utils.show_ok_dialog(self.parent, title, text)
 
     # -------------------------------------------------------------------------
-    #  add_supplier - add supplier
-    #
+    #  add_supplier
+    #  add supplier
     #
     #  argument:
     #    name_supplier : supplier name
+    #
+    #  return
+    #    0 : success
+    #    1 : error
     # -------------------------------------------------------------------------
     def add_supplier(self, name_supplier):
         # check duplicate
@@ -75,8 +79,8 @@ class handle_db():
             return 1;  # dupplication, error
 
     # -------------------------------------------------------------------------
-    #  put - execute SQL
-    #
+    #  put
+    #  execute SQL
     #
     #  argument:
     #    sql : SQL statement
@@ -89,8 +93,8 @@ class handle_db():
         con.close()
 
     # -------------------------------------------------------------------------
-    #  get - query with SQL
-    #
+    #  get
+    #  query with SQL
     #
     #  argument:
     #    sql : SQL statement
@@ -107,8 +111,8 @@ class handle_db():
         return out
 
     # -------------------------------------------------------------------------
-    #  sql - create sql replacing ?s by parameters
-    #
+    #  sql
+    #  create sql replacing ?s by parameters
     #
     #  argument:
     #    sentense   : SQL statement with ?s
@@ -122,5 +126,5 @@ class handle_db():
             sentense = sentense.replace('?', str(param), 1)
         return sentense
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM

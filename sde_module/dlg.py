@@ -1,5 +1,6 @@
 # -----------------------------------------------------------------------------
-#  dlg.py --- dialog class for SDE Tool
+#  dlg.py
+#  dialog class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
 import os
@@ -13,7 +14,8 @@ from . import utils
 
 
 # =============================================================================
-#  CancelOKDialog -- dialog with Cancel & OK buttons class (templete)
+#  CancelOKDialog
+#  dialog with Cancel & OK buttons class (templete)
 # =============================================================================
 class CancelOKDialog(Gtk.Dialog):
     def __init__(self, parent, title):
@@ -24,7 +26,8 @@ class CancelOKDialog(Gtk.Dialog):
 
 
 # =============================================================================
-#  NBDialog --- dialog with notebook class (template)
+#  NBDialog
+#  dialog with notebook class (template)
 # =============================================================================
 class NBDialog(CancelOKDialog):
     def __init__(self, parent, title):
@@ -54,7 +57,8 @@ class NBDialog(CancelOKDialog):
 
 
 # =============================================================================
-#  GridPane --- dialog pane with grid layout (template)
+#  GridPane
+#  dialog pane with grid layout (template)
 # =============================================================================
 class GridPane(Gtk.Grid):
     def __init__(self, parent):
@@ -144,6 +148,7 @@ class app_about(Gtk.Dialog):
         app_logo.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
         return app_logo
 
+
 # -----------------------------------------------------------------------------
 #  file chooser
 # -----------------------------------------------------------------------------
@@ -155,7 +160,8 @@ class file_chooser():
         self.parent = parent
 
     # -------------------------------------------------------------------------
-    #  get - get filename with dialog (class method)
+    #  get
+    #  get filename with dialog (class method)
     #
     #  argument
     #    cls : this class object for this class method
@@ -184,7 +190,8 @@ class file_chooser():
             return None
 
     # -------------------------------------------------------------------------
-    #  filename_filter_all - filter for ALL
+    #  filename_filter_all
+    #  filter for ALL
     #
     #  argument
     #    dialog : instance of Gtk.FileChooserDialog to attach this file filter
@@ -194,6 +201,7 @@ class file_chooser():
         filter_any.set_name('All File')
         filter_any.add_pattern('*')
         dialog.add_filter(filter_any)
+
 
 # -----------------------------------------------------------------------------
 #  ok dialog
@@ -342,5 +350,5 @@ class supplier_setting_new_proj(GridPane):
         if filename is not None:
             self.file.set_text(filename)
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM

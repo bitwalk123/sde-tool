@@ -69,7 +69,8 @@ SDETOOL_CSS = '''
 
 
 # -----------------------------------------------------------------------------
-#  img - Image Facility
+#  img
+#  Image Facility
 # -----------------------------------------------------------------------------
 class img(Gtk.Image):
     IMG_ADD = "img/add-128.png"
@@ -134,7 +135,8 @@ class img(Gtk.Image):
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-#  concat - concatenate strings
+#  concat
+#  concatenate strings
 #
 #  argument
 #    *args : variable number of string arguments to be concatenated
@@ -148,11 +150,12 @@ def concat(*args):
 
 
 # -------------------------------------------------------------------------
-#  get_id - get Id
+#  get_id
+#  get Id
 #
-#  argument
-#    source :  string
-#    pattern:  regular expression
+#  arguments
+#    source  : string
+#    pattern : regular expression
 # -------------------------------------------------------------------------
 def get_id(source, pattern):
     p = re.compile(pattern)
@@ -163,9 +166,10 @@ def get_id(source, pattern):
 
 
 # -------------------------------------------------------------------------
+#  show_ok_dialog
 #  show OK Dialog
 #
-#  argument
+#  arguments
 #    parent : instance of top level window
 #    title  : title of the dialog
 #    text   : message string of the dialog
@@ -180,7 +184,7 @@ def show_ok_dialog(parent, title, text, image='info'):
 # -------------------------------------------------------------------------
 #  tree_node_expand
 #
-#  argument
+#  arguments
 #    tree : instance of the tree widget
 #    iter : the iteration (node) to expand
 # -------------------------------------------------------------------------
@@ -189,5 +193,5 @@ def tree_node_expand(tree, iter):
     path = model.get_path(iter)
     tree.expand_to_path(path)
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM

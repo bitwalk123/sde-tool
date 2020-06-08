@@ -301,5 +301,5 @@ class store(Gtk.TreeStore):
         print(path)
         self[path][4] = not self[path][self.row['check']]
 
-# -----------------------------------------------------------------------------
+# ---
 #  END OF PROGRAM
