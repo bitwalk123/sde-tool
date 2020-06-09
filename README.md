@@ -1,2 +1,2 @@
 # sde-tool
-Helper GUI tool for Supplier Development Engineering
+This SDE Tool is a support application for Supplier Development Engineering to organize supplier information.
