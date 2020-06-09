@@ -1,9 +1,12 @@
 import configparser
 import gi
 import os.path
+import platform
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
+
+# SDE Tool Classes
 from sde_module import db, dlg, mbar, panel, utils
 
 
@@ -14,6 +17,10 @@ from sde_module import db, dlg, mbar, panel, utils
 #  COPYRIGHT 2020 Keiichi Takahashi
 # -----------------------------------------------------------------------------
 class SDETool(Gtk.Window):
+    # platform
+    # Windows, Linux or Darwin
+    app_platform = platform.system()
+
     # Application Version
     app_version = "0.2"
 
@@ -42,7 +49,6 @@ class SDETool(Gtk.Window):
         # Config for Database
         config_db = self.config['Database']
         self.dbname = config_db['DBNAME']
-
         # get database instance
         self.obj = db.handle_db(self)
         if not os.path.exists(self.dbname):

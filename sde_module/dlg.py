@@ -114,10 +114,22 @@ class app_about(Gtk.Dialog):
         self.set_default_size(400, 0)
         self.set_resizable(False)
 
-        lab1 = Gtk.Label(label='SDE Tool', name='Title')
-        lab2 = Gtk.Label(label='version ' + parent.app_version, name='Version')
-        lab3 = Gtk.Label(label='© 2020 Keiichi Takahashi', name='Author')
-        lab4 = Gtk.Label(label='running on python ' + platform.python_version(), name='PyVer')
+        lab1 = Gtk.Label(
+            label='SDE Tool',
+            name='Title'
+        )
+        lab2 = Gtk.Label(
+            label='version ' + parent.app_version,
+            name='Version'
+        )
+        lab3 = Gtk.Label(
+            label='© 2020 Keiichi Takahashi',
+            name='Author'
+        )
+        lab4 = Gtk.Label(
+            label='running on python ' + platform.python_version() + ' / ' + parent.app_platform,
+            name='PyVer'
+        )
 
         msg = Gtk.TextBuffer()
         text = "This SDE Tool is a support application for Supplier Development Engineering to organize supplier information."
