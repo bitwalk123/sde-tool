@@ -166,6 +166,25 @@ def get_id(source, pattern):
 
 
 # -------------------------------------------------------------------------
+#  get_id_with_model
+#  get Id  with Model iter
+#
+#  arguments
+#    iter
+#    model
+#    label
+#    col
+#
+#  return
+#    integer id
+# -------------------------------------------------------------------------
+def get_id_with_model(iter, model, label, col):
+    id_string = model[iter][col]
+    pattern = label + ' = (.+)'
+    return get_id(id_string, pattern)
+
+
+# -------------------------------------------------------------------------
 #  show_ok_dialog
 #  show OK Dialog
 #

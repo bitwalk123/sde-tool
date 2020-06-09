@@ -4,6 +4,7 @@
 import gi
 import os
 import pathlib
+import re
 import subprocess
 
 gi.require_version('Gtk', '3.0')
@@ -16,6 +17,9 @@ from . import dlg, pcs, utils
 #  main GUI of SDE Tool
 # -----------------------------------------------------------------------------
 class main(Gtk.Notebook):
+    # column position of id
+    col_id = 6
+
     def __init__(self, parent, obj):
         Gtk.Notebook.__init__(self)
         self.parent = parent
@@ -123,7 +127,7 @@ class main(Gtk.Notebook):
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
         iter = model.get_iter(path)
-        key = model[iter][6]
+        key = model[iter][self.col_id]
 
         if iter is None:
             return
@@ -177,7 +181,7 @@ class main(Gtk.Notebook):
         model, treeiter = selection.get_selected()
 
         if treeiter is not None:
-            key = model[treeiter][5]
+            key = model[treeiter][self.col_id]
 
             if key.startswith('id_part'):
                 sql = self.obj.sql(
@@ -196,6 +200,57 @@ class main(Gtk.Notebook):
     # =========================================================================
     #  GENERAL METHODS
     # =========================================================================
+
+    # -------------------------------------------------------------------------
+    #  config_part_file
+    #  config Part file
+    #
+    #  arguments
+    #    tree
+    #    iter
+    #    model
+    # -------------------------------------------------------------------------
+    def config_part_file(self, tree, iter, model):
+        iter_parent = model.iter_parent(iter)
+        id_projectStr = model[iter_parent][self.col_id]
+
+        iter_grand_parent = model.iter_parent(iter_parent)
+        id_supplierStr = model[iter_grand_parent][self.col_id]
+
+        iter_child = model.iter_children(iter)
+        id_part_list = []
+        while iter_child is not None:
+            id_part = utils.get_id_with_model(iter_child, model, "id_part", self.col_id)
+            id_part_list.append(id_part)
+            iter_child = model.iter_next(iter_child)
+
+        dialog = dlg.part_setting(self.parent, id_supplierStr, id_projectStr, id_part_list, self.obj)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            ########################################################
+            # POTENTIAL BUG!!!
+            # NEED TO OVERHAUL DATA HANDLING WITH DIALOG ALGORITHM
+            ########################################################
+            sql = dialog.get_action()
+            if sql is not None:
+                if type(sql) == list:
+                    for sql0 in sql:
+                        print(sql)
+                        self.obj.put(sql0)
+                    model.node_add(
+                        parent=iter,
+                        name=None,
+                        value=dialog.num_part,
+                        desc=dialog.description,
+                        id=dialog.id_partStr
+                    )
+                    path = model.get_path(iter)
+                    tree.expand_to_path(path)
+                else:
+                    self.obj.put(sql)
+
+        dialog.close()
+        del dialog
 
     # -------------------------------------------------------------------------
     #  data_display

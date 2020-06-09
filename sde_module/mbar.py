@@ -38,7 +38,7 @@ class MenuBar(Gtk.Frame):
 #  button class for menubar class
 # -----------------------------------------------------------------------------
 class menubar_button(Gtk.Button):
-    def __init__(self, name, image, tooltip):
+    def __init__(self, name, image, tooltip=''):
         Gtk.Button.__init__(self, name=name)
         self.add(utils.img().get_image(image))
         self.set_tooltip_text(tooltip)
@@ -49,7 +49,7 @@ class menubar_button(Gtk.Button):
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-#  menubar_main
+#  main
 #  menubar class for main panel of SDE Tool
 # -----------------------------------------------------------------------------
 class main(MenuBar):
@@ -89,6 +89,31 @@ class main(MenuBar):
             return self.but_exit
         if name_image == 'info':
             return self.but_info
+
+
+# -----------------------------------------------------------------------------
+#  sub_add
+#  menubar class for sub panel, add button only
+# -----------------------------------------------------------------------------
+class sub_add(MenuBar):
+    def __init__(self):
+        MenuBar.__init__(self)
+        box = self.get_box()
+
+        # add supplier button
+        self.but_add = menubar_button(name='Button', image='add')
+        box.pack_start(self.but_add, expand=False, fill=True, padding=0)
+
+    # -------------------------------------------------------------------------
+    #  get_obj
+    #  get object instance of button
+    #
+    #  argument:
+    #    image : image name of button
+    # -------------------------------------------------------------------------
+    def get_obj(self, name_image):
+        if name_image == 'add':
+            return self.but_add
 
 # ---
 #  END OF PROGRAM
