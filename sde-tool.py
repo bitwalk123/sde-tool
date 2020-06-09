@@ -17,8 +17,8 @@ from sde_module import db, dlg, mbar, panel, utils
 #  COPYRIGHT 2020 Keiichi Takahashi
 # -----------------------------------------------------------------------------
 class SDETool(Gtk.Window):
-    # platform information
-    # Windows, Linux or Darwin
+    # Platform/OS Information
+    # (Windows, Linux or Darwin)
     app_platform = platform.system()
 
     # Application Version
