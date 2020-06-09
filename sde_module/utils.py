@@ -2,7 +2,9 @@
 #  utils.py --- resource class for SDE Tool
 # -----------------------------------------------------------------------------
 import gi
+import pathlib
 import re
+import subprocess
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
@@ -182,6 +184,18 @@ def get_id_with_model(iter, model, label, col):
     id_string = model[iter][col]
     pattern = label + ' = (.+)'
     return get_id(id_string, pattern)
+
+
+# -------------------------------------------------------------------------
+#  open_file_with_app
+#
+#  argument
+#    name_file :  file to open
+# -------------------------------------------------------------------------
+def open_file_with_app(name_file):
+    link_file = pathlib.PurePath(name_file)
+    # Explorer can cover all cases on Windows NT
+    subprocess.Popen(['explorer', link_file])
 
 
 # -------------------------------------------------------------------------

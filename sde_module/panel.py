@@ -275,20 +275,9 @@ class main(Gtk.Notebook):
         out2 = self.obj.get(sql2)
 
         for info in out2:
-            name_file = info[0]
+            name_file = info[0].strip()
             if name_file is not None:
-                self.open_file_with_app(name_file)
-
-    # -------------------------------------------------------------------------
-    #  open_file_with_app
-    #
-    #  argument
-    #    name_file :  file to open
-    # -------------------------------------------------------------------------
-    def open_file_with_app(self, name_file):
-        link_file = pathlib.PurePath(name_file)
-        # Explorer can cover all cases on Windows NT
-        subprocess.Popen(['explorer', link_file])
+                utils.open_file_with_app(name_file)
 
     # -------------------------------------------------------------------------
     #  add new Part
@@ -337,8 +326,8 @@ class main(Gtk.Notebook):
 
             # the part drawing is already registered on the db
             for info in out2:
-                name_file = info[0]
-                self.open_file_with_app(name_file)
+                name_file = info[0].strip()
+                utils.open_file_with_app(name_file)
         else:
             # the part drawing is not registered.
             # show dialog to ask if drawing is to be registered or not.

@@ -399,8 +399,13 @@ class part_setting(CancelOKDialog):
 
             sql1 = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
             sql2 = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
-            sql3 = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
-            self.sql_action = [sql1, sql2, sql3]
+
+            if name_file.strip() is not None:
+                sql3 = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
+                self.sql_action = [sql1, sql2, sql3]
+            else:
+                self.sql_action = [sql1, sql2]
+
             self.store.append([str(id_part), "1", name_file])
         else:
             dialog.destroy()
@@ -441,11 +446,9 @@ class part_setting_add_or_revise(CancelOKDialog):
 # -----------------------------------------------------------------------------
 #  part_setting_add_new_2_project
 # -----------------------------------------------------------------------------
-class part_setting_add_new_2_project(Gtk.Dialog):
+class part_setting_add_new_2_project(CancelOKDialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, parent=parent, title='Add New Part to the Project')
-        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        CancelOKDialog.__init__(self, parent=parent, title='Add New Part to the Project')
         self.set_icon_from_file(utils.img().get_file('info'))
         self.set_default_size(400, 0)
         self.set_resizable(True)
