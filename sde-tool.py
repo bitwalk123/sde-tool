@@ -1,6 +1,7 @@
 import configparser
 import gi
 import os.path
+import pathlib
 import platform
 
 gi.require_version('Gtk', '3.0')
@@ -23,6 +24,10 @@ class SDETool(Gtk.Window):
 
     # Application Version
     app_version = "0.2"
+    if app_platform == 'Windows':
+        basedir = pathlib.Path('C:/').resolve()
+    else:
+        basedir = pathlib.Path('/').resolve()
 
     # configuraion file
     confFile = 'sde.conf'

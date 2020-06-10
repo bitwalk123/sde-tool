@@ -514,5 +514,87 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
+    # -------------------------------------------------------------------------
+    #  config_stage_file
+    #
+    #  arguments
+    #    iter
+    #    model
+    #    name
+    # -------------------------------------------------------------------------
+    def config_stage_file(self, iter, model, name):
+        #  dialog for editing stage file
+        dialog = dlg.stage_setting(
+            parent=self.parent,
+            title=name,
+            model=model,
+            iter=iter,
+            col_id=self.col_id,
+            obj=self.obj,
+            basedir=self.parent.basedir)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            store = dialog.get_result()
+            if len(store) > 0:
+                # iteration of dialog
+                store_iter = 0
+
+                iter_parent = model.iter_parent(iter)
+                iter_grand_parent = model.iter_parent(iter_parent)
+                # id_stage
+                id_stage = utils.get_id_with_model(iter, model, "id_stage", self.col_id)
+                # id_project
+                id_project = utils.get_id_with_model(iter_grand_parent, model, "id_project", self.col_id)
+
+                while store_iter < len(store):
+                    if store[store_iter][4] == 'new':
+                        sql = self.obj.sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
+                        self.obj.put(sql)
+                        sql = "SELECT MAX(id_data) FROM data"
+                        out = self.obj.get(sql)
+                        id_data = out[0][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        self.basedir = pathlib.Path(name_file).parent
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+                        self.add_stage_sub_4(id_data, iter, name_file)
+                    elif store[store_iter][4] == 'revise':
+                        id_data = store[store_iter][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+
+                    store_iter += 1
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
+    #  add Stage sub 4
+    #
+    #  arguments
+    #    id_data   :
+    #    iter      :
+    #    name_file :
+    #    disp_file :
+    # -------------------------------------------------------------------------
+    def add_stage_sub_4(self, id_data, iter, name_file, disp_file=''):
+        if len(disp_file) == 0:
+            disp_file = pathlib.PurePath(name_file).name
+
+        label_id = 'id_data = ' + str(id_data)
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        self.store.node_add(
+            parent=iter,
+            name=None,
+            value=disp_file,
+            desc=None,
+            id=label_id
+        )
+
 # ---
 #  END OF PROGRAM

@@ -18,8 +18,8 @@ from . import mbar, utils
 #  dialog with Cancel & OK buttons class (templete)
 # =============================================================================
 class CancelOKDialog(Gtk.Dialog):
-    def __init__(self, parent, title):
-        Gtk.Dialog.__init__(self, parent=parent, title=title)
+    def __init__(self, parent, title, flags=0):
+        Gtk.Dialog.__init__(self, parent=parent, title=title, flags=flags)
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.parent = parent
@@ -400,7 +400,8 @@ class part_setting(CancelOKDialog):
             sql1 = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
             sql2 = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
 
-            if name_file.strip() is not None:
+            if len(name_file.strip()) > 0:
+                print("DEBUG", name_file)
                 sql3 = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
                 self.sql_action = [sql1, sql2, sql3]
             else:
@@ -641,5 +642,325 @@ class supplier_setting_new_proj(GridPane):
         if filename is not None:
             self.file.set_text(filename)
 
+
 # ---
 #  END OF PROGRAM
+
+
+# -----------------------------------------------------------------------------
+#  stage_setting
+# -----------------------------------------------------------------------------
+class stage_setting(CancelOKDialog):
+    id_data_selected = None
+
+    def __init__(self, parent, title, model, iter, col_id, obj, basedir):
+        CancelOKDialog.__init__(self, parent=parent, title=title)
+
+        self.set_icon_from_file(utils.img().get_file('config'))
+        self.set_default_size(800, 400)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
+
+        self.col_id = col_id
+        self.obj = obj
+        self.result = ''
+        self.connect('response', self.on_response)
+
+        # ---------------------------------------------------------------------
+        #  menubar
+        # ---------------------------------------------------------------------
+        frame = mbar.sub_add()
+        but_add = frame.get_obj('add')
+        but_add.set_tooltip_text('Add or Revise File')
+        but_add.connect(
+            'clicked',
+            self.on_click_add_revise,
+            basedir
+        )
+
+        # ---------------------------------------------------------------------
+        #  main part with treeview with list store
+        # ---------------------------------------------------------------------
+        self.store = Gtk.ListStore(str, str, bool, str, str)
+        iter_parent = model.iter_parent(iter)
+        iter_grand_parent = model.iter_parent(iter_parent)
+        id_stageStr = model[iter][self.col_id]
+        id_projectStr = model[iter_grand_parent][self.col_id]
+        sql = self.obj.sql("SELECT id_data FROM data WHERE ? AND ?", [id_projectStr, id_stageStr])
+        out = self.obj.get(sql)
+        for row in out:
+            self.get_revised_data(row)
+
+        tree = Gtk.TreeView(model=self.store)
+
+        # id_data
+        self.make_column_text(tree, 0, 'ID')
+        # num_revision
+        self.make_column_text(tree, 1, 'Rev.')
+        # delete flag
+        self.make_column_toggle(tree, 2, 'Del')
+        # name_file
+        self.make_column_text(tree, 3, 'File')
+        # name_file
+        self.make_column_text(tree, 4, '')
+
+        # scrollbar
+        scrwin = Gtk.ScrolledWindow()
+        scrwin.add(tree)
+        scrwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+
+        # ---------------------------------------------------------------------
+        #  layout and packing
+        # ---------------------------------------------------------------------
+        box = self.get_content_area()
+        box.pack_start(frame, expand=False, fill=True, padding=0)
+        box.pack_start(scrwin, expand=True, fill=True, padding=0)
+
+        # event handling for selection on the row of the tree
+        select = tree.get_selection()
+        select.connect('changed', self.on_tree_selection_changed)
+
+        self.show_all()
+
+        # set base counter of id_data
+        self.set_initial_id_data()
+
+    # -------------------------------------------------------------------------
+    #  get_revised_data
+    #
+    #  argument
+    #    row :
+    # -------------------------------------------------------------------------
+    def get_revised_data(self, row):
+        id_data = row[0]
+        sql = self.obj.sql("SELECT num_revision, name_file FROM data_revision WHERE id_data = ?", [id_data])
+        out = self.obj.get(sql)
+        for row in out:
+            num_revision = row[0]
+            name_file = row[1]
+            self.store.append([str(id_data), str(num_revision), False, name_file, ''])
+
+    # -------------------------------------------------------------------------
+    #  make_column_text
+    #
+    #  arguments
+    #    tree       :
+    #    xcol       :
+    #    name_label :
+    #    visible    :
+    # -------------------------------------------------------------------------
+    def make_column_text(self, tree, xcol, name_label, visible=True):
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(name_label, renderer, text=xcol)
+        tree.append_column(column)
+        column.set_visible(visible)
+
+    # -------------------------------------------------------------------------
+    #  make_column_toggle
+    #
+    #  arguments
+    #    tree       :
+    #    xcol       :
+    #    name_label :
+    # -------------------------------------------------------------------------
+    def make_column_toggle(self, tree, xcol, name_label):
+        renderer = Gtk.CellRendererToggle()
+        renderer.connect('toggled', self.on_cell_toggled)
+        column = Gtk.TreeViewColumn(name_label, renderer, active=xcol)
+        tree.append_column(column)
+
+    # -------------------------------------------------------------------------
+    #  on_response
+    #
+    #  arguments
+    #    widget      :
+    #    response_id :
+    # -------------------------------------------------------------------------
+    def on_response(self, widget, response_id):
+        self.result = self.store
+
+    # -------------------------------------------------------------------------
+    #  get_result
+    # -------------------------------------------------------------------------
+    def get_result(self):
+        return self.store
+
+    # -------------------------------------------------------------------------
+    #  on_cell_toggled
+    #
+    #  arguments
+    #    widget :
+    #    path   :
+    # -------------------------------------------------------------------------
+    def on_cell_toggled(self, widget, path):
+        self.store[path][2] = not self.store[path][2]
+
+    # -------------------------------------------------------------------------
+    #  on_click_add_revise
+    #
+    #  arguments
+    #    widget  :
+    #    basedir :
+    # -------------------------------------------------------------------------
+    def on_click_add_revise(self, widget, basedir):
+        dialog = DlgAddOrReviseFile(self, self.id_data_selected, basedir)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            result = dialog.get_result()
+            if result == 'add':
+                self.add_new_file(dialog.file.get_text())
+            else:
+                self.revise_file(dialog.file.get_text())
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
+    #  on_tree_selection_changed
+    #  row selection
+    #
+    #  argument
+    #    selection :
+    # -------------------------------------------------------------------------
+    def on_tree_selection_changed(self, selection):
+        model, treeiter = selection.get_selected()
+        if treeiter is not None:
+            self.id_data_selected = model[treeiter][0]
+
+    # -------------------------------------------------------------------------
+    #  set_initial_id_data
+    # -------------------------------------------------------------------------
+    def set_initial_id_data(self):
+        sql = "SELECT MAX(id_data) FROM data"
+        out = self.obj.get(sql)
+        self.id_data = out[0][0]
+        if self.id_data is None:
+            self.id_data = 1
+
+    # -------------------------------------------------------------------------
+    #  add_new_file
+    #
+    #  arguments
+    #    filename :
+    # -------------------------------------------------------------------------
+    def add_new_file(self, filename):
+        self.id_data += 1
+        self.store.append([str(self.id_data), '1', False, filename, 'new'])
+
+    # -------------------------------------------------------------------------
+    #  revise_file
+    #
+    #  arguments
+    #    filename :
+    # -------------------------------------------------------------------------
+    def revise_file(self, filename):
+        if len(self.store) > 0:
+            store_iter = 0
+            rev = 0
+            while store_iter < len(self.store):
+                row = self.store[store_iter][:]
+                if row[0] == self.id_data_selected:
+                    rev_current = int(row[1])
+                    if rev_current > rev:
+                        rev = rev_current
+
+                store_iter += 1
+            rev += 1
+            self.store.append([str(self.id_data_selected), str(rev), False, filename, 'revise'])
+
+# -----------------------------------------------------------------------------
+#  DlgAddOrReviseFile
+# -----------------------------------------------------------------------------
+class DlgAddOrReviseFile(Gtk.Dialog):
+
+    def __init__(self, parent, id_data_selected, basedir):
+        Gtk.Dialog.__init__(self, parent=parent, title='Add New File to the Stage')
+        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+
+        self.set_icon_from_file(utils.img().get_file('file'))
+        self.set_default_size(400, 0)
+        self.set_margin_start(1)
+        self.set_margin_end(1)
+        self.set_resizable(True)
+        self.set_modal(True)
+
+        grid = Gtk.Grid()
+
+        self.rb1 = Gtk.RadioButton.new_with_label_from_widget(None, 'add New Data (File) of this Stage')
+        self.rb1.set_active(True)
+        grid.attach(self.rb1, 0, 0, 3, 1)
+        r = 1
+
+        if id_data_selected is not None:
+            self.rb2 = Gtk.RadioButton.new_with_label_from_widget(self.rb1, 'revise Data ID = ' + str(id_data_selected))
+            self.rb2.set_active(True)
+            grid.attach(self.rb2, 0, 1, 3, 1)
+            r = 2
+
+        # Label for File
+        lab_file = Gtk.Label(label='File', name="Label")
+        lab_file.set_hexpand(False)
+        lab_file.set_halign(Gtk.Align.END)
+
+        # Entry for File
+        self.file = Gtk.Entry()
+        self.file.set_hexpand(True)
+        # Button for File
+        but_file = Gtk.Button()
+        but_file.add(utils.img().get_image('folder', 16))
+        but_file.connect('clicked', self.on_click_choose_file, basedir)
+        but_file.set_hexpand(False)
+
+        grid.attach(lab_file, 0, r, 1, 1)
+        grid.attach(self.file, 1, r, 1, 1)
+        grid.attach(but_file, 2, r, 1, 1)
+
+        container = self.get_content_area()
+        container.add(grid)
+
+        self.show_all()
+
+    def get_file(self):
+        return self.file.get_text()
+
+    def get_filename(self, basedir):
+        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
+        dialog.set_icon_from_file(utils.img().get_file('file'))
+        dialog.set_current_folder(str(basedir))
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN,
+            Gtk.ResponseType.OK
+        )
+        self.addFileFiltersALL(dialog)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            p = pathlib.Path(dialog.get_filename())
+            dialog.destroy()
+            # change path separator '\' to '/' to avoid unexpected errors
+            name_file = str(p.as_posix())
+            return name_file
+        elif response == Gtk.ResponseType.CANCEL:
+            dialog.destroy()
+            return None
+
+    def get_result(self):
+        if self.rb1.get_active():
+            return 'add'
+        else:
+            return 'revise'
+
+    def on_click_choose_file(self, widget, basedir):
+        filename = self.get_filename(basedir)
+        if filename is not None:
+            self.file.set_text(filename)
+
+    # -------------------------------------------------------------------------
+    # addFileFiltersALL - filter for ALL
+    # -------------------------------------------------------------------------
+    def addFileFiltersALL(self, dialog):
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name('All File')
+        filter_any.add_pattern('*')
+        dialog.add_filter(filter_any)
