@@ -161,7 +161,7 @@ class main(Gtk.Notebook):
             out = self.obj.get(sql)
             name = out[0][0]
 
-            self.config_stage_file(iter, model, name)
+            self.stage_setting(iter, model, name)
             tree.expand_to_path(path)
             return
 
@@ -515,14 +515,14 @@ class main(Gtk.Notebook):
         dialog.destroy()
 
     # -------------------------------------------------------------------------
-    #  config_stage_file
+    #  stage_setting
     #
     #  arguments
     #    iter
     #    model
     #    name
     # -------------------------------------------------------------------------
-    def config_stage_file(self, iter, model, name):
+    def stage_setting(self, iter, model, name):
         #  dialog for editing stage file
         dialog = dlg.stage_setting(
             parent=self.parent,
