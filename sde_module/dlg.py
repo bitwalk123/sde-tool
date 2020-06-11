@@ -20,8 +20,14 @@ from . import mbar, utils
 class CancelOKDialog(Gtk.Dialog):
     def __init__(self, parent, title, flags=0):
         Gtk.Dialog.__init__(self, parent=parent, title=title, flags=flags)
-        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.add_button(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL
+        )
+        self.add_button(
+            Gtk.STOCK_OK,
+            Gtk.ResponseType.OK
+        )
         self.parent = parent
 
 
@@ -85,10 +91,15 @@ class add_new_supplier(CancelOKDialog):
         self.set_default_size(400, 0)
         self.set_resizable(True)
 
-        lab_supplier = Gtk.Label(label='Supplier', name="Label")
+        lab_supplier = Gtk.Label(
+            label='Supplier',
+            name="Label"
+        )
         self.name_supplier = Gtk.Entry()
 
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL
+        )
         hbox.pack_start(lab_supplier, expand=False, fill=False, padding=0)
         hbox.pack_start(self.name_supplier, expand=True, fill=True, padding=0)
 
@@ -108,7 +119,10 @@ class app_about(Gtk.Dialog):
 
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, parent=parent, title='About This App')
-        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.add_button(
+            Gtk.STOCK_OK,
+            Gtk.ResponseType.OK
+        )
         self.set_icon_from_file(utils.img().get_file('info'))
         self.set_default_size(400, 0)
         self.set_resizable(False)
@@ -138,7 +152,10 @@ class app_about(Gtk.Dialog):
         desc.set_wrap_mode(wrap_mode=Gtk.WrapMode.WORD)
         desc.set_editable(False)
         desc.set_can_focus(False)
-        desc.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
+        desc.override_background_color(
+            Gtk.StateFlags.NORMAL,
+            Gdk.RGBA(0, 0, 0, 0)
+        )
 
         box = self.get_content_area()
         box.pack_start(lab1, expand=False, fill=False, padding=0)
@@ -156,7 +173,10 @@ class app_about(Gtk.Dialog):
         app_logo = Gtk.IconView()
         app_logo.set_model(liststore)
         app_logo.set_pixbuf_column(0)
-        app_logo.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
+        app_logo.override_background_color(
+            Gtk.StateFlags.NORMAL,
+            Gdk.RGBA(0, 0, 0, 0)
+        )
         return app_logo
 
 
@@ -175,9 +195,18 @@ class file_chooser():
     # -------------------------------------------------------------------------
     @classmethod
     def get(cls):
-        dialog = Gtk.FileChooserDialog(title='select file', parent=None, action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(
+            title='Select File',
+            parent=None,
+            action=Gtk.FileChooserAction.OPEN
+        )
         dialog.set_icon_from_file(utils.img().get_file('file'))
-        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN,
+            Gtk.ResponseType.OK
+        )
 
         if os.path.exists(cls.basedir):
             dialog.set_current_folder(str(cls.basedir))
@@ -233,7 +262,10 @@ class ok(Gtk.Dialog):
         tview.set_bottom_margin(10)
         tview.set_left_margin(10)
         tview.set_right_margin(10)
-        tview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0))
+        tview.override_background_color(
+            Gtk.StateFlags.NORMAL,
+            Gdk.RGBA(0, 0, 0, 0)
+        )
 
         content = self.get_content_area()
         content.add(tview)
@@ -279,7 +311,10 @@ class part_setting(CancelOKDialog):
         # ---------------------------------------------------------------------
         self.store = Gtk.ListStore(str, str, str)
         for id_part in id_part_list:
-            sql = self.obj.sql("SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = ? ORDER BY id_part, num_revision", [id_part])
+            sql = self.obj.sql(
+                "SELECT id_part, num_revision, name_file FROM part_revision WHERE id_part = ? ORDER BY id_part, num_revision",
+                [id_part]
+            )
             out = self.obj.get(sql)
             for row in out:
                 self.store.append([str(row[0]), str(row[1]), row[2]])
@@ -295,12 +330,18 @@ class part_setting(CancelOKDialog):
 
         # event handling for selection on the row of the tree
         select = tree.get_selection()
-        select.connect('changed', self.on_tree_selection_changed)
+        select.connect(
+            'changed',
+            self.on_tree_selection_changed
+        )
 
         # scrollbar
         scrwin = Gtk.ScrolledWindow()
         scrwin.add(tree)
-        scrwin.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrwin.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
+        )
 
         # ---------------------------------------------------------------------
         #  layout and packing
@@ -354,14 +395,20 @@ class part_setting(CancelOKDialog):
     def revise_part(self):
         name_file = file_chooser.get()
         if name_file is not None:
-            sql = self.obj.sql("SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?", [self.id_part_selected])
+            sql = self.obj.sql(
+                "SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?",
+                [self.id_part_selected]
+            )
             out = self.obj.get(sql)
             rev = out[0][0]
             if rev is None:
                 rev = 1
             else:
                 rev += 1
-            self.sql_action = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, ?, '?')", [self.id_part_selected, rev, name_file])
+            self.sql_action = self.obj.sql(
+                "INSERT INTO part_revision VALUES(NULL, ?, ?, '?')",
+                [self.id_part_selected, rev, name_file]
+            )
             self.store.append([str(self.id_part_selected), str(rev), name_file])
 
     # -------------------------------------------------------------------------
@@ -384,19 +431,31 @@ class part_setting(CancelOKDialog):
             id_part = out[0][0] + 1
             self.id_partStr = "id_part = " + str(id_part)
             # obtaine name of project owner
-            sql = self.obj.sql("SELECT DISTINCT name_owner FROM project WHERE ? AND ?", [id_projectStr, id_supplierStr])
+            sql = self.obj.sql(
+                "SELECT DISTINCT name_owner FROM project WHERE ? AND ?",
+                [id_projectStr, id_supplierStr]
+            )
             out = self.obj.get(sql)
             name_owner = out[0][0]
 
             id_project = utils.get_id(id_projectStr, 'id_project = (.+)')
             id_supplier = utils.get_id(id_supplierStr, 'id_supplier = (.+)')
 
-            sql1 = self.obj.sql("INSERT INTO project VALUES(?, ?, ?, '?')", [id_project, id_supplier, id_part, name_owner])
-            sql2 = self.obj.sql("INSERT INTO part VALUES(NULL, '?', '?', '?')", [num_part, description, name_product])
+            sql1 = self.obj.sql(
+                "INSERT INTO project VALUES(?, ?, ?, '?')",
+                [id_project, id_supplier, id_part, name_owner]
+            )
+            sql2 = self.obj.sql(
+                "INSERT INTO part VALUES(NULL, '?', '?', '?')",
+                [num_part, description, name_product]
+            )
 
             if len(name_file.strip()) > 0:
                 print("DEBUG", name_file)
-                sql3 = self.obj.sql("INSERT INTO part_revision VALUES(NULL, ?, 1, '?')", [id_part, name_file])
+                sql3 = self.obj.sql(
+                    "INSERT INTO part_revision VALUES(NULL, ?, 1, '?')",
+                    [id_part, name_file]
+                )
                 self.sql_action = [sql1, sql2, sql3]
             else:
                 self.sql_action = [sql1, sql2]
@@ -450,7 +509,10 @@ class part_setting_add_new_2_project(CancelOKDialog):
         self.set_modal(True)
 
         # Label for PART No.
-        lab_num_part = Gtk.Label(label='PART No.', name="Label")
+        lab_num_part = Gtk.Label(
+            label='PART No.',
+            name="Label"
+        )
         lab_num_part.set_hexpand(False)
         lab_num_part.set_halign(Gtk.Align.END)
         # Entry for PART No.
@@ -458,7 +520,10 @@ class part_setting_add_new_2_project(CancelOKDialog):
         self.num_part.set_hexpand(True)
 
         # Label for Description
-        lab_description = Gtk.Label(label='Description', name="Label")
+        lab_description = Gtk.Label(
+            label='Description',
+            name="Label"
+        )
         lab_description.set_hexpand(False)
         lab_description.set_halign(Gtk.Align.END)
         # Entry for Description
@@ -466,7 +531,10 @@ class part_setting_add_new_2_project(CancelOKDialog):
         self.description.set_hexpand(True)
 
         # Label for Product
-        lab_product = Gtk.Label(label='Product', name="Label")
+        lab_product = Gtk.Label(
+            label='Product',
+            name="Label"
+        )
         lab_product.set_hexpand(False)
         lab_product.set_halign(Gtk.Align.END)
         # Entry for Product
@@ -474,7 +542,10 @@ class part_setting_add_new_2_project(CancelOKDialog):
         self.product.set_hexpand(True)
 
         # Label for File
-        lab_file = Gtk.Label(label='File', name="Label")
+        lab_file = Gtk.Label(
+            label='File',
+            name="Label"
+        )
         lab_file.set_hexpand(False)
         lab_file.set_halign(Gtk.Align.END)
         # Entry for File
@@ -483,7 +554,10 @@ class part_setting_add_new_2_project(CancelOKDialog):
         # Button for File
         but_file = Gtk.Button()
         but_file.add(utils.img().get_image('folder', 16))
-        but_file.connect('clicked', self.on_click_choose_file)
+        but_file.connect(
+            'clicked',
+            self.on_click_choose_file
+        )
         but_file.set_hexpand(False)
 
         grid = Gtk.Grid()
@@ -536,7 +610,10 @@ class stage_setting(CancelOKDialog):
         self.col_id = col_id
         self.obj = obj
         self.result = ''
-        self.connect('response', self.on_response)
+        self.connect(
+            'response',
+            self.on_response
+        )
 
         # ---------------------------------------------------------------------
         #  menubar
@@ -558,7 +635,10 @@ class stage_setting(CancelOKDialog):
         iter_grand_parent = model.iter_parent(iter_parent)
         id_stageStr = model[iter][self.col_id]
         id_projectStr = model[iter_grand_parent][self.col_id]
-        sql = self.obj.sql("SELECT id_data FROM data WHERE ? AND ?", [id_projectStr, id_stageStr])
+        sql = self.obj.sql(
+            "SELECT id_data FROM data WHERE ? AND ?",
+            [id_projectStr, id_stageStr]
+        )
         out = self.obj.get(sql)
         for row in out:
             self.get_revised_data(row)
@@ -605,7 +685,10 @@ class stage_setting(CancelOKDialog):
     # -------------------------------------------------------------------------
     def get_revised_data(self, row):
         id_data = row[0]
-        sql = self.obj.sql("SELECT num_revision, name_file FROM data_revision WHERE id_data = ?", [id_data])
+        sql = self.obj.sql(
+            "SELECT num_revision, name_file FROM data_revision WHERE id_data = ?",
+            [id_data]
+        )
         out = self.obj.get(sql)
         for row in out:
             num_revision = row[0]
@@ -852,7 +935,10 @@ class supplier_setting_new_proj(GridPane):
 
         # ---------------------------------------------------------------------
         # Label for Project Owner
-        lab_name_owner = Gtk.Label(label='Project Owner', name="Label")
+        lab_name_owner = Gtk.Label(
+            label='Project Owner',
+            name="Label"
+        )
         lab_name_owner.set_hexpand(False)
         lab_name_owner.set_halign(Gtk.Align.END)
         # Entry for Project Owner
@@ -860,7 +946,10 @@ class supplier_setting_new_proj(GridPane):
         self.name_owner.set_hexpand(True)
         # ---------------------------------------------------------------------
         # Label for PART No.
-        lab_num_part = Gtk.Label(label='PART No.', name="Label")
+        lab_num_part = Gtk.Label(
+            label='PART No.',
+            name="Label"
+        )
         lab_num_part.set_hexpand(False)
         lab_num_part.set_halign(Gtk.Align.END)
         # Entry for PART No.
@@ -868,7 +957,10 @@ class supplier_setting_new_proj(GridPane):
         self.num_part.set_hexpand(True)
         # ---------------------------------------------------------------------
         # Label for Description
-        lab_description = Gtk.Label(label='Description', name="Label")
+        lab_description = Gtk.Label(
+            label='Description',
+            name="Label"
+        )
         lab_description.set_hexpand(False)
         lab_description.set_halign(Gtk.Align.END)
         # Entry for Description
@@ -876,7 +968,10 @@ class supplier_setting_new_proj(GridPane):
         self.description.set_hexpand(True)
         # ---------------------------------------------------------------------
         # Label for File
-        lab_file = Gtk.Label(label='File', name="Label")
+        lab_file = Gtk.Label(
+            label='File',
+            name="Label"
+        )
         lab_file.set_hexpand(False)
         lab_file.set_halign(Gtk.Align.END)
         # Entry for File
@@ -884,7 +979,10 @@ class supplier_setting_new_proj(GridPane):
         self.file.set_hexpand(True)
         # ---------------------------------------------------------------------
         # Label for Product
-        lab_product = Gtk.Label(label='Product', name="Label")
+        lab_product = Gtk.Label(
+            label='Product',
+            name="Label"
+        )
         lab_product.set_hexpand(False)
         lab_product.set_halign(Gtk.Align.END)
         # Entry for Product
