@@ -305,7 +305,7 @@ class main(Gtk.Notebook):
     #    id_partStr : id_part in string format
     # -------------------------------------------------------------------------
     def part_add_new(self, id_partStr):
-        filename = dlg.file_chooser.get()
+        filename = dlg.file_chooser.get(parent=self)
 
         if filename is not None:
             id_part = utils.get_id(id_partStr, 'id_part = (.+)')

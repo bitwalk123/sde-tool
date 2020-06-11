@@ -73,7 +73,7 @@ class GridPane(Gtk.Grid):
 
     # -------------------------------------------------------------------------
     def get_filename(self):
-        return file_chooser.get()
+        return file_chooser.get(parent=self)
 
 
 # =============================================================================
@@ -194,10 +194,10 @@ class file_chooser():
     #    cls : this class object for this class method
     # -------------------------------------------------------------------------
     @classmethod
-    def get(cls):
+    def get(cls, parent):
         dialog = Gtk.FileChooserDialog(
             title='Select File',
-            parent=None,
+            parent=parent,
             action=Gtk.FileChooserAction.OPEN
         )
         dialog.set_icon_from_file(utils.img().get_file('file'))
@@ -211,7 +211,7 @@ class file_chooser():
         if os.path.exists(cls.basedir):
             dialog.set_current_folder(str(cls.basedir))
 
-        cls.filename_filter_all(dialog)
+        cls.add_filters(cls, dialog)
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
@@ -232,7 +232,7 @@ class file_chooser():
     #  argument
     #    dialog : instance of Gtk.FileChooserDialog to attach this file filter
     # -------------------------------------------------------------------------
-    def filename_filter_all(dialog):
+    def add_filters(self, dialog):
         filter_any = Gtk.FileFilter()
         filter_any.set_name('All File')
         filter_any.add_pattern('*')
@@ -393,7 +393,7 @@ class part_setting(CancelOKDialog):
     #  revise_part
     # -------------------------------------------------------------------------
     def revise_part(self):
-        name_file = file_chooser.get()
+        name_file = file_chooser.get(parent=self)
         if name_file is not None:
             sql = self.obj.sql(
                 "SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?",
@@ -589,7 +589,7 @@ class part_setting_add_new_2_project(CancelOKDialog):
         return self.file.get_text()
 
     def on_click_choose_file(self, widget):
-        name_file = file_chooser.get()
+        name_file = file_chooser.get(parent=self)
         self.file.set_text(name_file)
 
 
@@ -884,7 +884,7 @@ class stage_setting_add_or_revise_file(CancelOKDialog):
             return 'revise'
 
     def on_click_choose_file(self, widget, basedir):
-        filename = file_chooser.get()
+        filename = file_chooser.get(parent=self)
         if filename is not None:
             self.file.set_text(filename)
 
@@ -1015,7 +1015,7 @@ class supplier_setting_new_proj(GridPane):
     #  on_click_choose_file
     # -------------------------------------------------------------------------
     def on_click_choose_file(self, widget):
-        filename = file_chooser.get()
+        filename = file_chooser.get(parent=self)
         if filename is not None:
             self.file.set_text(filename)
 
