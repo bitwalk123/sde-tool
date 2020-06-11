@@ -67,6 +67,10 @@ class main(Gtk.Notebook):
 
     # -------------------------------------------------------------------------
     #  set_statusbar_info
+    #
+    #  arguments
+    #    instance :
+    #    id       :
     # -------------------------------------------------------------------------
     def set_statusbar_info(self, instance, id):
         self.statusbar = instance
@@ -74,6 +78,9 @@ class main(Gtk.Notebook):
 
     # -------------------------------------------------------------------------
     #  display file name to status bar
+    #
+    #  argument
+    #    sql :
     # -------------------------------------------------------------------------
     def statusbar_from_db(self, sql):
         out = self.obj.get(sql)
@@ -91,6 +98,9 @@ class main(Gtk.Notebook):
     # -------------------------------------------------------------------------
     #  on_click_add_new_supplier
     #  Add New Supplier
+    #
+    #  argument
+    #    widget :
     # -------------------------------------------------------------------------
     def on_click_add_new_supplier(self, widget):
         # Dialog for adding new supplier
@@ -123,6 +133,12 @@ class main(Gtk.Notebook):
     # -------------------------------------------------------------------------
     #  on_tree_doubleclicked
     #  TreeView row Double clicked
+    #
+    #  arguments
+    #    tree     :
+    #    path     :
+    #    col      :
+    #    userdata :
     # -------------------------------------------------------------------------
     def on_tree_doubleclicked(self, tree, path, col, userdata=None):
         model = tree.get_model()
@@ -176,6 +192,9 @@ class main(Gtk.Notebook):
     # -------------------------------------------------------------------------
     #  on_tree_selection_changed
     #  Row Selection on the TreeView
+    #
+    #  argument
+    #    selection :
     # -------------------------------------------------------------------------
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
@@ -206,9 +225,9 @@ class main(Gtk.Notebook):
     #  config Part file
     #
     #  arguments
-    #    tree
-    #    iter
-    #    model
+    #    tree  :
+    #    iter  :
+    #    model :
     # -------------------------------------------------------------------------
     def config_part_file(self, tree, iter, model):
         iter_parent = model.iter_parent(iter)
@@ -281,10 +300,12 @@ class main(Gtk.Notebook):
 
     # -------------------------------------------------------------------------
     #  add new Part
+    #
+    #  argument
+    #    id_partStr : id_part in string format
     # -------------------------------------------------------------------------
     def part_add_new(self, id_partStr):
-        f = dlg.file_chooser(self.parent)
-        filename = f.get()
+        filename = dlg.file_chooser.get()
 
         if filename is not None:
             id_part = utils.get_id(id_partStr, 'id_part = (.+)')
@@ -361,6 +382,13 @@ class main(Gtk.Notebook):
 
     # -------------------------------------------------------------------------
     #  project_add_new
+    #
+    #  argument
+    #    dialog      :
+    #    id_supplier :
+    #    iter        :
+    #    num_part    :
+    #    tree        :
     # -------------------------------------------------------------------------
     def project_add_new(self, dialog, id_supplier, iter, num_part, tree):
         name_owner = dialog.get_name_owner()
@@ -467,6 +495,89 @@ class main(Gtk.Notebook):
         utils.tree_node_expand(tree, iter_project)
 
     # -------------------------------------------------------------------------
+    #  stage_setting
+    #
+    #  arguments
+    #    iter  :
+    #    model :
+    #    name  :
+    # -------------------------------------------------------------------------
+    def stage_setting(self, iter, model, name):
+        #  dialog for editing stage file
+        dialog = dlg.stage_setting(
+            parent=self.parent,
+            title=name,
+            model=model,
+            iter=iter,
+            col_id=self.col_id,
+            obj=self.obj,
+            basedir=self.parent.basedir
+        )
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            store = dialog.get_result()
+            if len(store) > 0:
+                # iteration of dialog
+                store_iter = 0
+
+                iter_parent = model.iter_parent(iter)
+                iter_grand_parent = model.iter_parent(iter_parent)
+                # id_stage
+                id_stage = utils.get_id_with_model(iter, model, "id_stage", self.col_id)
+                # id_project
+                id_project = utils.get_id_with_model(iter_grand_parent, model, "id_project", self.col_id)
+
+                while store_iter < len(store):
+                    if store[store_iter][4] == 'new':
+                        sql = self.obj.sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
+                        self.obj.put(sql)
+                        sql = "SELECT MAX(id_data) FROM data"
+                        out = self.obj.get(sql)
+                        id_data = out[0][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        self.basedir = pathlib.Path(name_file).parent
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+                        self.stage_setting_add_file_2_node(id_data, iter, name_file)
+                    elif store[store_iter][4] == 'revise':
+                        id_data = store[store_iter][0]
+                        num_revision = store[store_iter][1]
+                        name_file = store[store_iter][3]
+                        name_file = name_file.replace("'", "''")
+                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
+                        self.obj.put(sql)
+
+                    store_iter += 1
+
+        dialog.destroy()
+
+    # -------------------------------------------------------------------------
+    #  stage_setting_add_file_2_node
+    #
+    #  arguments
+    #    id_data   :
+    #    iter      :
+    #    name_file :
+    #    disp_file :
+    # -------------------------------------------------------------------------
+    def stage_setting_add_file_2_node(self, id_data, iter, name_file, disp_file=''):
+        if len(disp_file) == 0:
+            disp_file = pathlib.PurePath(name_file).name
+
+        label_id = 'id_data = ' + str(id_data)
+        # _/_/_/_/_/_/_/_/_/
+        #  ADD NODE (ROW)
+        self.store.node_add(
+            parent=iter,
+            name=None,
+            value=disp_file,
+            desc=None,
+            id=label_id
+        )
+
+    # -------------------------------------------------------------------------
     #  supplier_add_new
     #  add New Supplier
     #
@@ -513,88 +624,6 @@ class main(Gtk.Notebook):
                 self.project_add_new(dialog, id_supplier, iter, num_part, tree)
 
         dialog.destroy()
-
-    # -------------------------------------------------------------------------
-    #  stage_setting
-    #
-    #  arguments
-    #    iter
-    #    model
-    #    name
-    # -------------------------------------------------------------------------
-    def stage_setting(self, iter, model, name):
-        #  dialog for editing stage file
-        dialog = dlg.stage_setting(
-            parent=self.parent,
-            title=name,
-            model=model,
-            iter=iter,
-            col_id=self.col_id,
-            obj=self.obj,
-            basedir=self.parent.basedir)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            store = dialog.get_result()
-            if len(store) > 0:
-                # iteration of dialog
-                store_iter = 0
-
-                iter_parent = model.iter_parent(iter)
-                iter_grand_parent = model.iter_parent(iter_parent)
-                # id_stage
-                id_stage = utils.get_id_with_model(iter, model, "id_stage", self.col_id)
-                # id_project
-                id_project = utils.get_id_with_model(iter_grand_parent, model, "id_project", self.col_id)
-
-                while store_iter < len(store):
-                    if store[store_iter][4] == 'new':
-                        sql = self.obj.sql("INSERT INTO data VALUES(NULL, ?, ?, '')", [id_project, id_stage])
-                        self.obj.put(sql)
-                        sql = "SELECT MAX(id_data) FROM data"
-                        out = self.obj.get(sql)
-                        id_data = out[0][0]
-                        num_revision = store[store_iter][1]
-                        name_file = store[store_iter][3]
-                        name_file = name_file.replace("'", "''")
-                        self.basedir = pathlib.Path(name_file).parent
-                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
-                        self.obj.put(sql)
-                        self.add_stage_sub_4(id_data, iter, name_file)
-                    elif store[store_iter][4] == 'revise':
-                        id_data = store[store_iter][0]
-                        num_revision = store[store_iter][1]
-                        name_file = store[store_iter][3]
-                        name_file = name_file.replace("'", "''")
-                        sql = self.obj.sql("INSERT INTO data_revision VALUES(NULL, ?, ?, '?')", [id_data, num_revision, name_file])
-                        self.obj.put(sql)
-
-                    store_iter += 1
-
-        dialog.destroy()
-
-    # -------------------------------------------------------------------------
-    #  add Stage sub 4
-    #
-    #  arguments
-    #    id_data   :
-    #    iter      :
-    #    name_file :
-    #    disp_file :
-    # -------------------------------------------------------------------------
-    def add_stage_sub_4(self, id_data, iter, name_file, disp_file=''):
-        if len(disp_file) == 0:
-            disp_file = pathlib.PurePath(name_file).name
-
-        label_id = 'id_data = ' + str(id_data)
-        # _/_/_/_/_/_/_/_/_/
-        #  ADD NODE (ROW)
-        self.store.node_add(
-            parent=iter,
-            name=None,
-            value=disp_file,
-            desc=None,
-            id=label_id
-        )
 
 # ---
 #  END OF PROGRAM

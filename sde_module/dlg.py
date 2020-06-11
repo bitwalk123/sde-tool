@@ -67,8 +67,7 @@ class GridPane(Gtk.Grid):
 
     # -------------------------------------------------------------------------
     def get_filename(self):
-        f = file_chooser(self.parent)
-        return f.get()
+        return file_chooser.get()
 
 
 # =============================================================================
@@ -357,8 +356,7 @@ class part_setting(CancelOKDialog):
     #  revise_part
     # -------------------------------------------------------------------------
     def revise_part(self):
-        f = file_chooser(self.parent)
-        name_file = f.get()
+        name_file = file_chooser.get()
         if name_file is not None:
             sql = self.obj.sql("SELECT MAX(num_revision) FROM part_revision WHERE id_part = ?", [self.id_part_selected])
             out = self.obj.get(sql)
@@ -521,130 +519,8 @@ class part_setting_add_new_2_project(CancelOKDialog):
         return self.file.get_text()
 
     def on_click_choose_file(self, widget):
-        f = file_chooser(self.parent)
-        name_file = f.get()
+        name_file = file_chooser.get()
         self.file.set_text(name_file)
-
-
-# -----------------------------------------------------------------------------
-#  supplier_setting
-# -----------------------------------------------------------------------------
-class supplier_setting(NBDialog):
-
-    def __init__(self, parent):
-        NBDialog.__init__(self, parent=parent, title='Supplier Setting')
-        notebook = self.get_notebook()
-
-        # New Project
-        self.pane_new_proj = supplier_setting_new_proj(parent)
-        notebook.append_page(self.pane_new_proj, Gtk.Label(label="Add New Project"))
-
-        self.show_all()
-
-    # -------------------------------------------------------------------------
-    def get_name_owner(self):
-        return self.pane_new_proj.name_owner.get_text().strip()
-
-    # -------------------------------------------------------------------------
-    def get_num_part(self):
-        return self.pane_new_proj.num_part.get_text().strip()
-
-    # -------------------------------------------------------------------------
-    def get_description(self):
-        return self.pane_new_proj.description.get_text().strip()
-
-    # -------------------------------------------------------------------------
-    def get_product(self):
-        return self.pane_new_proj.product.get_text().strip()
-
-    # -------------------------------------------------------------------------
-    def get_file(self):
-        return self.pane_new_proj.file.get_text().strip()
-
-
-# -----------------------------------------------------------------------------
-#  supplier_setting_new_proj
-# -----------------------------------------------------------------------------
-class supplier_setting_new_proj(GridPane):
-    def __init__(self, parent):
-        GridPane.__init__(self, parent=parent)
-        self.parent = parent
-
-        # ---------------------------------------------------------------------
-        # Label for Project Owner
-        lab_name_owner = Gtk.Label(label='Project Owner', name="Label")
-        lab_name_owner.set_hexpand(False)
-        lab_name_owner.set_halign(Gtk.Align.END)
-        # Entry for Project Owner
-        self.name_owner = Gtk.Entry()
-        self.name_owner.set_hexpand(True)
-        # ---------------------------------------------------------------------
-        # Label for PART No.
-        lab_num_part = Gtk.Label(label='PART No.', name="Label")
-        lab_num_part.set_hexpand(False)
-        lab_num_part.set_halign(Gtk.Align.END)
-        # Entry for PART No.
-        self.num_part = Gtk.Entry()
-        self.num_part.set_hexpand(True)
-        # ---------------------------------------------------------------------
-        # Label for Description
-        lab_description = Gtk.Label(label='Description', name="Label")
-        lab_description.set_hexpand(False)
-        lab_description.set_halign(Gtk.Align.END)
-        # Entry for Description
-        self.description = Gtk.Entry()
-        self.description.set_hexpand(True)
-        # ---------------------------------------------------------------------
-        # Label for File
-        lab_file = Gtk.Label(label='File', name="Label")
-        lab_file.set_hexpand(False)
-        lab_file.set_halign(Gtk.Align.END)
-        # Entry for File
-        self.file = Gtk.Entry()
-        self.file.set_hexpand(True)
-        # ---------------------------------------------------------------------
-        # Label for Product
-        lab_product = Gtk.Label(label='Product', name="Label")
-        lab_product.set_hexpand(False)
-        lab_product.set_halign(Gtk.Align.END)
-        # Entry for Product
-        self.product = Gtk.Entry()
-        self.product.set_hexpand(True)
-        # Button for File
-        but_file = Gtk.Button()
-        but_file.add(utils.img().get_image('folder', 16))
-        but_file.connect('clicked', self.on_click_choose_file)
-        but_file.set_hexpand(False)
-        # ---------------------------------------------------------------------
-        #  grid layout
-        self.attach(lab_name_owner, 0, 0, 1, 1)
-        self.attach(self.name_owner, 1, 0, 2, 1)
-        self.attach(lab_num_part, 0, 1, 1, 1)
-        self.attach(self.num_part, 1, 1, 2, 1)
-        self.attach(lab_description, 0, 2, 1, 1)
-        self.attach(self.description, 1, 2, 2, 1)
-        self.attach(lab_product, 0, 3, 1, 1)
-        self.attach(self.product, 1, 3, 2, 1)
-        self.attach(lab_file, 0, 4, 1, 1)
-        self.attach(self.file, 1, 4, 1, 1)
-        self.attach(but_file, 2, 4, 1, 1)
-
-    # =========================================================================
-    #  EVENT HANDLING
-    # =========================================================================
-
-    # -------------------------------------------------------------------------
-    #  on_click_choose_file
-    # -------------------------------------------------------------------------
-    def on_click_choose_file(self, widget):
-        f = file_chooser(self.parent)
-        filename = f.get()
-        if filename is not None:
-            self.file.set_text(filename)
-
-
-# ---
-#  END OF PROGRAM
 
 
 # -----------------------------------------------------------------------------
@@ -803,7 +679,7 @@ class stage_setting(CancelOKDialog):
     #    basedir :
     # -------------------------------------------------------------------------
     def on_click_add_revise(self, widget, basedir):
-        dialog = DlgAddOrReviseFile(self, self.id_data_selected, basedir)
+        dialog = stage_setting_add_or_revise_file(self, self.id_data_selected, basedir)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             result = dialog.get_result()
@@ -867,15 +743,14 @@ class stage_setting(CancelOKDialog):
             rev += 1
             self.store.append([str(self.id_data_selected), str(rev), False, filename, 'revise'])
 
+
 # -----------------------------------------------------------------------------
-#  DlgAddOrReviseFile
+#  stage_setting_add_or_revise_file
 # -----------------------------------------------------------------------------
-class DlgAddOrReviseFile(Gtk.Dialog):
+class stage_setting_add_or_revise_file(CancelOKDialog):
 
     def __init__(self, parent, id_data_selected, basedir):
-        Gtk.Dialog.__init__(self, parent=parent, title='Add New File to the Stage')
-        self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        CancelOKDialog.__init__(self, parent=parent, title='Add New File to the Stage')
 
         self.set_icon_from_file(utils.img().get_file('file'))
         self.set_default_size(400, 0)
@@ -923,28 +798,6 @@ class DlgAddOrReviseFile(Gtk.Dialog):
     def get_file(self):
         return self.file.get_text()
 
-    def get_filename(self, basedir):
-        dialog = Gtk.FileChooserDialog(title='select file', parent=self, action=Gtk.FileChooserAction.OPEN)
-        dialog.set_icon_from_file(utils.img().get_file('file'))
-        dialog.set_current_folder(str(basedir))
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL,
-            Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN,
-            Gtk.ResponseType.OK
-        )
-        self.addFileFiltersALL(dialog)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            p = pathlib.Path(dialog.get_filename())
-            dialog.destroy()
-            # change path separator '\' to '/' to avoid unexpected errors
-            name_file = str(p.as_posix())
-            return name_file
-        elif response == Gtk.ResponseType.CANCEL:
-            dialog.destroy()
-            return None
-
     def get_result(self):
         if self.rb1.get_active():
             return 'add'
@@ -952,15 +805,125 @@ class DlgAddOrReviseFile(Gtk.Dialog):
             return 'revise'
 
     def on_click_choose_file(self, widget, basedir):
-        filename = self.get_filename(basedir)
+        filename = file_chooser.get()
         if filename is not None:
             self.file.set_text(filename)
 
+
+# -----------------------------------------------------------------------------
+#  supplier_setting
+# -----------------------------------------------------------------------------
+class supplier_setting(NBDialog):
+
+    def __init__(self, parent):
+        NBDialog.__init__(self, parent=parent, title='Supplier Setting')
+        notebook = self.get_notebook()
+
+        # New Project
+        self.pane_new_proj = supplier_setting_new_proj(parent)
+        notebook.append_page(self.pane_new_proj, Gtk.Label(label="Add New Project"))
+
+        self.show_all()
+
     # -------------------------------------------------------------------------
-    # addFileFiltersALL - filter for ALL
+    def get_name_owner(self):
+        return self.pane_new_proj.name_owner.get_text().strip()
+
     # -------------------------------------------------------------------------
-    def addFileFiltersALL(self, dialog):
-        filter_any = Gtk.FileFilter()
-        filter_any.set_name('All File')
-        filter_any.add_pattern('*')
-        dialog.add_filter(filter_any)
+    def get_num_part(self):
+        return self.pane_new_proj.num_part.get_text().strip()
+
+    # -------------------------------------------------------------------------
+    def get_description(self):
+        return self.pane_new_proj.description.get_text().strip()
+
+    # -------------------------------------------------------------------------
+    def get_product(self):
+        return self.pane_new_proj.product.get_text().strip()
+
+    # -------------------------------------------------------------------------
+    def get_file(self):
+        return self.pane_new_proj.file.get_text().strip()
+
+
+# -----------------------------------------------------------------------------
+#  supplier_setting_new_proj
+# -----------------------------------------------------------------------------
+class supplier_setting_new_proj(GridPane):
+    def __init__(self, parent):
+        GridPane.__init__(self, parent=parent)
+        self.parent = parent
+
+        # ---------------------------------------------------------------------
+        # Label for Project Owner
+        lab_name_owner = Gtk.Label(label='Project Owner', name="Label")
+        lab_name_owner.set_hexpand(False)
+        lab_name_owner.set_halign(Gtk.Align.END)
+        # Entry for Project Owner
+        self.name_owner = Gtk.Entry()
+        self.name_owner.set_hexpand(True)
+        # ---------------------------------------------------------------------
+        # Label for PART No.
+        lab_num_part = Gtk.Label(label='PART No.', name="Label")
+        lab_num_part.set_hexpand(False)
+        lab_num_part.set_halign(Gtk.Align.END)
+        # Entry for PART No.
+        self.num_part = Gtk.Entry()
+        self.num_part.set_hexpand(True)
+        # ---------------------------------------------------------------------
+        # Label for Description
+        lab_description = Gtk.Label(label='Description', name="Label")
+        lab_description.set_hexpand(False)
+        lab_description.set_halign(Gtk.Align.END)
+        # Entry for Description
+        self.description = Gtk.Entry()
+        self.description.set_hexpand(True)
+        # ---------------------------------------------------------------------
+        # Label for File
+        lab_file = Gtk.Label(label='File', name="Label")
+        lab_file.set_hexpand(False)
+        lab_file.set_halign(Gtk.Align.END)
+        # Entry for File
+        self.file = Gtk.Entry()
+        self.file.set_hexpand(True)
+        # ---------------------------------------------------------------------
+        # Label for Product
+        lab_product = Gtk.Label(label='Product', name="Label")
+        lab_product.set_hexpand(False)
+        lab_product.set_halign(Gtk.Align.END)
+        # Entry for Product
+        self.product = Gtk.Entry()
+        self.product.set_hexpand(True)
+        # Button for File
+        but_file = Gtk.Button()
+        but_file.add(utils.img().get_image('folder', 16))
+        but_file.connect('clicked', self.on_click_choose_file)
+        but_file.set_hexpand(False)
+        # ---------------------------------------------------------------------
+        #  grid layout
+        self.attach(lab_name_owner, 0, 0, 1, 1)
+        self.attach(self.name_owner, 1, 0, 2, 1)
+        self.attach(lab_num_part, 0, 1, 1, 1)
+        self.attach(self.num_part, 1, 1, 2, 1)
+        self.attach(lab_description, 0, 2, 1, 1)
+        self.attach(self.description, 1, 2, 2, 1)
+        self.attach(lab_product, 0, 3, 1, 1)
+        self.attach(self.product, 1, 3, 2, 1)
+        self.attach(lab_file, 0, 4, 1, 1)
+        self.attach(self.file, 1, 4, 1, 1)
+        self.attach(but_file, 2, 4, 1, 1)
+
+    # =========================================================================
+    #  EVENT HANDLING
+    # =========================================================================
+
+    # -------------------------------------------------------------------------
+    #  on_click_choose_file
+    # -------------------------------------------------------------------------
+    def on_click_choose_file(self, widget):
+        filename = file_chooser.get()
+        if filename is not None:
+            self.file.set_text(filename)
+
+# ---
+#  END OF PROGRAM
