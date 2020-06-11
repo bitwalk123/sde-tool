@@ -165,10 +165,6 @@ class app_about(Gtk.Dialog):
 # -----------------------------------------------------------------------------
 class file_chooser():
     basedir = ''
-    parent = None
-
-    def __init__(self, parent):
-        self.parent = parent
 
     # -------------------------------------------------------------------------
     #  get
@@ -179,7 +175,7 @@ class file_chooser():
     # -------------------------------------------------------------------------
     @classmethod
     def get(cls):
-        dialog = Gtk.FileChooserDialog(title='select file', parent=cls.parent, action=Gtk.FileChooserAction.OPEN)
+        dialog = Gtk.FileChooserDialog(title='select file', parent=None, action=Gtk.FileChooserAction.OPEN)
         dialog.set_icon_from_file(utils.img().get_file('file'))
         dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
