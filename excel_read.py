@@ -6,6 +6,22 @@ from gi.repository import Gtk
 import pandas as pd
 
 
+class ExcelSPC():
+    def __init__(self, filename):
+        self.filename = filename
+        self.df = self.read()
+        self.valid = self.check_valid_sheet()
+
+    def read(self):
+        return (pd.read_excel(self.filename, sheet_name=None))
+
+    def check_valid_sheet(self):
+        if 'Master' in self.df.keys():
+            return(True)
+        else:
+            return(False)
+
+
 class MyWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="ファイル選択用ダイアログ")
@@ -34,8 +50,9 @@ class MyWindow(Gtk.Window):
             file_name = dialog.get_filename()
             print("ファイル「" + file_name + "」が選択されました。")
 
-            df = pd.read_excel(file_name, sheet_name='sheet2')
-            print(df)
+            sheets = ExcelSPC(file_name)
+            #df = sheets.read()
+            #print(df)
         elif response == Gtk.ResponseType.CANCEL:
             print("「キャンセル」がクリックされました。")
 
