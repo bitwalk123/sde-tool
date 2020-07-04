@@ -7,19 +7,37 @@ import pandas as pd
 
 
 class ExcelSPC():
+    filename = None
+    sheets = None
+    valid = False
+
     def __init__(self, filename):
         self.filename = filename
-        self.df = self.read()
-        self.valid = self.check_valid_sheet()
+        self.sheets = self.read(filename)
+        self.valid = self.check_valid_sheet(self.sheets)
 
-    def read(self):
-        return (pd.read_excel(self.filename, sheet_name=None))
+        # aggregation
+        df = self.sheets['Master']
+        self.aggregate(df)
 
-    def check_valid_sheet(self):
-        if 'Master' in self.df.keys():
-            return(True)
+    def aggregate(self, df_master):
+        # drop row if column 'Part Number' is NaN
+        df_master = df_master.dropna(subset=['Part Number'])
+        print(df_master)
+
+    def check_valid_sheet(self, sheets):
+        # check if 'Master' tab exists
+        if 'Master' in sheets.keys():
+            return True
         else:
-            return(False)
+            return False
+
+    def get_sheets(self):
+        return self.sheets
+
+    def read(self, filename):
+        # read specified filename as Excel file including all tabs
+        return pd.read_excel(filename, sheet_name=None)
 
 
 class MyWindow(Gtk.Window):
@@ -51,8 +69,8 @@ class MyWindow(Gtk.Window):
             print("ファイル「" + file_name + "」が選択されました。")
 
             sheets = ExcelSPC(file_name)
-            #df = sheets.read()
-            #print(df)
+            # df = sheets.read()
+            # print(df)
         elif response == Gtk.ResponseType.CANCEL:
             print("「キャンセル」がクリックされました。")
 
