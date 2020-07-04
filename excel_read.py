@@ -9,18 +9,14 @@ import pandas as pd
 class MyWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="ファイル選択用ダイアログ")
-        self.set_default_size(0, 0)
+        self.set_default_size(400, 0)
 
         box = Gtk.Box()
         self.add(box)
 
-        button1 = Gtk.Button(label="ファイル選択")
-        button1.connect("clicked", self.on_file_clicked)
-        box.add(button1)
-
-        button2 = Gtk.Button(label="フォルダ選択")
-        button2.connect("clicked", self.on_folder_clicked)
-        box.add(button2)
+        but = Gtk.Button(label="ファイル選択")
+        but.connect("clicked", self.on_file_clicked)
+        box.pack_end(but, False, True, 0)
 
     def on_file_clicked(self, widget):
         dialog = Gtk.FileChooserDialog(title="ファイルの選択",
@@ -46,40 +42,21 @@ class MyWindow(Gtk.Window):
         dialog.destroy()
 
     def add_filters(self, dialog):
-        filter_text = Gtk.FileFilter()
-        filter_text.set_name("テキストファイル")
-        filter_text.add_mime_type("text/plain")
-        dialog.add_filter(filter_text)
+        filter_xlsx = Gtk.FileFilter()
+        filter_xlsx.set_name("Excel ファイル")
+        filter_xlsx.add_pattern("*.xlsx")
+        filter_xlsx.add_pattern("*.xlsm")
+        dialog.add_filter(filter_xlsx)
 
-        filter_py = Gtk.FileFilter()
-        filter_py.set_name("Python ファイル")
-        filter_py.add_mime_type("text/x-python")
-        dialog.add_filter(filter_py)
+        filter_sheet = Gtk.FileFilter()
+        filter_sheet.set_name("スプレッドシート")
+        filter_sheet.add_mime_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        dialog.add_filter(filter_sheet)
 
         filter_any = Gtk.FileFilter()
         filter_any.set_name("全てのファイル")
         filter_any.add_pattern("*")
         dialog.add_filter(filter_any)
-
-    def on_folder_clicked(self, widget):
-        dialog = Gtk.FileChooserDialog(title="フォルダの選択",
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.SELECT_FOLDER)
-        dialog.add_buttons(Gtk.STOCK_CANCEL,
-                           Gtk.ResponseType.CANCEL,
-                           "選択",
-                           Gtk.ResponseType.OK)
-
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            print("「選択」がクリックされました。")
-            dir_name = dialog.get_filename()
-            print("フォルダ「" + dir_name + "」が選択されました。")
-
-        elif response == Gtk.ResponseType.CANCEL:
-            print("「キャンセル」がクリックれました。")
-
-        dialog.destroy()
 
 
 win = MyWindow()
