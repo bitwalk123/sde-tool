@@ -4,40 +4,8 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 import pandas as pd
-
-
-class ExcelSPC():
-    filename = None
-    sheets = None
-    valid = False
-
-    def __init__(self, filename):
-        self.filename = filename
-        self.sheets = self.read(filename)
-        self.valid = self.check_valid_sheet(self.sheets)
-
-        # aggregation
-        df = self.sheets['Master']
-        self.aggregate(df)
-
-    def aggregate(self, df_master):
-        # drop row if column 'Part Number' is NaN
-        df_master = df_master.dropna(subset=['Part Number'])
-        print(df_master)
-
-    def check_valid_sheet(self, sheets):
-        # check if 'Master' tab exists
-        if 'Master' in sheets.keys():
-            return True
-        else:
-            return False
-
-    def get_sheets(self):
-        return self.sheets
-
-    def read(self, filename):
-        # read specified filename as Excel file including all tabs
-        return pd.read_excel(filename, sheet_name=None)
+# SDE Tool Classes
+from sde_module import excel
 
 
 class MyWindow(Gtk.Window):
@@ -68,7 +36,7 @@ class MyWindow(Gtk.Window):
             file_name = dialog.get_filename()
             print("ファイル「" + file_name + "」が選択されました。")
 
-            sheets = ExcelSPC(file_name)
+            sheets = excel.SPC(file_name)
             # df = sheets.read()
             # print(df)
         elif response == Gtk.ResponseType.CANCEL:
@@ -83,6 +51,7 @@ class MyWindow(Gtk.Window):
         filter_xlsx.add_pattern("*.xlsm")
         dialog.add_filter(filter_xlsx)
 
+        # This does not work on Windows
         filter_sheet = Gtk.FileFilter()
         filter_sheet.set_name("スプレッドシート")
         filter_sheet.add_mime_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
