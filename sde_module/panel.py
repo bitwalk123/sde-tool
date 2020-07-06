@@ -645,6 +645,12 @@ class spc(Gtk.Notebook):
     # -------------------------------------------------------------------------
     #  create_panel_master
     #  creating 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of container
     # -------------------------------------------------------------------------
     def create_page_master(self):
         self.grid_master = Gtk.Grid()

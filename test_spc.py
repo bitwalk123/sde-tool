@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
-# SDE Tool Classes
+# module classes of SDE Tool
 from sde_module import dlg, excel, mbar, panel, utils
 
 
@@ -47,7 +47,7 @@ class TestSPC(Gtk.Window):
             self.on_click_app_exit
         )
 
-        ### main pabel
+        # main pabel
         self.mainpanel = panel.spc(self)
         box.pack_start(self.mainpanel, expand=True, fill=True, padding=0)
 
@@ -64,6 +64,7 @@ class TestSPC(Gtk.Window):
     def calc(self, filename):
         sheets = excel.SPC(filename)
 
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # check if read format is appropriate ot not
         if sheets.valid is not True:
             title = 'Error'
@@ -77,7 +78,6 @@ class TestSPC(Gtk.Window):
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # create tabs for tables & charts
         sheets.create_tabs(self.mainpanel)
-
         # update GUI
         self.show_all()
 

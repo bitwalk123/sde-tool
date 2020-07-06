@@ -104,8 +104,8 @@ class SPC():
         # get 'Master' datafrane
         df = self.get_master()
         n_rows = len(df)
-        x = 0
-        y = 0
+        x = 0; # column
+        y = 0; # row
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         #  table header
@@ -133,6 +133,11 @@ class SPC():
             x = 0
             for item in list(row):
                 if (type(item) is float) or (type(item) is int):
+                    # the first column '#' starts from 0,
+                    # change to start from 1
+                    if x == 0:
+                        item += 1
+
                     # right align on the widget
                     xpos = 1.0
                     if math.isnan(item):
