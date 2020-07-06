@@ -115,5 +115,32 @@ class sub_add(MenuBar):
         if name_image == 'add':
             return self.but_add
 
+class spc(MenuBar):
+    def __init__(self):
+        MenuBar.__init__(self)
+        box = self.get_box()
+
+        # config button
+        self.but_folder = menubar_button(name='Button', image='folder', tooltip='open SPC file')
+        box.pack_start(self.but_folder, expand=False, fill=True, padding=0)
+
+        # exit button
+        self.but_exit = menubar_button(name='Button', image='exit', tooltip='Exit this app')
+        box.pack_end(self.but_exit, expand=False, fill=True, padding=0)
+
+
+    # -------------------------------------------------------------------------
+    #  get_obj
+    #  get object instance of button
+    #
+    #  argument:
+    #    image : image name of button
+    # -------------------------------------------------------------------------
+    def get_obj(self, name_image):
+        if name_image == 'folder':
+            return self.but_folder
+        if name_image == 'exit':
+            return self.but_exit
+
 # ---
 #  END OF PROGRAM

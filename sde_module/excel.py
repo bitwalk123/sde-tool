@@ -12,8 +12,8 @@ class SPC():
         self.valid = self.check_valid_sheet(self.sheets)
 
         # aggregation
-        df = self.sheets['Master']
-        self.aggregate(df)
+        #df = self.sheets['Master']
+        #self.aggregate(df)
 
     def aggregate(self, df_master):
         # drop row if column 'Part Number' is NaN
