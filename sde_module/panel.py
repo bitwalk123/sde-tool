@@ -627,24 +627,26 @@ class main(Gtk.Notebook):
 
 
 # -----------------------------------------------------------------------------
-#  spc
+#  spc class
 #  spc GUI of SDE Tool
 # -----------------------------------------------------------------------------
 class spc(Gtk.Notebook):
     parent = None
     grid_master = None
 
+    # CONSTRUCTOR
     def __init__(self, parent):
         Gtk.Notebook.__init__(self)
         self.parent = parent
 
-        page_master = self.create_panel_master()
+        page_master = self.create_page_master()
         self.append_page(page_master, Gtk.Label(label="Master"))
 
     # -------------------------------------------------------------------------
     #  create_panel_master
+    #  creating 'Master' page
     # -------------------------------------------------------------------------
-    def create_panel_master(self):
+    def create_page_master(self):
         self.grid_master = Gtk.Grid()
 
         # scrollbar window
@@ -657,12 +659,18 @@ class spc(Gtk.Notebook):
 
         return scrwin
 
+    # -------------------------------------------------------------------------
+    #  get_grid_master
+    #  get grid instance for 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of grid for 'Master' page
+    # -------------------------------------------------------------------------
     def get_grid_master(self):
         return self.grid_master
-
-    def test(self):
-        but = Gtk.Button(label="TEST")
-        self.grid_master.attach(but, 0, 0, 1, 1)
 
 # ---
 #  END OF PROGRAM
