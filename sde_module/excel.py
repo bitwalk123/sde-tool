@@ -87,8 +87,12 @@ class SPC():
     #    (none)
     # -------------------------------------------------------------------------
     def create_tabs(self, panel):
+        # get 'Master' grid container
         grid_master = panel.get_grid_master()
-        self.create_tab_master(grid_master)
+        # get 'Master' datafrane
+        df_master = self.get_master()
+        n_rows = len(df_master)
+        self.create_tab_master(grid_master, df_master)
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -96,14 +100,12 @@ class SPC():
     #
     #  argument
     #    grid : grid container where creating table
+    #    df   : dataframe for 'Master'
     #
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def create_tab_master(self, grid):
-        # get 'Master' datafrane
-        df = self.get_master()
-        n_rows = len(df)
+    def create_tab_master(self, grid, df):
         x = 0; # column
         y = 0; # row
 
