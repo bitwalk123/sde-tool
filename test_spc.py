@@ -1,19 +1,33 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
-import pandas as pd
+from gi.repository import Gtk, Gdk
 
 # SDE Tool Classes
-from sde_module import excel, mbar, panel, utils
+from sde_module import dlg, excel, mbar, panel, utils
 
 
 class MyWindow(Gtk.Window):
+    mainpanel = None
+
+    # CSS
+    provider = Gtk.CssProvider()
+    provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
+
     def __init__(self):
         Gtk.Window.__init__(self, title="SPC (Test Program)")
         self.set_icon_from_file(utils.img().get_file("logo"))
+        self.set_margin_start(1)
+        self.set_margin_end(1)
         self.set_default_size(800, 600)
+
+
+        # CSS
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            self.provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(box)
@@ -38,22 +52,6 @@ class MyWindow(Gtk.Window):
         box.pack_start(self.mainpanel, expand=True, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
-    #  File Open Filter for Excel
-    # -------------------------------------------------------------------------
-    def add_filters(self, dialog):
-        filter_xls = Gtk.FileFilter()
-        filter_xls.set_name('Excel')
-        filter_xls.add_pattern('*.xls')
-        filter_xls.add_pattern('*.xlsx')
-        filter_xls.add_pattern('*.xlsm')
-        dialog.add_filter(filter_xls)
-
-        filter_any = Gtk.FileFilter()
-        filter_any.set_name('All types')
-        filter_any.add_pattern('*')
-        dialog.add_filter(filter_any)
-
-    # -------------------------------------------------------------------------
     #  Aggregation from Excel for SPC
     # -------------------------------------------------------------------------
     def calc(self, filename):
@@ -62,7 +60,7 @@ class MyWindow(Gtk.Window):
         if sheets.valid is not True:
             title = 'Error'
             text = 'Not appropriate format!'
-            # PL dialog
+            # OK dialog
             utils.show_ok_dialog(self, title, text, 'error')
             # delete instance
             del sheets
@@ -70,15 +68,8 @@ class MyWindow(Gtk.Window):
 
         # ---------------------------------------------------------------------
         # 'Master' tab of the sheets
-        model_master = sheets.get_model_master()
-        self.mainpanel.set_model_master(model_master)
-        sheets.set_colhead_master(self.mainpanel.get_tree_master())
-
-        # get 'Master' sheet
-        df = sheets.get_master()
-        print(df.columns.values)
-        print(len(df.columns.values))
-
+        sheets.create_table_master(self.mainpanel.get_grid_master())
+        self.show_all()
 
     # -------------------------------------------------------------------------
     #  Exit Application
@@ -90,20 +81,9 @@ class MyWindow(Gtk.Window):
     #  Open Folder
     # -------------------------------------------------------------------------
     def on_file_clicked(self, widget):
-        dialog = Gtk.FileChooserDialog(title="Select Excel file",
-                                       parent=self,
-                                       action=Gtk.FileChooserAction.OPEN)
-        dialog.add_buttons(Gtk.STOCK_CANCEL,
-                           Gtk.ResponseType.CANCEL,
-                           Gtk.STOCK_OPEN,
-                           Gtk.ResponseType.OK)
-        self.add_filters(dialog)
-
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            self.calc(dialog.get_filename())
-
-        dialog.destroy()
+        filename = dlg.file_chooser.get(parent=self, flag='excel')
+        if filename is not None:
+            self.calc(filename)
 
 
 # -----------------------------------------------------------------------------

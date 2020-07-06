@@ -183,7 +183,7 @@ class app_about(Gtk.Dialog):
 # -----------------------------------------------------------------------------
 #  file chooser
 # -----------------------------------------------------------------------------
-class file_chooser(flag='default'):
+class file_chooser():
     basedir = ''
 
     # -------------------------------------------------------------------------
@@ -194,7 +194,7 @@ class file_chooser(flag='default'):
     #    cls : this class object for this class method
     # -------------------------------------------------------------------------
     @classmethod
-    def get(cls, parent):
+    def get(cls, parent, flag='default'):
         dialog = Gtk.FileChooserDialog(
             title='Select File',
             parent=parent,
@@ -211,7 +211,7 @@ class file_chooser(flag='default'):
         if os.path.exists(cls.basedir):
             dialog.set_current_folder(str(cls.basedir))
 
-        if flag is 'excel':
+        if flag == 'excel':
             cls.add_filters_excel(cls, dialog)
         else:
             cls.add_filters_all(cls, dialog)

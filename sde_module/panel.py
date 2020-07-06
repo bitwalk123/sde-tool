@@ -8,7 +8,7 @@ import re
 import subprocess
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from . import dlg, pcs, utils
 
 
@@ -625,11 +625,14 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
+
 # -----------------------------------------------------------------------------
 #  spc
 #  spc GUI of SDE Tool
 # -----------------------------------------------------------------------------
 class spc(Gtk.Notebook):
+    parent = None
+    grid_master = None
 
     def __init__(self, parent):
         Gtk.Notebook.__init__(self)
@@ -642,11 +645,11 @@ class spc(Gtk.Notebook):
     #  create_panel_master
     # -------------------------------------------------------------------------
     def create_panel_master(self):
-        self.tree_master = Gtk.TreeView()
+        self.grid_master = Gtk.Grid()
 
         # scrollbar window
         scrwin = Gtk.ScrolledWindow()
-        scrwin.add(self.tree_master)
+        scrwin.add(self.grid_master)
         scrwin.set_policy(
             Gtk.PolicyType.AUTOMATIC,
             Gtk.PolicyType.AUTOMATIC
@@ -654,11 +657,12 @@ class spc(Gtk.Notebook):
 
         return scrwin
 
-    def get_tree_master(self):
-        return self.tree_master
+    def get_grid_master(self):
+        return self.grid_master
 
-    def set_model_master(self, model):
-        self.tree_master.set_model(model)
+    def test(self):
+        but = Gtk.Button(label="TEST")
+        self.grid_master.attach(but, 0, 0, 1, 1)
 
 # ---
 #  END OF PROGRAM
