@@ -6,14 +6,14 @@ from gi.repository import Gtk
 import pandas as pd
 
 # SDE Tool Classes
-from sde_module import excel, mbar, utils
+from sde_module import excel, mbar, panel, utils
 
 
 class MyWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SPC (Test Program)")
         self.set_icon_from_file(utils.img().get_file("logo"))
-        self.set_default_size(600, 0)
+        self.set_default_size(800, 600)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(box)
@@ -33,8 +33,12 @@ class MyWindow(Gtk.Window):
             self.on_click_app_exit
         )
 
+        ### main pabel
+        self.mainpanel = panel.spc(self)
+        box.pack_start(self.mainpanel, expand=True, fill=True, padding=0)
+
     # -------------------------------------------------------------------------
-    #  File Open Filter
+    #  File Open Filter for Excel
     # -------------------------------------------------------------------------
     def add_filters(self, dialog):
         filter_xls = Gtk.FileFilter()
@@ -58,9 +62,22 @@ class MyWindow(Gtk.Window):
         if sheets.valid is not True:
             title = 'Error'
             text = 'Not appropriate format!'
+            # PL dialog
             utils.show_ok_dialog(self, title, text, 'error')
+            # delete instance
             del sheets
             return
+
+        # ---------------------------------------------------------------------
+        # 'Master' tab of the sheets
+        model_master = sheets.get_model_master()
+        self.mainpanel.set_model_master(model_master)
+        sheets.set_colhead_master(self.mainpanel.get_tree_master())
+
+        # get 'Master' sheet
+        df = sheets.get_master()
+        print(df.columns.values)
+        print(len(df.columns.values))
 
 
     # -------------------------------------------------------------------------

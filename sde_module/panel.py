@@ -625,5 +625,40 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
+# -----------------------------------------------------------------------------
+#  spc
+#  spc GUI of SDE Tool
+# -----------------------------------------------------------------------------
+class spc(Gtk.Notebook):
+
+    def __init__(self, parent):
+        Gtk.Notebook.__init__(self)
+        self.parent = parent
+
+        page_master = self.create_panel_master()
+        self.append_page(page_master, Gtk.Label(label="Master"))
+
+    # -------------------------------------------------------------------------
+    #  create_panel_master
+    # -------------------------------------------------------------------------
+    def create_panel_master(self):
+        self.tree_master = Gtk.TreeView()
+
+        # scrollbar window
+        scrwin = Gtk.ScrolledWindow()
+        scrwin.add(self.tree_master)
+        scrwin.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
+        )
+
+        return scrwin
+
+    def get_tree_master(self):
+        return self.tree_master
+
+    def set_model_master(self, model):
+        self.tree_master.set_model(model)
+
 # ---
 #  END OF PROGRAM

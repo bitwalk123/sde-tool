@@ -183,7 +183,7 @@ class app_about(Gtk.Dialog):
 # -----------------------------------------------------------------------------
 #  file chooser
 # -----------------------------------------------------------------------------
-class file_chooser():
+class file_chooser(flag='default'):
     basedir = ''
 
     # -------------------------------------------------------------------------
@@ -211,7 +211,11 @@ class file_chooser():
         if os.path.exists(cls.basedir):
             dialog.set_current_folder(str(cls.basedir))
 
-        cls.add_filters(cls, dialog)
+        if flag is 'excel':
+            cls.add_filters_excel(cls, dialog)
+        else:
+            cls.add_filters_all(cls, dialog)
+
         response = dialog.run()
 
         if response == Gtk.ResponseType.OK:
@@ -232,12 +236,27 @@ class file_chooser():
     #  argument
     #    dialog : instance of Gtk.FileChooserDialog to attach this file filter
     # -------------------------------------------------------------------------
-    def add_filters(self, dialog):
+    def add_filters_all(self, dialog):
         filter_any = Gtk.FileFilter()
         filter_any.set_name('All File')
         filter_any.add_pattern('*')
         dialog.add_filter(filter_any)
 
+    # -------------------------------------------------------------------------
+    #  File Open Filter for Excel
+    # -------------------------------------------------------------------------
+    def add_filters_excel(self, dialog):
+        filter_xls = Gtk.FileFilter()
+        filter_xls.set_name('Excel')
+        filter_xls.add_pattern('*.xls')
+        filter_xls.add_pattern('*.xlsx')
+        filter_xls.add_pattern('*.xlsm')
+        dialog.add_filter(filter_xls)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name('All types')
+        filter_any.add_pattern('*')
+        dialog.add_filter(filter_any)
 
 # -----------------------------------------------------------------------------
 #  ok dialog
