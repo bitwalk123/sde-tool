@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GObject
 
 import pandas as pd
+import numpy as np
 import math
 
 
@@ -63,6 +64,18 @@ class SPC():
         return self.sheets
 
     # -------------------------------------------------------------------------
+    #  get_unique_part_list
+    #  get unique part list found in 'Part Number' column in 'Master' tab
+    #
+    #  return
+    #    list of unique 'Part Number'
+    # -------------------------------------------------------------------------
+    def get_unique_part_list(self):
+        df = self.get_master()
+        list_part = list(np.unique(df['Part Number']))
+        return list_part
+
+    # -------------------------------------------------------------------------
     #  read
     #  read specified Excel file
     #
@@ -87,12 +100,23 @@ class SPC():
     #    (none)
     # -------------------------------------------------------------------------
     def create_tabs(self, panel):
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  'Master' tab
+
         # get 'Master' grid container
         grid_master = panel.get_grid_master()
         # get 'Master' datafrane
         df_master = self.get_master()
         n_rows = len(df_master)
         self.create_tab_master(grid_master, df_master)
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  PART tab
+
+        list_part = self.get_unique_part_list()
+        for name_page in list_part:
+            grid = panel.create_page_part(name_page)
+
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -158,5 +182,7 @@ class SPC():
 
             y += 1
 
+    def create_tab_part(self, grid, df):
+        pass
 # ---
 # PROGRAM END

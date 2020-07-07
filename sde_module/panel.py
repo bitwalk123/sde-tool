@@ -6,7 +6,7 @@ import os
 import pathlib
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
 from . import dlg, excel, mbar, panel, pcs, utils
 
 
@@ -743,6 +743,7 @@ class panel_spc(Gtk.Notebook):
         Gtk.Notebook.__init__(self)
         self.parent = parent
 
+        self.set_tab_pos(Gtk.PositionType.BOTTOM)
         page_master = self.create_page_master()
         self.append_page(page_master, Gtk.Label(label="Master"))
 
@@ -768,6 +769,43 @@ class panel_spc(Gtk.Notebook):
         )
 
         return scrwin
+
+    # -------------------------------------------------------------------------
+    #  create_panel_part
+    #  creating 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of container
+    # -------------------------------------------------------------------------
+    def create_page_part(self, tabname):
+        notebook = Gtk.Notebook()
+        notebook.set_tab_pos(Gtk.PositionType.TOP)
+        self.append_page(notebook, Gtk.Label(label=tabname))
+
+        # DATA tab
+        grid_data = Gtk.Grid()
+        scrwin_data = Gtk.ScrolledWindow()
+        scrwin_data.add(grid_data)
+        scrwin_data.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
+        )
+        notebook.append_page(scrwin_data, Gtk.Label(label='DATA'))
+
+        # PLOT tab (tentative)
+        grid_plot = Gtk.Grid()
+        scrwin_plot = Gtk.ScrolledWindow()
+        scrwin_plot.add(grid_plot)
+        scrwin_plot.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
+        )
+        notebook.append_page(scrwin_plot, Gtk.Label(label='PLOT'))
+
+        return grid_data
 
     # -------------------------------------------------------------------------
     #  get_grid_master
