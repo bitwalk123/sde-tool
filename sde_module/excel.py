@@ -40,8 +40,11 @@ class SPC():
     #  get_master
     #  get dataframe of 'Master' tab
     #
+    #  argument
+    #    (none)
+    #
     #  return
-    #    dataframe of 'Master' tab
+    #    pandas dataframe of 'Master' tab
     # -------------------------------------------------------------------------
     def get_master(self):
         df = self.sheets['Master']
@@ -50,13 +53,55 @@ class SPC():
 
         return df
 
-    def get_part(self, name_part):
-        df = self.sheets[name_part]
-        df = df.dropna(how='all')
-        # print(df)
-        # print(len(df))
+    # -------------------------------------------------------------------------
+    #  get_param_list
+    #  get list of 'Parameter Name' of specified 'Part Number'
+    #
+    #  argument
+    #    name_part : part name
+    #
+    #  return
+    #    list of 'Parameter Name' of specified 'Part Number'
+    # -------------------------------------------------------------------------
+    def get_param_list(self, name_part):
+        df = self.get_master()
+        return list(df[df['Part Number'] == name_part]['Parameter Name'])
 
-        return df
+    # -------------------------------------------------------------------------
+    #  get_part
+    #  get dataframe of specified name_part tab
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    pandas dataframe of specified name_part tab
+    # -------------------------------------------------------------------------
+    def get_part(self, name_part):
+        # dataframe of specified name_part tab
+        df = self.sheets[name_part]
+
+        # delete row including NaN
+        df = df.dropna(how='all')
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  the first row od data sheet is used for 'Create Charts' button for
+        #  the Excel macro
+        #
+        #  So, new dataframe is created for this application
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+
+        # obtain number of rows on this dataframe
+        row_size = len(df)
+
+        # extract data rows
+        df1 = df[1:row_size]
+
+        # extract column name used for this dataframe
+        list_colname = list(df.loc[0])
+        df1.columns = list_colname
+
+        return df1
 
     # -------------------------------------------------------------------------
     #  get_sheets
@@ -66,7 +111,7 @@ class SPC():
     #    (none)
     #
     #  return
-    #    dataframe containing Excel contents
+    #    array of pandas dataframe containing Excel tab/data
     # -------------------------------------------------------------------------
     def get_sheets(self):
         return self.sheets
@@ -74,6 +119,9 @@ class SPC():
     # -------------------------------------------------------------------------
     #  get_unique_part_list
     #  get unique part list found in 'Part Number' column in 'Master' tab
+    #
+    #  argument
+    #    (none)
     #
     #  return
     #    list of unique 'Part Number'
@@ -91,7 +139,7 @@ class SPC():
     #    filename : Excel file
     #
     #  return
-    #    array of dataframe including all Excel sheets
+    #    array of pandas dataframe including all Excel sheets
     # -------------------------------------------------------------------------
     def read(self, filename):
         # read specified filename as Excel file including all tabs
@@ -113,19 +161,31 @@ class SPC():
 
         # get 'Master' grid container
         grid_master = panel.get_grid_master()
+
         # get 'Master' datafrane
         df_master = self.get_master()
-        n_rows = len(df_master)
+
+        # create 'Master' tab
         self.create_tab_master(grid_master, df_master)
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         #  PART tab
 
+        # obtain unique part list
         list_part = self.get_unique_part_list()
-        for name_page in list_part:
-            grid_part = panel.create_page_part(name_page)
-            df_part = self.get_part(name_page)
-            self.create_tab_part(grid_part, df_part)
+
+        # create tab for etch part
+        for name_part in list_part:
+            # create initial tab for part
+            grid_part_data = panel.create_page_part(name_part)
+
+            # get dataframe of part data
+            df_part = self.get_part(name_part)
+
+            # create tab to show part data
+            self.create_tab_part(grid_part_data, df_part)
+
+            print(self.get_param_list(name_part))
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -203,15 +263,35 @@ class SPC():
     #    (none)
     # -------------------------------------------------------------------------
     def create_tab_part(self, grid, df):
-        y = 0
+        x = 0;  # column
+        y = 0;  # row
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table header
+
+        # first column
+        lab = Gtk.Label(name='LabelHead', label='#')
+        lab.set_hexpand(True)
+        lab.set_alignment(xalign=0.5, yalign=0.5)
+        grid.attach(lab, x, y, 1, 1)
+        x += 1
+
+        # rest of columns
+        for item in df.columns.values:
+            lab = Gtk.Label(name='LabelHead', label=item)
+            lab.set_hexpand(True)
+            lab.set_alignment(xalign=0.5, yalign=0.5)
+            grid.attach(lab, x, y, 1, 1)
+            x += 1
+
+        y += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table contents
         for row in df.itertuples(name=None):
             x = 0
             for item in list(row):
-                # set column 0 of row 0 to '#'
-                if (x == 0) and (y == 0):
-                    item = "#"
-                    xpos = 1.0
-                elif (type(item) is float) or (type(item) is int):
+                if (type(item) is float) or (type(item) is int):
                     # right align on the widget
                     xpos = 1.0
                     if math.isnan(item):
@@ -229,6 +309,7 @@ class SPC():
                 x += 1
 
             y += 1
+
 
 # ---
 # PROGRAM END
