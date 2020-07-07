@@ -4,12 +4,10 @@
 import gi
 import os
 import pathlib
-import re
-import subprocess
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GObject
-from . import dlg, excel, mbar, panel, utils
+from gi.repository import Gtk, Gdk
+from . import dlg, excel, mbar, panel, pcs, utils
 
 
 # -----------------------------------------------------------------------------
@@ -625,11 +623,10 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
-
-# -----------------------------------------------------------------------------
+# =============================================================================
 #  SPC class
 #  spc GUI of SDE Tool
-# -----------------------------------------------------------------------------
+# =============================================================================
 class SPC(Gtk.Window):
     mainpanel = None
 
