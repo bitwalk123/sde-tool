@@ -44,11 +44,19 @@ class SPC():
     #    dataframe of 'Master' tab
     # -------------------------------------------------------------------------
     def get_master(self):
-        df_master = self.sheets['Master']
+        df = self.sheets['Master']
         # drop row if column 'Part Number' is NaN
-        df_master = df_master.dropna(subset=['Part Number'])
+        df = df.dropna(subset=['Part Number'])
 
-        return df_master
+        return df
+
+    def get_part(self, name_part):
+        df = self.sheets[name_part]
+        df = df.dropna(how='all')
+        # print(df)
+        # print(len(df))
+
+        return df
 
     # -------------------------------------------------------------------------
     #  get_sheets
@@ -115,8 +123,9 @@ class SPC():
 
         list_part = self.get_unique_part_list()
         for name_page in list_part:
-            grid = panel.create_page_part(name_page)
-
+            grid_part = panel.create_page_part(name_page)
+            df_part = self.get_part(name_page)
+            self.create_tab_part(grid_part, df_part)
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -130,8 +139,8 @@ class SPC():
     #    (none)
     # -------------------------------------------------------------------------
     def create_tab_master(self, grid, df):
-        x = 0; # column
-        y = 0; # row
+        x = 0;  # column
+        y = 0;  # row
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         #  table header
@@ -182,7 +191,44 @@ class SPC():
 
             y += 1
 
+    # -------------------------------------------------------------------------
+    #  create_tab_part
+    #  creating (Part Number) tab
+    #
+    #  argument
+    #    grid : grid container where creating table
+    #    df   : dataframe for specified (Part Number)
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
     def create_tab_part(self, grid, df):
-        pass
+        y = 0
+        for row in df.itertuples(name=None):
+            x = 0
+            for item in list(row):
+                # set column 0 of row 0 to '#'
+                if (x == 0) and (y == 0):
+                    item = "#"
+                    xpos = 1.0
+                elif (type(item) is float) or (type(item) is int):
+                    # right align on the widget
+                    xpos = 1.0
+                    if math.isnan(item):
+                        item = ''
+                else:
+                    # left align on the widget
+                    xpos = 0.0
+
+                item = str(item)
+
+                lab = Gtk.Label(name='Label', label=item)
+                lab.set_hexpand(True)
+                lab.set_alignment(xalign=xpos, yalign=0.5)
+                grid.attach(lab, x, y, 1, 1)
+                x += 1
+
+            y += 1
+
 # ---
 # PROGRAM END
