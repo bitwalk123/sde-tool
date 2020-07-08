@@ -6,6 +6,10 @@ from gi.repository import Gtk, GObject
 import pandas as pd
 import numpy as np
 import math
+from matplotlib.backends.backend_gtk3agg import (
+    FigureCanvasGTK3Agg as FigureCanvas
+)
+from matplotlib.figure import Figure
 
 
 class SPC():
@@ -35,6 +39,207 @@ class SPC():
             return True
         else:
             return False
+
+    # -------------------------------------------------------------------------
+    #  create_tabs
+    #  create tab instances
+    #
+    #  argument
+    #    panel : panel instance to greate tabs
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def create_tabs(self, panel):
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  'Master' tab
+
+        # get 'Master' grid container
+        grid_master = panel.get_grid_master()
+
+        # get 'Master' datafrane
+        df_master = self.get_master()
+
+        # create 'Master' tab
+        self.create_tab_master(grid_master, df_master)
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  PART tab
+
+        # obtain unique part list
+        list_part = self.get_unique_part_list()
+
+        # create tab for etch part
+        for name_part in list_part:
+            # create initial tab for part
+            grid_part_data, container_plot = panel.create_page_part(name_part)
+
+            # get dataframe of part data
+            df_part = self.get_part(name_part)
+
+            # create tab to show part data
+            self.create_tab_part_data(grid_part_data, df_part)
+
+            # get parameter list
+            list_param = self.get_param_list(name_part)
+
+            self.create_tab_part_plot(container_plot, df_part, list_param)
+
+    # -------------------------------------------------------------------------
+    #  create_tab_master
+    #  creating 'Master' tab
+    #
+    #  argument
+    #    grid : grid container where creating table
+    #    df   : dataframe for 'Master'
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def create_tab_master(self, grid, df):
+        x = 0;  # column
+        y = 0;  # row
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table header
+
+        # first column
+        lab = Gtk.Label(name='LabelHead', label='#')
+        lab.set_hexpand(True)
+        lab.set_alignment(xalign=0.5, yalign=0.5)
+        grid.attach(lab, x, y, 1, 1)
+        x += 1
+
+        # rest of columns
+        for item in df.columns.values:
+            lab = Gtk.Label(name='LabelHead', label=item)
+            lab.set_hexpand(True)
+            lab.set_alignment(xalign=0.5, yalign=0.5)
+            grid.attach(lab, x, y, 1, 1)
+            x += 1
+
+        y += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table contents
+        for row in df.itertuples(name=None):
+            x = 0
+            for item in list(row):
+                if (type(item) is float) or (type(item) is int):
+                    # the first column '#' starts from 0,
+                    # change to start from 1
+                    if x == 0:
+                        item += 1
+
+                    # right align on the widget
+                    xpos = 1.0
+                    if math.isnan(item):
+                        item = ''
+                else:
+                    # left align on the widget
+                    xpos = 0.0
+
+                item = str(item)
+
+                lab = Gtk.Label(name='Label', label=item)
+                lab.set_hexpand(True)
+                lab.set_alignment(xalign=xpos, yalign=0.5)
+                grid.attach(lab, x, y, 1, 1)
+                x += 1
+
+            y += 1
+
+    # -------------------------------------------------------------------------
+    #  create_tab_part_data
+    #  creating DATA tab in (Part Number) tab
+    #
+    #  argument
+    #    grid : grid container where creating table
+    #    df   : dataframe for specified (Part Number)
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def create_tab_part_data(self, grid, df):
+        x = 0;  # column
+        y = 0;  # row
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table header
+
+        # first column
+        lab = Gtk.Label(name='LabelHead', label='#')
+        lab.set_hexpand(True)
+        lab.set_alignment(xalign=0.5, yalign=0.5)
+        grid.attach(lab, x, y, 1, 1)
+        x += 1
+
+        # rest of columns
+        for item in df.columns.values:
+            lab = Gtk.Label(name='LabelHead', label=item)
+            lab.set_hexpand(True)
+            lab.set_alignment(xalign=0.5, yalign=0.5)
+            grid.attach(lab, x, y, 1, 1)
+            x += 1
+
+        y += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table contents
+        for row in df.itertuples(name=None):
+            x = 0
+            for item in list(row):
+                if (type(item) is float) or (type(item) is int):
+                    # right align on the widget
+                    xpos = 1.0
+                    if math.isnan(item):
+                        item = ''
+                else:
+                    # left align on the widget
+                    xpos = 0.0
+
+                item = str(item)
+
+                lab = Gtk.Label(name='Label', label=item)
+                lab.set_hexpand(True)
+                lab.set_alignment(xalign=xpos, yalign=0.5)
+                grid.attach(lab, x, y, 1, 1)
+                x += 1
+
+            y += 1
+
+    # -------------------------------------------------------------------------
+    #  create_tab_part_plot
+    #  creating PLOT tab in (Part Number) tab
+    #
+    #  argument
+    #    container  : container where creating plot
+    #    df         : dataframe for specified (Part Number)
+    #    list_param : parameter list to plot
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def create_tab_part_plot(self, container, df, list_param):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        container.add(box)
+
+        param = list_param[3]
+        x = df['Sample']
+        y = df[param]
+
+        # f = Figure(figsize=(5, 4), dpi=100)
+        f = Figure(dpi=100)
+        a = f.add_subplot(111, title=param, ylabel='Value')
+        a.grid(True)
+        a.axhline(y=757.43, linewidth=1, color='blue', label='LSL')
+        a.axhline(y=759.97, linewidth=1, color='blue', label='USL')
+        a.axhline(y=758.7, linewidth=1, color='purple', label='Target')
+        a.plot(x, y, linewidth=1, color="gray")
+        a.scatter(x, y, s=20, c='black', marker='o', label="Recent")
+        canvas = FigureCanvas(f)
+        # container.add(canvas)
+        box.pack_start(canvas, True, True, 0)
 
     # -------------------------------------------------------------------------
     #  get_master
@@ -144,172 +349,6 @@ class SPC():
     def read(self, filename):
         # read specified filename as Excel file including all tabs
         return pd.read_excel(filename, sheet_name=None)
-
-    # -------------------------------------------------------------------------
-    #  create_tabs
-    #  create tab instances
-    #
-    #  argument
-    #    panel : panel instance to greate tabs
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tabs(self, panel):
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  'Master' tab
-
-        # get 'Master' grid container
-        grid_master = panel.get_grid_master()
-
-        # get 'Master' datafrane
-        df_master = self.get_master()
-
-        # create 'Master' tab
-        self.create_tab_master(grid_master, df_master)
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  PART tab
-
-        # obtain unique part list
-        list_part = self.get_unique_part_list()
-
-        # create tab for etch part
-        for name_part in list_part:
-            # create initial tab for part
-            grid_part_data = panel.create_page_part(name_part)
-
-            # get dataframe of part data
-            df_part = self.get_part(name_part)
-
-            # create tab to show part data
-            self.create_tab_part(grid_part_data, df_part)
-
-            print(self.get_param_list(name_part))
-
-    # -------------------------------------------------------------------------
-    #  create_tab_master
-    #  creating 'Master' tab
-    #
-    #  argument
-    #    grid : grid container where creating table
-    #    df   : dataframe for 'Master'
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tab_master(self, grid, df):
-        x = 0;  # column
-        y = 0;  # row
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table header
-
-        # first column
-        lab = Gtk.Label(name='LabelHead', label='#')
-        lab.set_hexpand(True)
-        lab.set_alignment(xalign=0.5, yalign=0.5)
-        grid.attach(lab, x, y, 1, 1)
-        x += 1
-
-        # rest of columns
-        for item in df.columns.values:
-            lab = Gtk.Label(name='LabelHead', label=item)
-            lab.set_hexpand(True)
-            lab.set_alignment(xalign=0.5, yalign=0.5)
-            grid.attach(lab, x, y, 1, 1)
-            x += 1
-
-        y += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table contents
-        for row in df.itertuples(name=None):
-            x = 0
-            for item in list(row):
-                if (type(item) is float) or (type(item) is int):
-                    # the first column '#' starts from 0,
-                    # change to start from 1
-                    if x == 0:
-                        item += 1
-
-                    # right align on the widget
-                    xpos = 1.0
-                    if math.isnan(item):
-                        item = ''
-                else:
-                    # left align on the widget
-                    xpos = 0.0
-
-                item = str(item)
-
-                lab = Gtk.Label(name='Label', label=item)
-                lab.set_hexpand(True)
-                lab.set_alignment(xalign=xpos, yalign=0.5)
-                grid.attach(lab, x, y, 1, 1)
-                x += 1
-
-            y += 1
-
-    # -------------------------------------------------------------------------
-    #  create_tab_part
-    #  creating (Part Number) tab
-    #
-    #  argument
-    #    grid : grid container where creating table
-    #    df   : dataframe for specified (Part Number)
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tab_part(self, grid, df):
-        x = 0;  # column
-        y = 0;  # row
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table header
-
-        # first column
-        lab = Gtk.Label(name='LabelHead', label='#')
-        lab.set_hexpand(True)
-        lab.set_alignment(xalign=0.5, yalign=0.5)
-        grid.attach(lab, x, y, 1, 1)
-        x += 1
-
-        # rest of columns
-        for item in df.columns.values:
-            lab = Gtk.Label(name='LabelHead', label=item)
-            lab.set_hexpand(True)
-            lab.set_alignment(xalign=0.5, yalign=0.5)
-            grid.attach(lab, x, y, 1, 1)
-            x += 1
-
-        y += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table contents
-        for row in df.itertuples(name=None):
-            x = 0
-            for item in list(row):
-                if (type(item) is float) or (type(item) is int):
-                    # right align on the widget
-                    xpos = 1.0
-                    if math.isnan(item):
-                        item = ''
-                else:
-                    # left align on the widget
-                    xpos = 0.0
-
-                item = str(item)
-
-                lab = Gtk.Label(name='Label', label=item)
-                lab.set_hexpand(True)
-                lab.set_alignment(xalign=xpos, yalign=0.5)
-                grid.attach(lab, x, y, 1, 1)
-                x += 1
-
-            y += 1
-
 
 # ---
 # PROGRAM END

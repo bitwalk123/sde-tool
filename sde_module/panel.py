@@ -640,7 +640,7 @@ class SPC(Gtk.Window):
         self.set_icon_from_file(utils.img().get_file("logo"))
         self.set_margin_start(1)
         self.set_margin_end(1)
-        self.set_default_size(800, 400)
+        self.set_default_size(800, 600)
 
         # CSS
         Gtk.StyleContext.add_provider_for_screen(
@@ -796,16 +796,16 @@ class panel_spc(Gtk.Notebook):
         notebook.append_page(scrwin_data, Gtk.Label(label='DATA'))
 
         # PLOT tab (tentative)
-        grid_plot = Gtk.Grid()
+        #grid_plot = Gtk.Grid()
         scrwin_plot = Gtk.ScrolledWindow()
-        scrwin_plot.add(grid_plot)
+        #scrwin_plot.add(grid_plot)
         scrwin_plot.set_policy(
             Gtk.PolicyType.AUTOMATIC,
             Gtk.PolicyType.AUTOMATIC
         )
         notebook.append_page(scrwin_plot, Gtk.Label(label='PLOT'))
 
-        return grid_data
+        return grid_data, scrwin_plot
 
     # -------------------------------------------------------------------------
     #  get_grid_master
