@@ -83,7 +83,7 @@ class SPC():
             # get parameter list
             list_param = self.get_param_list(name_part)
 
-            self.create_tab_part_plot(container_plot, df_part, list_param)
+            self.create_tab_part_plot(container_plot, df_part, name_part, list_param)
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -220,26 +220,71 @@ class SPC():
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def create_tab_part_plot(self, container, df, list_param):
+    def create_tab_part_plot(self, container, df, name_part, list_param):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.set_homogeneous(True)
         container.add(box)
 
-        param = list_param[3]
-        x = df['Sample']
-        y = df[param]
+        for param in list_param:
+            #print(param)
+            metrics = self.get_metrics(name_part, param)
+            #print(metrics.items())
 
-        # f = Figure(figsize=(5, 4), dpi=100)
-        f = Figure(dpi=100)
-        a = f.add_subplot(111, title=param, ylabel='Value')
-        a.grid(True)
-        a.axhline(y=757.43, linewidth=1, color='blue', label='LSL')
-        a.axhline(y=759.97, linewidth=1, color='blue', label='USL')
-        a.axhline(y=758.7, linewidth=1, color='purple', label='Target')
-        a.plot(x, y, linewidth=1, color="gray")
-        a.scatter(x, y, s=20, c='black', marker='o', label="Recent")
-        canvas = FigureCanvas(f)
-        # container.add(canvas)
-        box.pack_start(canvas, True, True, 0)
+            x = df['Sample']
+            y = df[param]
+
+            f = Figure(dpi=100)
+            a = f.add_subplot(111, title=param, ylabel='Value')
+            a.grid(True)
+
+            if metrics['Spec Type'] == 'Two-Sided':
+                if not np.isnan(metrics['LSL']):
+                    a.axhline(y=metrics['LSL'], linewidth=1, color='blue', label='LSL')
+                if not np.isnan(metrics['LCL']):
+                    a.axhline(y=metrics['LCL'], linewidth=1, color='red', label='LCL')
+                if not np.isnan(metrics['Target']):
+                    a.axhline(y=metrics['Target'], linewidth=1, color='purple', label='Target')
+                if not np.isnan(metrics['UCL']):
+                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+                if not np.isnan(metrics['USL']):
+                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+            elif metrics['Spec Type'] == 'One-Sided':
+                if not np.isnan(metrics['UCL']):
+                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+                if not np.isnan(metrics['USL']):
+                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+            # Avg
+            a.axhline(y=metrics['Avg'], linewidth=1, color='green', label='Avg')
+
+            # Line
+            a.plot(x, y, linewidth=1, color="gray")
+
+            size_oos = 60
+            size_ooc = 100
+            if metrics['Spec Type'] == 'Two-Sided':
+                # OOC check
+                x_ooc = x[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
+                y_ooc = y[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
+                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                # OOS check
+                x_oos = x[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
+                y_oos = y[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
+                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+            elif metrics['Spec Type'] == 'One-Sided':
+                # OOC check
+                x_ooc = x[(df[param] > metrics['UCL'])]
+                y_ooc = y[(df[param] > metrics['UCL'])]
+                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                # OOS check
+                x_oos = x[(df[param] > metrics['USL'])]
+                y_oos = y[(df[param] > metrics['USL'])]
+                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+
+            a.scatter(x, y, s=20, c='black', marker='o', label="Recent")
+
+            canvas = FigureCanvas(f)
+            canvas.set_size_request(800, 600)
+            box.pack_start(canvas, True, True, 0)
 
     # -------------------------------------------------------------------------
     #  get_master
@@ -257,6 +302,28 @@ class SPC():
         df = df.dropna(subset=['Part Number'])
 
         return df
+
+    # -------------------------------------------------------------------------
+    #  get_metrics
+    # -------------------------------------------------------------------------
+    def get_metrics(self, name_part, param):
+        df = self.get_master()
+        df1 = df[(df['Part Number'] == name_part) & (df['Parameter Name'] == param)]
+        #print(df2)
+        dict = {}
+        dict['LSL'] = list(df1['LSL'])[0]
+        dict['Target'] = list(df1['Target'])[0]
+        dict['USL'] = list(df1['USL'])[0]
+        dict['Chart Type'] = list(df1['Chart Type'])[0]
+        dict['Metrology'] = list(df1['Metrology'])[0]
+        dict['Multiple'] = list(df1['Multiple'])[0]
+        dict['Spec Type'] = list(df1['Spec Type'])[0]
+        dict['CL Frozen'] = list(df1['CL Frozen'])[0]
+        dict['LCL'] = list(df1['LCL'])[0]
+        dict['Avg'] = list(df1['Avg'])[0]
+        dict['UCL'] = list(df1['UCL'])[0]
+
+        return dict
 
     # -------------------------------------------------------------------------
     #  get_param_list
