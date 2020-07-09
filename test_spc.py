@@ -4,13 +4,13 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 # module classes of SDE Tool
-from sde_module import spc
+from sde_module import pcs
 
 
-class TestSPC(spc.SPC):
+class TestSPC(pcs.SPC):
     # CONSTRUCTOR
     def __init__(self):
-        spc.SPC.__init__(self, title="SPC (Test Program)")
+        pcs.SPC.__init__(self, title="SPC (Test Program)")
 
         # exit button clicked event
         (self.menubar.get_obj('exit')).connect(
