@@ -31,6 +31,7 @@ class TestSPC(spc.SPC):
     def on_click_app_exit(self, widget):
         self.emit('destroy')
 
+
 # -----------------------------------------------------------------------------
 #  app_exit
 #  Application Exit, executing Gtk.main_quit()

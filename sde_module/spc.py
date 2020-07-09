@@ -1,9 +1,8 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk
 
-import pandas as pd
 import numpy as np
 import math
 from matplotlib.backends.backend_gtk3agg import (

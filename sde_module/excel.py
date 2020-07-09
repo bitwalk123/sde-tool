@@ -1,18 +1,9 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GObject
 
 import pandas as pd
 import numpy as np
-import math
-from matplotlib.backends.backend_gtk3agg import (
-    FigureCanvasGTK3Agg as FigureCanvas
-)
-from matplotlib.figure import Figure
-
-# module classes of SDE Tool
-from sde_module import dlg, mbar, utils
 
 
 class ExcelSPC():
