@@ -1,7 +1,7 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, Gdk, GObject
 
 import pandas as pd
 import numpy as np
@@ -11,8 +11,11 @@ from matplotlib.backends.backend_gtk3agg import (
 )
 from matplotlib.figure import Figure
 
+# module classes of SDE Tool
+from sde_module import dlg, mbar, utils
 
-class SPC():
+
+class ExcelSPC():
     filename = None
     sheets = None
     valid = False
@@ -41,273 +44,6 @@ class SPC():
             return False
 
     # -------------------------------------------------------------------------
-    #  create_tabs
-    #  create tab instances
-    #
-    #  argument
-    #    panel : panel instance to greate tabs
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tabs(self, panel):
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  'Master' tab
-
-        # get 'Master' grid container
-        grid_master = panel.get_grid_master()
-
-        # get 'Master' datafrane
-        df_master = self.get_master()
-
-        # create 'Master' tab
-        self.create_tab_master(grid_master, df_master)
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  PART tab
-
-        # obtain unique part list
-        list_part = self.get_unique_part_list()
-
-        # create tab for etch part
-        for name_part in list_part:
-            # create initial tab for part
-            grid_part_data, container_plot = panel.create_page_part(name_part)
-
-            # get dataframe of part data
-            df_part = self.get_part(name_part)
-
-            # create tab to show part data
-            self.create_tab_part_data(grid_part_data, df_part)
-
-            # get parameter list
-            list_param = self.get_param_list(name_part)
-
-            self.create_tab_part_plot(container_plot, df_part, name_part, list_param)
-
-    # -------------------------------------------------------------------------
-    #  create_tab_master
-    #  creating 'Master' tab
-    #
-    #  argument
-    #    grid : grid container where creating table
-    #    df   : dataframe for 'Master'
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tab_master(self, grid, df):
-        x = 0;  # column
-        y = 0;  # row
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table header
-
-        # first column
-        lab = Gtk.Label(name='LabelHead', label='#')
-        lab.set_hexpand(True)
-        lab.set_alignment(xalign=0.5, yalign=0.5)
-        grid.attach(lab, x, y, 1, 1)
-        x += 1
-
-        # rest of columns
-        for item in df.columns.values:
-            lab = Gtk.Label(name='LabelHead', label=item)
-            lab.set_hexpand(True)
-            lab.set_alignment(xalign=0.5, yalign=0.5)
-            grid.attach(lab, x, y, 1, 1)
-            x += 1
-
-        y += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table contents
-        for row in df.itertuples(name=None):
-            x = 0
-            for item in list(row):
-                if (type(item) is float) or (type(item) is int):
-                    # the first column '#' starts from 0,
-                    # change to start from 1
-                    if x == 0:
-                        item += 1
-
-                    # right align on the widget
-                    xpos = 1.0
-                    if math.isnan(item):
-                        item = ''
-                else:
-                    # left align on the widget
-                    xpos = 0.0
-
-                item = str(item)
-
-                lab = Gtk.Label(name='Label', label=item)
-                lab.set_hexpand(True)
-                lab.set_alignment(xalign=xpos, yalign=0.5)
-                grid.attach(lab, x, y, 1, 1)
-                x += 1
-
-            y += 1
-
-    # -------------------------------------------------------------------------
-    #  create_tab_part_data
-    #  creating DATA tab in (Part Number) tab
-    #
-    #  argument
-    #    grid : grid container where creating table
-    #    df   : dataframe for specified (Part Number)
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tab_part_data(self, grid, df):
-        x = 0;  # column
-        y = 0;  # row
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table header
-
-        # first column
-        lab = Gtk.Label(name='LabelHead', label='#')
-        lab.set_hexpand(True)
-        lab.set_alignment(xalign=0.5, yalign=0.5)
-        grid.attach(lab, x, y, 1, 1)
-        x += 1
-
-        # rest of columns
-        for item in df.columns.values:
-            lab = Gtk.Label(name='LabelHead', label=item)
-            lab.set_hexpand(True)
-            lab.set_alignment(xalign=0.5, yalign=0.5)
-            grid.attach(lab, x, y, 1, 1)
-            x += 1
-
-        y += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        #  table contents
-        for row in df.itertuples(name=None):
-            x = 0
-            for item in list(row):
-                if (type(item) is float) or (type(item) is int):
-                    # right align on the widget
-                    xpos = 1.0
-                    if math.isnan(item):
-                        item = ''
-                else:
-                    # left align on the widget
-                    xpos = 0.0
-
-                item = str(item)
-
-                lab = Gtk.Label(name='Label', label=item)
-                lab.set_hexpand(True)
-                lab.set_alignment(xalign=xpos, yalign=0.5)
-                grid.attach(lab, x, y, 1, 1)
-                x += 1
-
-            y += 1
-
-    # -------------------------------------------------------------------------
-    #  create_tab_part_plot
-    #  creating PLOT tab in (Part Number) tab
-    #
-    #  argument
-    #    container  : container where creating plot
-    #    df         : dataframe for specified (Part Number)
-    #    list_param : parameter list to plot
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def create_tab_part_plot(self, container, df, name_part, list_param):
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.set_homogeneous(True)
-        container.add(box)
-
-        for param in list_param:
-            #print(param)
-            metrics = self.get_metrics(name_part, param)
-            #print(metrics.items())
-
-            x = df['Sample']
-            y = df[param]
-
-            f = Figure(dpi=100)
-            a = f.add_subplot(111, title=param, ylabel='Value')
-            a.grid(True)
-
-            if metrics['Spec Type'] == 'Two-Sided':
-                if not np.isnan(metrics['USL']):
-                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
-                if not np.isnan(metrics['UCL']):
-                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
-                if not np.isnan(metrics['Target']):
-                    a.axhline(y=metrics['Target'], linewidth=1, color='purple', label='Target')
-                if not np.isnan(metrics['LCL']):
-                    a.axhline(y=metrics['LCL'], linewidth=1, color='red', label='LCL')
-                if not np.isnan(metrics['LSL']):
-                    a.axhline(y=metrics['LSL'], linewidth=1, color='blue', label='LSL')
-            elif metrics['Spec Type'] == 'One-Sided':
-                if not np.isnan(metrics['USL']):
-                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
-                if not np.isnan(metrics['UCL']):
-                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
-            # Avg
-            a.axhline(y=metrics['Avg'], linewidth=1, color='green', label='Avg')
-
-            # Line
-            a.plot(x, y, linewidth=1, color="gray")
-
-            size_oos = 60
-            size_ooc = 100
-            if metrics['Spec Type'] == 'Two-Sided':
-                # OOC check
-                x_ooc = x[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
-                y_ooc = y[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
-                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
-                # OOS check
-                x_oos = x[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
-                y_oos = y[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
-                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
-            elif metrics['Spec Type'] == 'One-Sided':
-                # OOC check
-                x_ooc = x[(df[param] > metrics['UCL'])]
-                y_ooc = y[(df[param] > metrics['UCL'])]
-                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
-                # OOS check
-                x_oos = x[(df[param] > metrics['USL'])]
-                y_oos = y[(df[param] > metrics['USL'])]
-                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
-
-            a.scatter(x, y, s=20, c='black', marker='o', label="Recent")
-
-            x_label = a.get_xlim()[1]
-
-            if metrics['Spec Type'] == 'Two-Sided':
-                if not np.isnan(metrics['USL']):
-                    a.text(x_label, y=metrics['USL'], s=' USL', color='blue')
-                if not np.isnan(metrics['UCL']):
-                    a.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
-                if not np.isnan(metrics['Target']):
-                    a.text(x_label, y=metrics['Target'], s=' Target', color='purple')
-                if not np.isnan(metrics['LCL']):
-                    a.text(x_label, y=metrics['LCL'], s=' LCL', color='red')
-                if not np.isnan(metrics['LSL']):
-                    a.text(x_label, y=metrics['LSL'], s=' LSL', color='blue')
-            elif metrics['Spec Type'] == 'One-Sided':
-                if not np.isnan(metrics['USL']):
-                    a.text(x_label, y=metrics['USL'], s=' USL', color='blue')
-                if not np.isnan(metrics['UCL']):
-                    a.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
-            # Avg
-            a.text(x_label, y=metrics['Avg'], s=' Avg', color='green')
-
-            canvas = FigureCanvas(f)
-            canvas.set_size_request(800, 600)
-            box.pack_start(canvas, True, True, 0)
-
-    # -------------------------------------------------------------------------
     #  get_master
     #  get dataframe of 'Master' tab
     #
@@ -330,7 +66,7 @@ class SPC():
     def get_metrics(self, name_part, param):
         df = self.get_master()
         df1 = df[(df['Part Number'] == name_part) & (df['Parameter Name'] == param)]
-        #print(df2)
+        # print(df2)
         dict = {}
         dict['LSL'] = list(df1['LSL'])[0]
         dict['Target'] = list(df1['Target'])[0]

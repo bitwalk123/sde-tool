@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-#  sde.py --- SDE related data
+#  model.py --- model for tree view
 # -----------------------------------------------------------------------------
 import gi
 import pathlib
@@ -20,7 +20,7 @@ from gi.repository import Gtk
 #  6. str  : Dummy for padding right space
 #  7. str  : id (hidden)
 # -----------------------------------------------------------------------------
-class store(Gtk.TreeStore):
+class SDE(Gtk.TreeStore):
     row = {
         'name': 0,
         'value': 1,

@@ -7,7 +7,7 @@ import pathlib
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
-from . import dlg, excel, mbar, panel, pcs, utils
+from . import dlg, excel, mbar, panel, model, utils
 
 
 # -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ class main(Gtk.Notebook):
     # -------------------------------------------------------------------------
     def create_panel_main(self):
         # tree
-        self.store = pcs.store(self.obj)
+        self.store = model.SDE(self.obj)
         tree = Gtk.TreeView(model=self.store)
         self.store.create_tree_header(tree)
 
@@ -623,202 +623,6 @@ class main(Gtk.Notebook):
 
         dialog.destroy()
 
-# =============================================================================
-#  SPC class
-#  spc GUI of SDE Tool
-# =============================================================================
-class SPC(Gtk.Window):
-    mainpanel = None
-
-    # CSS
-    provider = Gtk.CssProvider()
-    provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
-
-    # CONSTRUCTOR
-    def __init__(self, title='SPC'):
-        Gtk.Window.__init__(self, title=title)
-        self.set_icon_from_file(utils.img().get_file("logo"))
-        self.set_margin_start(1)
-        self.set_margin_end(1)
-        self.set_default_size(800, 600)
-
-        # CSS
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            self.provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.add(box)
-
-        ### menubar
-        menubar = mbar.spc()
-        box.pack_start(menubar, expand=False, fill=True, padding=0)
-
-        # folder button clicked event
-        (menubar.get_obj('folder')).connect(
-            'clicked',
-            self.on_file_clicked
-        )
-        # exit button clicked event
-        (menubar.get_obj('exit')).connect(
-            'clicked',
-            self.on_click_app_exit
-        )
-
-        # main pabel
-        self.mainpanel = panel.panel_spc(self)
-        box.pack_start(self.mainpanel, expand=True, fill=True, padding=0)
-
-    # -------------------------------------------------------------------------
-    #  calc
-    #  Aggregation from Excel for SPC
-    #
-    #  argument
-    #    filename : Excel file to read
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def calc(self, filename):
-        sheets = excel.SPC(filename)
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        # check if read format is appropriate ot not
-        if sheets.valid is not True:
-            title = 'Error'
-            text = 'Not appropriate format!'
-            # OK dialog
-            utils.show_ok_dialog(self, title, text, 'error')
-            # delete instance
-            del sheets
-            return
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        # create tabs for tables & charts
-        sheets.create_tabs(self.mainpanel)
-        # update GUI
-        self.show_all()
-
-    # -------------------------------------------------------------------------
-    #  on_click_app_exit
-    #  Exit Application, emitting 'destroy' signal
-    #
-    #  argument
-    #    widget : clicked widget, automatically added from caller
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def on_click_app_exit(self, widget):
-        self.emit('destroy')
-
-    # -------------------------------------------------------------------------
-    #  on_file_clicked
-    #  Open Folder
-    #
-    #  argument
-    #    widget : clicked widget, automatically added from caller
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def on_file_clicked(self, widget):
-        filename = dlg.file_chooser.get(parent=self, flag='excel')
-        if filename is not None:
-            self.calc(filename)
-
-
-# -----------------------------------------------------------------------------
-#  panel_spc class
-#  part of Notbook of SPC GUI of SDE Tool
-# -----------------------------------------------------------------------------
-class panel_spc(Gtk.Notebook):
-    parent = None
-    grid_master = None
-
-    # CONSTRUCTOR
-    def __init__(self, parent):
-        Gtk.Notebook.__init__(self)
-        self.parent = parent
-
-        self.set_tab_pos(Gtk.PositionType.BOTTOM)
-        page_master = self.create_page_master()
-        self.append_page(page_master, Gtk.Label(label="Master"))
-
-    # -------------------------------------------------------------------------
-    #  create_panel_master
-    #  creating 'Master' page
-    #
-    #  argument
-    #    (none)
-    #
-    #  return
-    #    instance of container
-    # -------------------------------------------------------------------------
-    def create_page_master(self):
-        self.grid_master = Gtk.Grid()
-
-        # scrollbar window
-        scrwin = Gtk.ScrolledWindow()
-        scrwin.add(self.grid_master)
-        scrwin.set_policy(
-            Gtk.PolicyType.AUTOMATIC,
-            Gtk.PolicyType.AUTOMATIC
-        )
-
-        return scrwin
-
-    # -------------------------------------------------------------------------
-    #  create_panel_part
-    #  creating 'Master' page
-    #
-    #  argument
-    #    (none)
-    #
-    #  return
-    #    instance of container
-    # -------------------------------------------------------------------------
-    def create_page_part(self, tabname):
-        notebook = Gtk.Notebook()
-        notebook.set_tab_pos(Gtk.PositionType.TOP)
-        self.append_page(notebook, Gtk.Label(label=tabname))
-
-        # DATA tab
-        grid_data = Gtk.Grid()
-        scrwin_data = Gtk.ScrolledWindow()
-        scrwin_data.add(grid_data)
-        scrwin_data.set_policy(
-            Gtk.PolicyType.AUTOMATIC,
-            Gtk.PolicyType.AUTOMATIC
-        )
-        notebook.append_page(scrwin_data, Gtk.Label(label='DATA'))
-
-        # PLOT tab (tentative)
-        #grid_plot = Gtk.Grid()
-        scrwin_plot = Gtk.ScrolledWindow()
-        #scrwin_plot.add(grid_plot)
-        scrwin_plot.set_policy(
-            Gtk.PolicyType.AUTOMATIC,
-            Gtk.PolicyType.AUTOMATIC
-        )
-        notebook.append_page(scrwin_plot, Gtk.Label(label='PLOT'))
-
-        return grid_data, scrwin_plot
-
-    # -------------------------------------------------------------------------
-    #  get_grid_master
-    #  get grid instance for 'Master' page
-    #
-    #  argument
-    #    (none)
-    #
-    #  return
-    #    instance of grid for 'Master' page
-    # -------------------------------------------------------------------------
-    def get_grid_master(self):
-        return self.grid_master
 
 # ---
 #  END OF PROGRAM
