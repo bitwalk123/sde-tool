@@ -85,6 +85,7 @@ class ExcelSPC():
     # -------------------------------------------------------------------------
     def get_param_list(self, name_part):
         df = self.get_master()
+
         return list(df[df['Part Number'] == name_part]['Parameter Name'])
 
     # -------------------------------------------------------------------------
@@ -149,6 +150,7 @@ class ExcelSPC():
     def get_unique_part_list(self):
         df = self.get_master()
         list_part = list(np.unique(df['Part Number']))
+
         return list_part
 
     # -------------------------------------------------------------------------

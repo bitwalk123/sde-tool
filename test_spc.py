@@ -11,6 +11,7 @@ class TestSPC(pcs.SPC):
     # CONSTRUCTOR
     def __init__(self):
         pcs.SPC.__init__(self, title="SPC (Test Program)")
+        self.set_default_size(600, 400)
 
         # exit button clicked event
         (self.menubar.get_obj('exit')).connect(

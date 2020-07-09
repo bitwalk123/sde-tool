@@ -32,7 +32,6 @@ class SPC(Gtk.Window):
         self.set_icon_from_file(utils.img().get_file("logo"))
         self.set_margin_start(1)
         self.set_margin_end(1)
-        self.set_default_size(800, 600)
 
         # CSS
         Gtk.StyleContext.add_provider_for_screen(
