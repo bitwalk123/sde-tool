@@ -122,7 +122,9 @@ class ExcelSPC():
         list_colname = list(df.loc[0])
         df1.columns = list_colname
 
-        return df1
+        df2 = df1[df1['Data Type'] != 'Hide']
+
+        return df2
 
     # -------------------------------------------------------------------------
     #  get_sheets
