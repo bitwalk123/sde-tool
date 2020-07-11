@@ -145,16 +145,17 @@ class SPC(Gtk.Window):
         notebook.append_page(scrwin_data, Gtk.Label(label='DATA'))
 
         # PLOT tab (tentative)
-        # grid_plot = Gtk.Grid()
+        box_plot = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box_plot.set_homogeneous(True)
         scrwin_plot = Gtk.ScrolledWindow()
-        # scrwin_plot.add(grid_plot)
+        scrwin_plot.add(box_plot)
         scrwin_plot.set_policy(
             Gtk.PolicyType.AUTOMATIC,
             Gtk.PolicyType.AUTOMATIC
         )
         notebook.append_page(scrwin_plot, Gtk.Label(label='PLOT'))
 
-        return grid_data, scrwin_plot
+        return grid_data, box_plot
 
     # -------------------------------------------------------------------------
     #  create_tabs
@@ -188,7 +189,7 @@ class SPC(Gtk.Window):
         # create tab for etch part
         for name_part in list_part:
             # create initial tab for part
-            grid_part_data, container_plot = self.create_page_part(name_part)
+            grid_part_data, box_part_plot = self.create_page_part(name_part)
 
             # get dataframe of part data
             df_part = sheet.get_part(name_part)
@@ -199,7 +200,7 @@ class SPC(Gtk.Window):
             # get parameter list
             list_param = sheet.get_param_list(name_part)
 
-            self.create_tab_part_plot(container_plot, df_part, name_part, list_param, sheet)
+            self.create_tab_part_plot(box_part_plot, df_part, name_part, list_param, sheet)
 
     # -------------------------------------------------------------------------
     #  create_tab_master
@@ -337,11 +338,7 @@ class SPC(Gtk.Window):
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def create_tab_part_plot(self, container, df, name_part, list_param, sheet):
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.set_homogeneous(True)
-        container.add(box)
-
+    def create_tab_part_plot(self, box, df, name_part, list_param, sheet):
         for param in list_param:
             # print(param)
             metrics = sheet.get_metrics(name_part, param)
@@ -350,31 +347,31 @@ class SPC(Gtk.Window):
             x = df['Sample']
             y = df[param]
 
-            f = Figure(dpi=100)
-            a = f.add_subplot(111, title=param, ylabel='Value')
-            a.grid(True)
+            fig = Figure(dpi=100)
+            splot = fig.add_subplot(111, title=param, ylabel='Value')
+            splot.grid(True)
 
             if metrics['Spec Type'] == 'Two-Sided':
                 if not np.isnan(metrics['USL']):
-                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+                    splot.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
                 if not np.isnan(metrics['UCL']):
-                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+                    splot.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
                 if not np.isnan(metrics['Target']):
-                    a.axhline(y=metrics['Target'], linewidth=1, color='purple', label='Target')
+                    splot.axhline(y=metrics['Target'], linewidth=1, color='purple', label='Target')
                 if not np.isnan(metrics['LCL']):
-                    a.axhline(y=metrics['LCL'], linewidth=1, color='red', label='LCL')
+                    splot.axhline(y=metrics['LCL'], linewidth=1, color='red', label='LCL')
                 if not np.isnan(metrics['LSL']):
-                    a.axhline(y=metrics['LSL'], linewidth=1, color='blue', label='LSL')
+                    splot.axhline(y=metrics['LSL'], linewidth=1, color='blue', label='LSL')
             elif metrics['Spec Type'] == 'One-Sided':
                 if not np.isnan(metrics['USL']):
-                    a.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+                    splot.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
                 if not np.isnan(metrics['UCL']):
-                    a.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+                    splot.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
             # Avg
-            a.axhline(y=metrics['Avg'], linewidth=1, color='green', label='Avg')
+            splot.axhline(y=metrics['Avg'], linewidth=1, color='green', label='Avg')
 
             # Line
-            a.plot(x, y, linewidth=1, color="gray")
+            splot.plot(x, y, linewidth=1, color="gray")
 
             size_oos = 60
             size_ooc = 100
@@ -382,47 +379,47 @@ class SPC(Gtk.Window):
                 # OOC check
                 x_ooc = x[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
                 y_ooc = y[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
-                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                splot.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
                 # OOS check
                 x_oos = x[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
                 y_oos = y[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
-                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+                splot.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
             elif metrics['Spec Type'] == 'One-Sided':
                 # OOC check
                 x_ooc = x[(df[param] > metrics['UCL'])]
                 y_ooc = y[(df[param] > metrics['UCL'])]
-                a.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                splot.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
                 # OOS check
                 x_oos = x[(df[param] > metrics['USL'])]
                 y_oos = y[(df[param] > metrics['USL'])]
-                a.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+                splot.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
 
-            a.scatter(x, y, s=20, c='black', marker='o', label="Recent")
+            splot.scatter(x, y, s=20, c='black', marker='o', label="Recent")
 
-            x_label = a.get_xlim()[1]
+            x_label = splot.get_xlim()[1]
 
             if metrics['Spec Type'] == 'Two-Sided':
                 if not np.isnan(metrics['USL']):
-                    a.text(x_label, y=metrics['USL'], s=' USL', color='blue')
+                    splot.text(x_label, y=metrics['USL'], s=' USL', color='blue')
                 if not np.isnan(metrics['UCL']):
-                    a.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
+                    splot.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
                 if not np.isnan(metrics['Target']):
-                    a.text(x_label, y=metrics['Target'], s=' Target', color='purple')
+                    splot.text(x_label, y=metrics['Target'], s=' Target', color='purple')
                 if not np.isnan(metrics['LCL']):
-                    a.text(x_label, y=metrics['LCL'], s=' LCL', color='red')
+                    splot.text(x_label, y=metrics['LCL'], s=' LCL', color='red')
                 if not np.isnan(metrics['LSL']):
-                    a.text(x_label, y=metrics['LSL'], s=' LSL', color='blue')
+                    splot.text(x_label, y=metrics['LSL'], s=' LSL', color='blue')
             elif metrics['Spec Type'] == 'One-Sided':
                 if not np.isnan(metrics['USL']):
-                    a.text(x_label, y=metrics['USL'], s=' USL', color='blue')
+                    splot.text(x_label, y=metrics['USL'], s=' USL', color='blue')
                 if not np.isnan(metrics['UCL']):
-                    a.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
+                    splot.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
             # Avg
-            a.text(x_label, y=metrics['Avg'], s=' Avg', color='green')
+            splot.text(x_label, y=metrics['Avg'], s=' Avg', color='green')
 
-            canvas = FigureCanvas(f)
+            canvas = FigureCanvas(fig)
             canvas.set_size_request(800, 600)
-            box.pack_start(canvas, True, True, 0)
+            box.pack_start(canvas, expand=False, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
     #  get_grid_master
