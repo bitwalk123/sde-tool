@@ -40,8 +40,17 @@ SDETOOL_CSS = '''
     padding: 20px;
 }
 #Label {
-    margin-left: 5px;
-    margin-right: 10px;
+    font-size: 10pt;
+    padding-left: 5px;
+    padding-right: 10px;
+}
+#LabelHead {
+    font-size: 10pt;
+    font-weight: bold;
+    color: white;
+    background-color: darkblue;
+    padding-left: 5px;
+    padding-right: 10px;
 }
 #PyVer {
     font-size: 10pt;

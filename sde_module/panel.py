@@ -4,12 +4,10 @@
 import gi
 import os
 import pathlib
-import re
-import subprocess
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from . import dlg, pcs, utils
+from . import dlg, model, utils
 
 
 # -----------------------------------------------------------------------------
@@ -33,7 +31,7 @@ class main(Gtk.Notebook):
     # -------------------------------------------------------------------------
     def create_panel_main(self):
         # tree
-        self.store = pcs.store(self.obj)
+        self.store = model.SDE(self.obj)
         tree = Gtk.TreeView(model=self.store)
         self.store.create_tree_header(tree)
 
@@ -624,6 +622,7 @@ class main(Gtk.Notebook):
                 self.project_add_new(dialog, id_supplier, iter, num_part, tree)
 
         dialog.destroy()
+
 
 # ---
 #  END OF PROGRAM

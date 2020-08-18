@@ -1,305 +1,453 @@
-# -----------------------------------------------------------------------------
-#  sde.py --- SDE related data
-# -----------------------------------------------------------------------------
 import gi
-import pathlib
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
+
+import numpy as np
+import math
+from matplotlib.backends.backend_gtk3agg import (
+    FigureCanvasGTK3Agg as FigureCanvas
+)
+from matplotlib.figure import Figure
+
+# module classes of SDE Tool
+from sde_module import excel, dlg, mbar, utils
 
 
-# -----------------------------------------------------------------------------
-#  store for SDE Tool
-#
-#  store field
-#  1. str  : Name
-#  2. str  : Value
-#  3. str  : Description
-#  4. int  : Status (ProgressBar)
-#  5. bool : Check (ToggleButton)
-#  6. str  : Dummy for padding right space
-#  7. str  : id (hidden)
-# -----------------------------------------------------------------------------
-class store(Gtk.TreeStore):
-    row = {
-        'name': 0,
-        'value': 1,
-        'desc': 2,
-        'progress': 3,
-        'check': 4,
-        'dummy': 5,
-        'id': 6
-    }
+# =============================================================================
+#  SPC class
+#  spc GUI of SDE Tool
+# =============================================================================
+class SPC(Gtk.Window):
+    mainpanel = None
+    grid_master = None
 
-    def __init__(self, db_instance):
-        Gtk.TreeStore.__init__(self, str, str, str, int, bool, str, str)
-        self.obj = db_instance
-        self.node_1_supplier()
+    # CSS
+    provider = Gtk.CssProvider()
+    provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
 
-    # =========================================================================
-    #   STRUCTURED STORE DATA
-    # =========================================================================
+    # CONSTRUCTOR
+    def __init__(self, title='SPC'):
+        Gtk.Window.__init__(self, title=title)
+        self.set_icon_from_file(utils.img().get_file("logo"))
+        self.set_margin_start(1)
+        self.set_margin_end(1)
+
+        # CSS
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            self.provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.add(box)
+
+        ### menubar
+        self.menubar = mbar.spc()
+        box.pack_start(self.menubar, expand=False, fill=True, padding=0)
+
+        # folder button clicked event
+        (self.menubar.get_obj('folder')).connect(
+            'clicked',
+            self.on_file_clicked
+        )
+
+        # main pabel
+        # self.mainpanel = SPCMain(self)
+        mainpanel = Gtk.Notebook()
+        mainpanel.set_tab_pos(Gtk.PositionType.BOTTOM)
+        page_master = self.create_page_master()
+        mainpanel.append_page(page_master, Gtk.Label(label="Master"))
+        box.pack_start(mainpanel, expand=True, fill=True, padding=0)
+
+        self.mainpanel = mainpanel
 
     # -------------------------------------------------------------------------
-    #  node_add
+    #  calc
+    #  Aggregation from Excel for SPC
     #
-    #  arguments
-    #    parent : parent node
-    #    name   : Name
-    #    value  : Value
-    #    desc   : Description
-    #    id     : id
+    #  argument
+    #    filename : Excel file to read
     #
     #  return
-    #    iteration (node)
+    #    (none)
     # -------------------------------------------------------------------------
-    def node_add(self, parent, name, value, desc, id):
-        progress = 0
-        check = False
-        return self.append(
-            parent,
-            [name, value, desc, progress, check, '', id]
+    def calc(self, filename):
+        sheets = excel.ExcelSPC(filename)
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # check if read format is appropriate ot not
+        if sheets.valid is not True:
+            title = 'Error'
+            text = 'Not appropriate format!'
+            # OK dialog
+            utils.show_ok_dialog(self, title, text, 'error')
+            # delete instance
+            del sheets
+            return
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # create tabs for tables & charts
+        # sheets.create_tabs(self.mainpanel)
+        self.create_tabs(sheets)
+
+        # update GUI
+        self.show_all()
+
+    # -------------------------------------------------------------------------
+    #  create_panel_master
+    #  creating 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of container
+    # -------------------------------------------------------------------------
+    def create_page_master(self):
+        grid = Gtk.Grid()
+
+        # scrollbar window
+        scrwin = Gtk.ScrolledWindow()
+        scrwin.add(grid)
+        scrwin.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
         )
+        self.grid_master = grid
+
+        return scrwin
 
     # -------------------------------------------------------------------------
-    #  node_1_supplier
+    #  create_panel_part
+    #  creating 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of container
     # -------------------------------------------------------------------------
-    def node_1_supplier(self):
-        # SQL for getting id_supplier and name_supplier from supplier table
-        sql = "SELECT id_supplier, name_supplier FROM supplier ORDER BY name_supplier ASC"
-        out = self.obj.get(sql)
+    def create_page_part(self, tabname):
+        notebook = Gtk.Notebook()
+        notebook.set_tab_pos(Gtk.PositionType.TOP)
+        self.mainpanel.append_page(notebook, Gtk.Label(label=tabname))
 
-        # EACH SUPPLIER
-        for row_supplier in out:
-            id_supplier = str(row_supplier[0])
-            name_supplier = str(row_supplier[1])
-            id_name = 'id_supplier = ' + id_supplier;  # id_name for this node
-            # _/_/_/_/_/_/_/_/_/
-            #  ADD NODE (ROW)
-            iter_none = self.node_add(
-                parent=None,
-                name=name_supplier,
-                value=None,
-                desc=None,
-                id=id_name
-            )
-            # add Project Node
-            self.node_2_project(iter_none, id_supplier)
-
-    # -------------------------------------------------------------------------
-    #  node_2_project
-    # -------------------------------------------------------------------------
-    def node_2_project(self, iter_none, id_supplier):
-        # SQL for getting unique list of id_project from project table under specific id_supplier
-        sql = self.obj.sql(
-            "SELECT DISTINCT id_project FROM project WHERE id_supplier = ? ORDER BY id_project ASC",
-            [id_supplier]
+        # DATA tab
+        grid_data = Gtk.Grid()
+        scrwin_data = Gtk.ScrolledWindow()
+        scrwin_data.add(grid_data)
+        scrwin_data.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
         )
-        out = self.obj.get(sql)
+        notebook.append_page(scrwin_data, Gtk.Label(label='DATA'))
 
-        # EACH PROJECT
-        for row_project in out:
-            id_project = str(row_project[0])
-            id_name = 'id_project = ' + id_project;  # id_name for this node
-            # _/_/_/_/_/_/_/_/_/
-            #  ADD NODE (ROW)
-            iter_project = self.node_add(
-                parent=iter_none,
-                name='Project',
-                value=id_project,
-                desc=None,
-                id=id_name
-            )
-            # add Part Node
-            self.node_3_part(iter_project, id_project)
-            # add Stage Node
-            self.node_3_stage(iter_project, id_project)
-
-    # -------------------------------------------------------------------------
-    #  node_3_part
-    # -------------------------------------------------------------------------
-    def node_3_part(self, iter_project, id_project):
-        # label 'PART' node
-        # _/_/_/_/_/_/_/_/_/
-        #  ADD NODE (ROW)
-        iter_part = self.node_add(
-            parent=iter_project,
-            name='PART',
-            value=None,
-            desc=None,
-            id='lbl_part'
+        # PLOT tab (tentative)
+        box_plot = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box_plot.set_homogeneous(True)
+        scrwin_plot = Gtk.ScrolledWindow()
+        scrwin_plot.add(box_plot)
+        scrwin_plot.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
         )
-        # SQL for getting id_part from project table under specific id_project
-        sql = self.obj.sql(
-            "SELECT id_part FROM project WHERE id_project = ?",
-            [id_project]
-        )
-        out = self.obj.get(sql)
+        notebook.append_page(scrwin_plot, Gtk.Label(label='PLOT'))
 
-        # EACH PART
-        for row_part in out:
-            id_part = str(row_part[0])
-            id_name = 'id_part = ' + id_part;  # id_name for this node
-            # SQL for num_part and description from part table under specific id_part
-            sql2 = self.obj.sql(
-                "SELECT num_part, description FROM part WHERE ?",
-                [id_name]
-            )
-            out2 = self.obj.get(sql2)
-            for part_info in out2:
-                # _/_/_/_/_/_/_/_/_/
-                #  ADD NODE (ROW)
-                self.node_add(
-                    parent=iter_part,
-                    name=None,
-                    value=part_info[0],
-                    desc=part_info[1],
-                    id=id_name
-                )
+        return grid_data, box_plot
 
     # -------------------------------------------------------------------------
-    #  node_3_stage
+    #  create_tabs
+    #  create tab instances
+    #
+    #  argument
+    #    sheet :
+    #
+    #  return
+    #    (none)
     # -------------------------------------------------------------------------
-    def node_3_stage(self, iter_project, id_project):
-        # label 'STAGE' node
-        # _/_/_/_/_/_/_/_/_/
-        #  ADD NODE (ROW)
-        iter_stage = self.node_add(iter_project, 'STAGE', None, None, 'lbl_stage')
-        sql = "SELECT id_stage, name_stage FROM stage ORDER BY id_stage ASC"
-        out = self.obj.get(sql)
-        # EACH STAGE
-        for row_stage in out:
-            id_stage = row_stage[0]
-            name_stage = row_stage[1]
-            id_name = 'id_stage = ' + str(id_stage)
-            # _/_/_/_/_/_/_/_/_/
-            #  ADD NODE (ROW)
-            iter_stage_each = self.node_add(
-                parent=iter_stage,
-                name=name_stage,
-                value=None,
-                desc=None,
-                id=id_name
-            )
-            sql = self.obj.sql(
-                "SELECT id_data FROM data WHERE id_project = ? AND id_stage = ? ORDER BY id_data ASC",
-                [id_project, id_stage]
-            )
-            out = self.obj.get(sql)
-            self.node_4_stage_data(iter_stage_each, out)
+    def create_tabs(self, sheet):
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  'Master' tab
+
+        # get 'Master' grid container
+        grid_master = self.get_grid_master()
+
+        # get 'Master' datafrane
+        df_master = sheet.get_master()
+
+        # create 'Master' tab
+        self.create_tab_master(grid_master, df_master)
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  PART tab
+
+        # obtain unique part list
+        list_part = sheet.get_unique_part_list()
+
+        # create tab for etch part
+        for name_part in list_part:
+            # create initial tab for part
+            grid_part_data, box_part_plot = self.create_page_part(name_part)
+
+            # get dataframe of part data
+            df_part = sheet.get_part(name_part)
+
+            # create tab to show part data
+            self.create_tab_part_data(grid_part_data, df_part)
+
+            # get parameter list
+            list_param = sheet.get_param_list(name_part)
+
+            self.create_tab_part_plot(box_part_plot, df_part, name_part, list_param, sheet)
 
     # -------------------------------------------------------------------------
-    #  node_4_stage_data - stage data
+    #  create_tab_master
+    #  creating 'Master' tab
+    #
+    #  argument
+    #    grid : grid container where creating table
+    #    df   : dataframe for 'Master'
+    #
+    #  return
+    #    (none)
     # -------------------------------------------------------------------------
-    def node_4_stage_data(self, iter, out):
-        # DATA for EACH STAGE
-        for row_data in out:
-            id_data = row_data[0]
+    def create_tab_master(self, grid, df):
+        x = 0;  # column
+        y = 0;  # row
 
-            # PLACEFOLDER CHECK
-            sql1 = self.obj.sql(
-                "SELECT placefolder FROM data WHERE id_data = ?",
-                [id_data]
-            )
-            out1 = self.obj.get(sql1)
-            placefolder = out1[0][0]
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table header
 
-            # LATEST REVISION CHECK
-            sql2 = self.obj.sql(
-                "SELECT MAX(num_revision) FROM data_revision WHERE id_data = ?",
-                [id_data]
-            )
-            out2 = self.obj.get(sql2)
-            num_revision = out2[0][0]
+        # first column
+        lab = Gtk.Label(name='LabelHead', label='#')
+        lab.set_hexpand(True)
+        lab.set_alignment(xalign=0.5, yalign=0.5)
+        grid.attach(lab, x, y, 1, 1)
+        x += 1
 
-            # GET LATEST FILE LINK
-            sql3 = self.obj.sql(
-                "SELECT name_file FROM data_revision WHERE id_data = ? AND num_revision = ?",
-                [id_data, num_revision]
-            )
-            out3 = self.obj.get(sql3)
-            for row_file in out3:
-                name_file = row_file[0]
-                if len(placefolder) == 0:
-                    placefolder = pathlib.PurePath(name_file).name
+        # rest of columns
+        for item in df.columns.values:
+            lab = Gtk.Label(name='LabelHead', label=item)
+            lab.set_hexpand(True)
+            lab.set_alignment(xalign=0.5, yalign=0.5)
+            grid.attach(lab, x, y, 1, 1)
+            x += 1
 
-                label_id = 'id_data = ' + str(id_data)
-                # _/_/_/_/_/_/_/_/_/
-                #  ADD NODE (ROW)
-                self.node_add(
-                    parent=iter,
-                    name=None,
-                    value=placefolder,
-                    desc=None,
-                    id=label_id
-                )
+        y += 1
 
-    # =========================================================================
-    #  HEADER CREATION ON THE TREE WIDGET
-    # =========================================================================
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table contents
+        for row in df.itertuples(name=None):
+            x = 0
+            for item in list(row):
+                if (type(item) is float) or (type(item) is int):
+                    # the first column '#' starts from 0,
+                    # change to start from 1
+                    if x == 0:
+                        item += 1
 
-    # -------------------------------------------------------------------------
-    #  create_tree_header
-    # -------------------------------------------------------------------------
-    def create_tree_header(self, tree):
-        # 1. str : Name
-        self.treeviewcolumn_str(tree, 'Name', 0)
-        # 2. str : Value
-        self.treeviewcolumn_str(tree, 'Value', 1)
-        # 3. str : Description
-        self.treeviewcolumn_str(tree, 'Description', 2)
-        # 4. int : Status (ProgressBar)
-        self.treeviewcolumn_progress(tree, 'status', 3)
-        # 5. bool : Check (ToggleButton)
-        self.treeviewcolumn_toggle(tree, 'check', 4)
-        # 6. str : Dummy for padding right space
-        self.treeviewcolumn_str(tree, '', 5)
-        # 7. str : id for padding right space
-        self.treeviewcolumn_str(tree, 'id', 6, False)
+                    # right align on the widget
+                    xpos = 1.0
+                    if math.isnan(item):
+                        item = ''
+                else:
+                    # left align on the widget
+                    xpos = 0.0
+
+                item = str(item)
+
+                lab = Gtk.Label(name='Label', label=item)
+                lab.set_hexpand(True)
+                lab.set_alignment(xalign=xpos, yalign=0.5)
+                grid.attach(lab, x, y, 1, 1)
+                x += 1
+
+            y += 1
 
     # -------------------------------------------------------------------------
-    #  TreeViewColumn for CellRenderProgress
+    #  create_tab_part_data
+    #  creating DATA tab in (Part Number) tab
+    #
+    #  argument
+    #    grid : grid container where creating table
+    #    df   : dataframe for specified (Part Number)
+    #
+    #  return
+    #    (none)
     # -------------------------------------------------------------------------
-    def treeviewcolumn_progress(self, tree, title, col):
-        cell = Gtk.CellRendererProgress()
-        column = Gtk.TreeViewColumn()
-        tree.append_column(column)
-        column.set_title(title)
-        column.pack_start(cell, True)
-        column.add_attribute(cell, 'value', col)
-        column.set_resizable(False)
+    def create_tab_part_data(self, grid, df):
+        x = 0;  # column
+        y = 0;  # row
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table header
+
+        # first column
+        lab = Gtk.Label(name='LabelHead', label='#')
+        lab.set_hexpand(True)
+        lab.set_alignment(xalign=0.5, yalign=0.5)
+        grid.attach(lab, x, y, 1, 1)
+        x += 1
+
+        # rest of columns
+        for item in df.columns.values:
+            lab = Gtk.Label(name='LabelHead', label=item)
+            lab.set_hexpand(True)
+            lab.set_alignment(xalign=0.5, yalign=0.5)
+            grid.attach(lab, x, y, 1, 1)
+            x += 1
+
+        y += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        #  table contents
+        for row in df.itertuples(name=None):
+            x = 0
+            for item in list(row):
+                if (type(item) is float) or (type(item) is int):
+                    # right align on the widget
+                    xpos = 1.0
+                    if math.isnan(item):
+                        item = ''
+                else:
+                    # left align on the widget
+                    xpos = 0.0
+
+                item = str(item)
+
+                lab = Gtk.Label(name='Label', label=item)
+                lab.set_hexpand(True)
+                lab.set_alignment(xalign=xpos, yalign=0.5)
+                grid.attach(lab, x, y, 1, 1)
+                x += 1
+
+            y += 1
 
     # -------------------------------------------------------------------------
-    #  TreeViewColumn for CellRenderText
+    #  create_tab_part_plot
+    #  creating PLOT tab in (Part Number) tab
+    #
+    #  argument
+    #    container  : container where creating plot
+    #    df         : dataframe for specified (Part Number)
+    #    list_param : parameter list to plot
+    #    sheet      : instance of Excel sheet
+    #
+    #  return
+    #    (none)
     # -------------------------------------------------------------------------
-    def treeviewcolumn_str(self, tree, title, col, visible=True):
-        cell = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn()
-        tree.append_column(column)
-        column.set_title(title)
-        column.pack_start(cell, True)
-        column.add_attribute(cell, 'text', col)
-        column.set_resizable(True)
-        column.set_visible(visible)
+    def create_tab_part_plot(self, box, df, name_part, list_param, sheet):
+        for param in list_param:
+            # print(param)
+            metrics = sheet.get_metrics(name_part, param)
+            # print(metrics.items())
+
+            x = df['Sample']
+            y = df[param]
+
+            fig = Figure(dpi=100)
+            splot = fig.add_subplot(111, title=param, ylabel='Value')
+            splot.grid(True)
+
+            if metrics['Spec Type'] == 'Two-Sided':
+                if not np.isnan(metrics['USL']):
+                    splot.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+                if not np.isnan(metrics['UCL']):
+                    splot.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+                if not np.isnan(metrics['Target']):
+                    splot.axhline(y=metrics['Target'], linewidth=1, color='purple', label='Target')
+                if not np.isnan(metrics['LCL']):
+                    splot.axhline(y=metrics['LCL'], linewidth=1, color='red', label='LCL')
+                if not np.isnan(metrics['LSL']):
+                    splot.axhline(y=metrics['LSL'], linewidth=1, color='blue', label='LSL')
+            elif metrics['Spec Type'] == 'One-Sided':
+                if not np.isnan(metrics['USL']):
+                    splot.axhline(y=metrics['USL'], linewidth=1, color='blue', label='USL')
+                if not np.isnan(metrics['UCL']):
+                    splot.axhline(y=metrics['UCL'], linewidth=1, color='red', label='UCL')
+            # Avg
+            splot.axhline(y=metrics['Avg'], linewidth=1, color='green', label='Avg')
+
+            # Line
+            splot.plot(x, y, linewidth=1, color="gray")
+
+            size_oos = 60
+            size_ooc = 100
+            if metrics['Spec Type'] == 'Two-Sided':
+                # OOC check
+                x_ooc = x[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
+                y_ooc = y[(df[param] < metrics['LCL']) | (df[param] > metrics['UCL'])]
+                splot.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                # OOS check
+                x_oos = x[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
+                y_oos = y[(df[param] < metrics['LSL']) | (df[param] > metrics['USL'])]
+                splot.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+            elif metrics['Spec Type'] == 'One-Sided':
+                # OOC check
+                x_ooc = x[(df[param] > metrics['UCL'])]
+                y_ooc = y[(df[param] > metrics['UCL'])]
+                splot.scatter(x_ooc, y_ooc, s=size_ooc, c='orange', marker='o', label="Recent")
+                # OOS check
+                x_oos = x[(df[param] > metrics['USL'])]
+                y_oos = y[(df[param] > metrics['USL'])]
+                splot.scatter(x_oos, y_oos, s=size_oos, c='red', marker='o', label="Recent")
+
+            splot.scatter(x, y, s=20, c='black', marker='o', label="Recent")
+
+            x_label = splot.get_xlim()[1]
+
+            if metrics['Spec Type'] == 'Two-Sided':
+                if not np.isnan(metrics['USL']):
+                    splot.text(x_label, y=metrics['USL'], s=' USL', color='blue')
+                if not np.isnan(metrics['UCL']):
+                    splot.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
+                if not np.isnan(metrics['Target']):
+                    splot.text(x_label, y=metrics['Target'], s=' Target', color='purple')
+                if not np.isnan(metrics['LCL']):
+                    splot.text(x_label, y=metrics['LCL'], s=' LCL', color='red')
+                if not np.isnan(metrics['LSL']):
+                    splot.text(x_label, y=metrics['LSL'], s=' LSL', color='blue')
+            elif metrics['Spec Type'] == 'One-Sided':
+                if not np.isnan(metrics['USL']):
+                    splot.text(x_label, y=metrics['USL'], s=' USL', color='blue')
+                if not np.isnan(metrics['UCL']):
+                    splot.text(x_label, y=metrics['UCL'], s=' UCL', color='red')
+            # Avg
+            splot.text(x_label, y=metrics['Avg'], s=' Avg', color='green')
+
+            canvas = FigureCanvas(fig)
+            canvas.set_size_request(800, 600)
+            box.pack_start(canvas, expand=False, fill=True, padding=0)
 
     # -------------------------------------------------------------------------
-    #  TreeViewColumn for CellRenderToggle
+    #  get_grid_master
+    #  get grid instance for 'Master' page
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    instance of grid for 'Master' page
     # -------------------------------------------------------------------------
-    def treeviewcolumn_toggle(self, tree, title, col):
-        cell = Gtk.CellRendererToggle()
-        column = Gtk.TreeViewColumn()
-        tree.append_column(column)
-        column.set_title(title)
-        column.pack_start(cell, True)
-        column.add_attribute(cell, 'active', col)
-        column.set_resizable(False)
-        # TEST
-        cell.connect('toggled', self.on_chk_renderer_toggled)
+    def get_grid_master(self):
+        return self.grid_master
 
-    def on_chk_renderer_toggled(self, cell, path):
-        print(cell.get_active())
-        print(path)
-        self[path][4] = not self[path][self.row['check']]
+    # -------------------------------------------------------------------------
+    #  on_file_clicked
+    #  Open Folder
+    #
+    #  argument
+    #    widget : clicked widget, automatically added from caller
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def on_file_clicked(self, widget):
+        filename = dlg.file_chooser.get(parent=self, flag='excel')
+        if filename is not None:
+            self.calc(filename)
 
 # ---
-#  END OF PROGRAM
+# PROGRAM END
