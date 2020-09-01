@@ -80,6 +80,30 @@ SDETOOL_CSS = '''
 
 
 # -----------------------------------------------------------------------------
+#  image
+#  Image Facility
+# -----------------------------------------------------------------------------
+class image(Gtk.Image):
+    def __init__(self, image, size=Gtk.IconSize.DND):
+        Gtk.Image.__init__(self)
+        icon_name = self.get_icon_name(image)
+        self.set_from_icon_name(icon_name, size)
+
+    def get_icon_name(self, image_name):
+        if image_name == "add":
+            return "list-add"
+        elif image_name == "config":
+            return "emblem-system"
+        elif image_name == "exit":
+            return "application-exit"
+        elif image_name == "folder":
+            return "folder"
+        elif image_name == "info":
+            return "dialog-information"
+
+        return
+
+# -----------------------------------------------------------------------------
 #  img
 #  Image Facility
 # -----------------------------------------------------------------------------

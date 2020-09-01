@@ -40,7 +40,8 @@ class MenuBar(Gtk.Frame):
 class menubar_button(Gtk.Button):
     def __init__(self, name, image, tooltip=''):
         Gtk.Button.__init__(self, name=name)
-        self.add(utils.img().get_image(image))
+        #self.add(utils.img().get_image(image))
+        self.set_image(utils.image(image))
         self.set_tooltip_text(tooltip)
 
 
