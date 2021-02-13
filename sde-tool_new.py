@@ -15,15 +15,22 @@ from PySide2.QtWidgets import (
 
 
 class SDETool(QMainWindow):
+    # Application information
+    app_name: str = 'SPC Tool'
+    app_ver: str = '0.3 (alpha)'
+
     # icons
     icon_exit: str = 'images/Apps-Dialog-Shutdown-icon.png'
 
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.setWindowTitle('SDE Tool')
+        self.setWindowTitle(self.getAppTitle())
         self.show()
 
+    # -------------------------------------------------------------------------
+    #  initUI
+    # -------------------------------------------------------------------------
     def initUI(self):
         # Create pyqt toolbar
         toolbar = QToolBar()
@@ -34,11 +41,26 @@ class SDETool(QMainWindow):
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         toolbar.addWidget(spacer)
 
+        # button for application exit
         but_exit = QToolButton()
         but_exit.setIcon(QIcon(self.icon_exit))
         but_exit.setStatusTip('Exit application')
         but_exit.clicked.connect(self.closeEvent)
         toolbar.addWidget(but_exit)
+
+    # -------------------------------------------------------------------------
+    #  getAppTitle
+    #  get application title string
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    application title string
+    # -------------------------------------------------------------------------
+    def getAppTitle(self):
+        title: str = self.app_name + ' - ' + self.app_ver
+        return(title)
 
     # -------------------------------------------------------------------------
     #  closeEvent
