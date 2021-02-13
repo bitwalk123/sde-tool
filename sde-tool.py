@@ -53,10 +53,10 @@ class SDETool(Gtk.Window):
         # ---------------------------------------------------------------------
         # Config for Database
         config_db = self.config['Database']
-        self.dbname = config_db['DBNAME']
+        dbname = config_db['DBNAME']
         # get database instance
-        self.obj = db.handle_db(self)
-        if not os.path.exists(self.dbname):
+        self.obj = db.handle_db(dbname)
+        if not os.path.exists(dbname):
             # If database does not exist, create new database.
             self.obj.init()
 

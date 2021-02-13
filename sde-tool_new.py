@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import sys
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
@@ -12,18 +11,47 @@ from PySide2.QtWidgets import (
     QToolButton,
     QWidget,
 )
+import configparser
+import os.path
+import pathlib
+import platform
+import sys
+from database import handle_db
 
 
 class SDETool(QMainWindow):
     # Application information
-    app_name: str = 'SPC Tool'
-    app_ver: str = '0.3 (alpha)'
+    APP_NAME: str = 'SPC Tool'
+    APP_VER: str = '0.3 (alpha)'
+
+    # configuraion file
+    confFile: str = 'sde.conf'
+    config: configparser.ConfigParser = None
 
     # icons
-    icon_exit: str = 'images/Apps-Dialog-Shutdown-icon.png'
+    ICON_EXIT: str = 'images/Apps-Dialog-Shutdown-icon.png'
 
     def __init__(self):
         super().__init__()
+
+        # ---------------------------------------------------------------------
+        #  CONFIGURATION FILE READ
+        # ---------------------------------------------------------------------
+        self.config = configparser.ConfigParser()
+        self.config.read(self.confFile, 'UTF-8')
+
+        # ---------------------------------------------------------------------
+        #  DATABASE CONNECTION
+        # ---------------------------------------------------------------------
+        # Config for Database
+        config_db = self.config['Database']
+        dbname = config_db['DBNAME']
+        # get database instance
+        self.obj = handle_db(dbname)
+        if not os.path.exists(dbname):
+            # If database does not exist, create new database.
+            self.obj.init()
+
         self.initUI()
         self.setWindowTitle(self.getAppTitle())
         self.show()
@@ -43,7 +71,7 @@ class SDETool(QMainWindow):
 
         # button for application exit
         but_exit = QToolButton()
-        but_exit.setIcon(QIcon(self.icon_exit))
+        but_exit.setIcon(QIcon(self.ICON_EXIT))
         but_exit.setStatusTip('Exit application')
         but_exit.clicked.connect(self.closeEvent)
         toolbar.addWidget(but_exit)
@@ -59,8 +87,8 @@ class SDETool(QMainWindow):
     #    application title string
     # -------------------------------------------------------------------------
     def getAppTitle(self):
-        title: str = self.app_name + ' - ' + self.app_ver
-        return(title)
+        title: str = self.APP_NAME + ' - ' + self.APP_VER
+        return (title)
 
     # -------------------------------------------------------------------------
     #  closeEvent
