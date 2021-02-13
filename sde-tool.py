@@ -1,46 +1,38 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QMessageBox,
+    QSizePolicy,
+    QToolBar,
+    QToolButton,
+    QWidget,
+)
 import configparser
-import gi
 import os.path
 import pathlib
 import platform
-
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
-
-# SDE Tool Classes
-from sde_module import db, dlg, mbar, panel, utils
+import sys
+from database import handle_db
 
 
-# -----------------------------------------------------------------------------
-#  SDETool
-#  Supplier Development Engineering Tool to organize supplier information
-#
-#  COPYRIGHT 2020 Keiichi Takahashi
-# -----------------------------------------------------------------------------
-class SDETool(Gtk.Window):
-    # Platform/OS Information
-    # (Windows, Linux or Darwin)
-    app_platform = platform.system()
-
-    # Application Version
-    app_version = "0.2"
-    if app_platform == 'Windows':
-        basedir = pathlib.Path('C:/').resolve()
-    else:
-        basedir = pathlib.Path('/').resolve()
+class SDETool(QMainWindow):
+    # Application information
+    APP_NAME: str = 'SPC Tool'
+    APP_VER: str = '0.3 (alpha)'
 
     # configuraion file
-    confFile = 'sde.conf'
+    confFile: str = 'sde.conf'
+    config: configparser.ConfigParser = None
 
-    # CSS
-    provider = Gtk.CssProvider()
-    provider.load_from_data((utils.SDETOOL_CSS).encode('utf-8'))
+    # icons
+    ICON_EXIT: str = 'images/Apps-Dialog-Shutdown-icon.png'
 
-    # -------------------------------------------------------------------------
-    #  CONSTRUCTOR
-    # -------------------------------------------------------------------------
     def __init__(self):
-        Gtk.Window.__init__(self, title="SDE Tool")
+        super().__init__()
 
         # ---------------------------------------------------------------------
         #  CONFIGURATION FILE READ
@@ -55,99 +47,88 @@ class SDETool(Gtk.Window):
         config_db = self.config['Database']
         dbname = config_db['DBNAME']
         # get database instance
-        self.obj = db.handle_db(dbname)
+        self.obj = handle_db(dbname)
         if not os.path.exists(dbname):
             # If database does not exist, create new database.
             self.obj.init()
 
-        # ---------------------------------------------------------------------
-        #  GUI
-        # ---------------------------------------------------------------------
-        # CSS
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            self.provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-        # decoration for top level window
-        self.set_icon_from_file(utils.img().get_file("logo"))
-        self.set_margin_start(1)
-        self.set_margin_end(1)
-        self.set_default_size(800, 600)
-
-        # top level widget layout management
-        box = Gtk.Box(name='Base', orientation=Gtk.Orientation.VERTICAL)
-        self.add(box)
-
-        ### menubar
-        menubar = mbar.main()
-        box.pack_start(menubar, expand=False, fill=True, padding=0)
-
-        ### main pabel
-        self.mainpanel = panel.main(self, self.obj)
-        box.pack_start(self.mainpanel, expand=True, fill=True, padding=0)
-
-        ### status bar
-        self.statusbar = Gtk.Statusbar(name='Status')
-        box.pack_start(self.statusbar, expand=False, fill=True, padding=0)
-
-        # statusbar registration to mainpanel
-        self.context_id = self.statusbar.get_context_id('sde')
-        self.mainpanel.set_statusbar_info(self.statusbar, self.context_id)
-
-        # ---------------------------------------------------------------------
-        #  menubar button event
-        # ---------------------------------------------------------------------
-        # add button clicked event
-        (menubar.get_obj('add')).connect(
-            'clicked',
-            self.mainpanel.on_click_add_new_supplier
-        )
-        # info button clicked event
-        (menubar.get_obj('info')).connect(
-            'clicked',
-            self.on_click_app_info
-        )
-        # exit button clicked event
-        (menubar.get_obj('exit')).connect(
-            'clicked',
-            self.on_click_app_exit
-        )
-
-    # =========================================================================
-    #  EVENT HANDLING
-    # =========================================================================
+        self.initUI()
+        self.setWindowTitle(self.getAppTitle())
+        self.show()
 
     # -------------------------------------------------------------------------
-    #  Exit Application
+    #  initUI
     # -------------------------------------------------------------------------
-    def on_click_app_exit(self, widget):
-        self.emit('destroy')
+    def initUI(self):
+        # Create pyqt toolbar
+        toolbar = QToolBar()
+        self.addToolBar(toolbar)
+
+        # spacer
+        spacer: QWidget = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
+
+        # button for application exit
+        but_exit = QToolButton()
+        but_exit.setIcon(QIcon(self.ICON_EXIT))
+        but_exit.setStatusTip('Exit application')
+        but_exit.clicked.connect(self.closeEvent)
+        toolbar.addWidget(but_exit)
 
     # -------------------------------------------------------------------------
-    #  Application Information
+    #  getAppTitle
+    #  get application title string
+    #
+    #  argument
+    #    (none)
+    #
+    #  return
+    #    application title string
     # -------------------------------------------------------------------------
-    def on_click_app_info(self, widget):
-        dialog = dlg.app_about(self)
-        dialog.run()
-        dialog.destroy()
+    def getAppTitle(self):
+        title: str = self.APP_NAME + ' - ' + self.APP_VER
+        return (title)
+
+    # -------------------------------------------------------------------------
+    #  closeEvent
+    #  Dialog for close confirmation
+    #
+    #  argument
+    #    event
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def closeEvent(self, event):
+        sender = self.sender()
+
+        reply: QMessageBox.StandardButton = QMessageBox.warning(
+            self,
+            'Quit App',
+            'Are you sure you want to quit?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if sender is not None:
+            # Exit button is clicked
+            if reply == QMessageBox.Yes:
+                QApplication.quit()
+            return
+        else:
+            # 'X' on the window is clicked
+            if reply == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
 
 
-# -----------------------------------------------------------------------------
-#  Application Exit
-# -----------------------------------------------------------------------------
-def app_exit(obj):
-    Gtk.main_quit()
+def main():
+    app = QApplication(sys.argv)
+    ex = SDETool()
+    sys.exit(app.exec_())
 
 
-# -----------------------------------------------------------------------------
-#  MAIN
-# -----------------------------------------------------------------------------
-if __name__ == "__main__":
-    win = SDETool()
-    win.connect('destroy', app_exit)
-    win.show_all()
-    Gtk.main()
-
-# ---
-#  END OF PROGRAM
+if __name__ == '__main__':
+    main()
