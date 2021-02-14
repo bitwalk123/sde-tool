@@ -61,6 +61,16 @@ class SDETool(QMainWindow):
             # If database does not exist, create new database.
             self.db.init()
 
+            # 'New DB is created.' dialog
+            reply: QMessageBox.StandardButton = QMessageBox.warning(
+                self,
+                'New DB',
+                'New DB is created.',
+                QMessageBox.Ok,
+                QMessageBox.Ok
+            )
+
+
     # -------------------------------------------------------------------------
     #  initUI
     # -------------------------------------------------------------------------
