@@ -7,6 +7,8 @@ from PySide2.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QSizePolicy,
+    QStatusBar,
+    QTabWidget,
     QToolBar,
     QToolButton,
     QWidget,
@@ -16,7 +18,7 @@ import os.path
 import pathlib
 import platform
 import sys
-from database import handle_db
+from database import SqlDB
 
 
 class SDETool(QMainWindow):
@@ -34,27 +36,30 @@ class SDETool(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # ---------------------------------------------------------------------
-        #  CONFIGURATION FILE READ
-        # ---------------------------------------------------------------------
+        # CONFIGURATION FILE READ
         self.config = configparser.ConfigParser()
         self.config.read(self.confFile, 'UTF-8')
 
+        # INITIALIZE
+        self.initDB()
+        self.initUI()
+
+    # -------------------------------------------------------------------------
+    #  initDB
+    # -------------------------------------------------------------------------
+    def initDB(self):
         # ---------------------------------------------------------------------
         #  DATABASE CONNECTION
         # ---------------------------------------------------------------------
         # Config for Database
         config_db = self.config['Database']
         dbname = config_db['DBNAME']
+
         # get database instance
-        self.obj = handle_db(dbname)
+        self.db = SqlDB(dbname)
         if not os.path.exists(dbname):
             # If database does not exist, create new database.
-            self.obj.init()
-
-        self.initUI()
-        self.setWindowTitle(self.getAppTitle())
-        self.show()
+            self.db.init()
 
     # -------------------------------------------------------------------------
     #  initUI
@@ -75,6 +80,20 @@ class SDETool(QMainWindow):
         but_exit.setStatusTip('Exit application')
         but_exit.clicked.connect(self.closeEvent)
         toolbar.addWidget(but_exit)
+
+        # --------------
+        # Tab widget
+        self.tabwidget: QTabWidget = QTabWidget()
+        self.tabwidget.setTabPosition(QTabWidget.South)
+        self.setCentralWidget(self.tabwidget)
+
+        # Status Bar
+        self.statusbar: QStatusBar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # show window
+        self.setWindowTitle(self.getAppTitle())
+        self.show()
 
     # -------------------------------------------------------------------------
     #  getAppTitle
