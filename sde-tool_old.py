@@ -30,7 +30,7 @@ class SDETool(Gtk.Window):
         basedir = pathlib.Path('/').resolve()
 
     # configuraion file
-    confFile = 'sde.conf'
+    confFile = 'sde.ini'
 
     # CSS
     provider = Gtk.CssProvider()

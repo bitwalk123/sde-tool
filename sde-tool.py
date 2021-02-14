@@ -25,7 +25,7 @@ class SDETool(QMainWindow):
     APP_VER: str = '0.3 (alpha)'
 
     # configuraion file
-    confFile: str = 'sde.conf'
+    confFile: str = 'sde.ini'
     config: configparser.ConfigParser = None
 
     # icons
