@@ -2,15 +2,21 @@
 # coding: utf-8
 
 from PySide2.QtGui import QIcon
+from PySide2.QtGui import Qt
 from PySide2.QtWidgets import (
     QApplication,
+    QFrame,
+    QLabel,
+    QGridLayout,
     QMainWindow,
     QMessageBox,
+    QScrollArea,
     QSizePolicy,
     QStatusBar,
     QTabWidget,
     QToolBar,
     QToolButton,
+    QVBoxLayout,
     QWidget,
 )
 import configparser
@@ -32,6 +38,7 @@ class SDETool(QMainWindow):
 
     # icons
     ICON_EXIT: str = 'images/Apps-Dialog-Shutdown-icon.png'
+    ICON_DB: str = 'images/iconfinder_database-px-png_63467.png'
 
     def __init__(self):
         super().__init__()
@@ -70,7 +77,6 @@ class SDETool(QMainWindow):
                 QMessageBox.Ok
             )
 
-
     # -------------------------------------------------------------------------
     #  initUI
     # -------------------------------------------------------------------------
@@ -93,17 +99,32 @@ class SDETool(QMainWindow):
 
         # --------------
         # Tab widget
-        self.tabwidget: QTabWidget = QTabWidget()
-        self.tabwidget.setTabPosition(QTabWidget.South)
-        self.setCentralWidget(self.tabwidget)
+        tabwidget: QTabWidget = QTabWidget()
+        self.setCentralWidget(tabwidget)
+        self.createTabs(tabwidget)
 
         # Status Bar
-        self.statusbar: QStatusBar = QStatusBar()
-        self.setStatusBar(self.statusbar)
+        statusbar: QStatusBar = QStatusBar()
+        self.setStatusBar(statusbar)
 
         # show window
         self.setWindowTitle(self.getAppTitle())
         self.show()
+
+    # -------------------------------------------------------------------------
+    #  createTabs
+    #  create tabs on the QTabWidget
+    #
+    #  argument
+    #    parent: QTabWidget
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def createTabs(self, parent: QTabWidget):
+        # tab_database
+        tab_database = DBConfig()
+        parent.addTab(tab_database, QIcon(self.ICON_DB), 'Database')
 
     # -------------------------------------------------------------------------
     #  getAppTitle
@@ -151,6 +172,20 @@ class SDETool(QMainWindow):
                 event.accept()
             else:
                 event.ignore()
+
+
+class DBConfig(QScrollArea):
+    def __init__(self):
+        super().__init__()
+        grid = QGridLayout()
+
+        title = QLabel("Database Settings")
+        grid.addWidget(title, 0, 0)
+
+        part = QLabel("PART")
+        grid.addWidget(part, 1, 0)
+
+        self.setLayout(grid)
 
 
 def main():

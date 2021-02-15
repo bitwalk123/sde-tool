@@ -5,5 +5,12 @@ AUTHOR: alecive
 LICENSE: CC Attribution-Share Alike 4.0
 Commercial usage: Allowed (Author Arrangement required -> Visit artist website for details).
 AUTHOR URL: https://github.com/alecive
-README_FlatWoken.txt: 
 
+
+IMAGE: iconfinder_database-px-png_63467.png
+ORIGINAL FILENAME: iconfinder_database-px-png_63467.png
+URL: https://www.iconfinder.com/icons/63467/storage_database_icon
+AUTHOR: Heart Internet
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
