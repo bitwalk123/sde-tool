@@ -105,6 +105,7 @@ class SDETool(QMainWindow):
         # --------------
         # Tab widget
         tabwidget: QTabWidget = QTabWidget()
+        tabwidget.setTabPosition(QTabWidget.South)
         self.setCentralWidget(tabwidget)
         self.createTabs(tabwidget)
 
@@ -129,7 +130,7 @@ class SDETool(QMainWindow):
     # -------------------------------------------------------------------------
     def createTabs(self, parent: QTabWidget):
         # tab_database
-        tab_database = DBConfig()
+        tab_database = DBTab(self.db)
         parent.addTab(tab_database, QIcon(self.icons.DB), 'Database')
 
     # -------------------------------------------------------------------------
@@ -180,35 +181,44 @@ class SDETool(QMainWindow):
                 event.ignore()
 
 
-class DBConfig(QScrollArea):
-    def __init__(self):
+class DBTab(QTabWidget):
+    def __init__(self, db):
         super().__init__()
+        self.db = db
         self.icons = Icons()
 
-        self.setWidgetResizable(True)
+        tab_add = QScrollArea()
+        tab_add.setWidgetResizable(True)
+        self.create_tab_add(tab_add)
+        self.addTab(tab_add, QIcon(self.icons.PEN), 'Data Input')
+
+    # -------------------------------------------------------------------------
+    #  create_tab_add
+    #  create tab 'tab_add"
+    #
+    #  argument
+    #    parentparent: QScrollArea
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def create_tab_add(self, parent: QScrollArea):
         base = QWidget(self)
         base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.setWidget(base)
-
+        parent.setWidget(base)
         grid = QGridLayout()
         base.setLayout(grid)
-
-        # ---------------------------------------------------------------------
-        # Database Settings (small label)
         row = 0
-        title = QLabel('<font size=4>Database Settings</font>')
-        grid.addWidget(title, row, 0, 1, 4)
 
-        # ---------------------------------------------------------------------
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # PART Label
-        row += 1
         part = QLabel('<font size=14>PART</font>')
         part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(part, row, 0, 1, 4)
+        row += 1
 
         # ---------------------------------------------------------------------
         # PART NUMBER
-        row += 1
         lab_num_part = QLabel('<font size=4>PART#</font>')
         ent_num_part = QLineEdit()
         ent_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -218,33 +228,33 @@ class DBConfig(QScrollArea):
         grid.addWidget(lab_num_part, row, 0)
         grid.addWidget(ent_num_part, row, 1, 1, 2)
         grid.addWidget(but_num_part, row, 3, 2, 1)
+        row += 1
 
         # ---------------------------------------------------------------------
         # PART Description
-        row += 1
         lab_desc_part = QLabel('<font size=4>Description</font>')
         ent_desc_part = QLineEdit()
         grid.addWidget(lab_desc_part, row, 0)
         grid.addWidget(ent_desc_part, row, 1, 1, 2)
+        row += 1
 
         # ---------------------------------------------------------------------
         # Horizontal Line 1
-        row += 1
         hline1 = QFrame(self)
         hline1.setFrameShape(QFrame.HLine)
         hline1.setFrameShadow(QFrame.Sunken)
         hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         grid.addWidget(hline1, row, 0, 1, 4)
+        row += 1
 
         # ---------------------------------------------------------------------
         # Drawing (small label)
-        row += 1
         title = QLabel('<font size=4>Drawing</font>')
         grid.addWidget(title, row, 0, 1, 4)
-
-        # ---------------------------------------------------------------------
-        # PART Drawing Revision
         row += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # PART Drawing Revision
         lab_rev_drawing = QLabel('<font size=4>Revision</font>')
         ent_rev_drawing = QLineEdit()
         ent_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -254,10 +264,10 @@ class DBConfig(QScrollArea):
         grid.addWidget(lab_rev_drawing, row, 0)
         grid.addWidget(ent_rev_drawing, row, 1)
         grid.addWidget(but_rev_drawing, row, 3, 2, 1)
+        row += 1
 
         # ---------------------------------------------------------------------
         # PART Drawing file
-        row += 1
         lab_file_drawing = QLabel('<font size=4>PDF file</font>')
         ent_file_drawing = QLineEdit()
         but_file_drawing = QPushButton()
@@ -265,17 +275,17 @@ class DBConfig(QScrollArea):
         grid.addWidget(lab_file_drawing, row, 0)
         grid.addWidget(ent_file_drawing, row, 1)
         grid.addWidget(but_file_drawing, row, 2)
-
-        # ---------------------------------------------------------------------
-        # SUPPLIER Label
         row += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # SUPPLIER Label
         supplier = QLabel('<font size=14>SUPPLIER</font>')
         supplier.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(supplier, row, 0, 1, 4)
+        row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME SHORT
-        row += 1
         lab_name_supplier_short = QLabel('<font size=4>SHORT NAME</font>')
         ent_name_supplier_short = QLineEdit()
         ent_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -285,22 +295,56 @@ class DBConfig(QScrollArea):
         grid.addWidget(lab_name_supplier_short, row, 0)
         grid.addWidget(ent_name_supplier_short, row, 1)
         grid.addWidget(but_name_supplier_short, row, 3, 3, 1)
+        row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME FULL
-        row += 1
         lab_name_supplier = QLabel('<font size=4>FULL NAME</font>')
         ent_name_supplier = QLineEdit()
         grid.addWidget(lab_name_supplier, row, 0)
         grid.addWidget(ent_name_supplier, row, 1, 1, 2)
+        row += 1
 
         # ---------------------------------------------------------------------
-        # SUPPLIER NAME JP
+        # SUPPLIER NAME in local language
+        lab_name_supplier_local = QLabel('<font size=4>Local NAME</font>')
+        ent_name_supplier_local = QLineEdit()
+        grid.addWidget(lab_name_supplier_local, row, 0)
+        grid.addWidget(ent_name_supplier_local, row, 1, 1, 2)
         row += 1
-        lab_name_supplier_jp = QLabel('<font size=4>JAPANESE</font>')
-        ent_name_supplier_jp = QLineEdit()
-        grid.addWidget(lab_name_supplier_jp, row, 0)
-        grid.addWidget(ent_name_supplier_jp, row, 1, 1, 2)
+
+        # button click
+        but_name_supplier_short.clicked.connect(
+            lambda: self.on_click_supplier(
+                ent_name_supplier_short,
+                ent_name_supplier,
+                ent_name_supplier_local
+            )
+        )
+
+    # -------------------------------------------------------------------------
+    #  on_click_supplier
+    #  add supplier to database
+    #
+    #  argument
+    #    obj_short: QLineEdit  Common name of supplier
+    #    obj_full: QLineEdit   Full name of supplier in English
+    #    obj_local: QLineEdit  Full name of supplier in Local Language
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def on_click_supplier(self, obj_short: QLineEdit, obj_full: QLineEdit, obj_local: QLineEdit):
+        name_supplier_short = obj_short.text()
+        name_supplier = obj_full.text()
+        name_supplier_local = obj_local.text()
+        obj_short.setText(None)
+        obj_full.setText(None)
+        obj_local.setText(None)
+
+        sql = self.db.sql("INSERT INTO supplier VALUES(NULL, '?', '?', '?')", [name_supplier_short, name_supplier, name_supplier_local])
+        print(sql)
+        self.db.put(sql)
 
 
 class Icons():
@@ -309,6 +353,7 @@ class Icons():
     CHECK: str = 'images/iconfinder_Tick_Mark_1398911.png'
     DB: str = 'images/iconfinder_database-px-png_63467.png'
     EXIT: str = 'images/Apps-Dialog-Shutdown-icon.png'
+    PEN: str = 'images/iconfinder_General_Office_09_3592869.png'
 
 
 def main():
