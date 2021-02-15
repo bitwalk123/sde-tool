@@ -17,7 +17,7 @@ class SqlDB():
         init_sql = [
             'CREATE TABLE part (id_part INTEGER PRIMARY KEY, num_part TEXT NOT NULL, description TEXT, name_product TEXT)',
             'CREATE TABLE drawing (id_drawing INTEGER PRIMARY KEY, id_part INTEGER, id_rev INTEGER, drawing NONE)',
-            'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier TEXT NOT NULL, name_common TEXT)',
+            'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier_short TEXT NOT NULL, name_supplier TEXT, name_supplier_jp TEXT)',
             'CREATE TABLE part_supplier (id_part_supplier INTEGER PRIMARY KEY, id_part INTEGER, id_supplier INTEGER)',
         ]
         stages = [
