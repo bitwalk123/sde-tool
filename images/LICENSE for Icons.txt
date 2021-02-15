@@ -14,3 +14,23 @@ AUTHOR: Heart Internet
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL:
+
+
+IMAGE: iconfinder_Tick_Mark_1398911.png
+ORIGINAL FILENAME: iconfinder_Tick_Mark_1398911.png
+URL: https://www.iconfinder.com/icons/1398911/correct_mark_success_tick_valid_yes_check_icon
+AUTHOR: All Digital
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
+
+
+IMAGE: iconfinder_insert-object_23421.png
+ORIGINAL FILENAME: iconfinder_insert-object_23421.png
+URL: https://www.iconfinder.com/icons/23421/add_insert_object_icon
+AUTHOR: Oliver Scholtz (and others)
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
+
+
