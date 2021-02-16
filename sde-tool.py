@@ -5,6 +5,7 @@ from PySide2.QtGui import QIcon
 from PySide2.QtGui import Qt
 from PySide2.QtWidgets import (
     QApplication,
+    QComboBox,
     QFrame,
     QLabel,
     QGridLayout,
@@ -30,6 +31,9 @@ from database import SqlDB
 from resource import Icons
 
 
+# =============================================================================
+#  SDETool - main class of SDE Tool
+# =============================================================================
 class SDETool(QMainWindow):
     # Application information
     APP_NAME: str = 'SPC Tool'
@@ -182,6 +186,9 @@ class SDETool(QMainWindow):
                 event.ignore()
 
 
+# =============================================================================
+#  DBTab - Tab related to Database
+# =============================================================================
 class DBTab(QTabWidget):
     def __init__(self, db):
         super().__init__()
@@ -217,82 +224,16 @@ class DBTab(QTabWidget):
         row = 0
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        # PART Label
-        part = QLabel('<font size=14>PART</font>')
-        part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
-        grid.addWidget(part, row, 0, 1, 4)
-        row += 1
-
-        # ---------------------------------------------------------------------
-        # PART NUMBER
-        lab_num_part = QLabel('<font size=4>PART#</font>')
-        ent_num_part = QLineEdit()
-        ent_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        but_num_part = QPushButton()
-        but_num_part.setIcon(QIcon(self.icons.CHECK))
-        but_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        grid.addWidget(lab_num_part, row, 0)
-        grid.addWidget(ent_num_part, row, 1, 1, 2)
-        grid.addWidget(but_num_part, row, 3, 2, 1)
-        row += 1
-
-        # ---------------------------------------------------------------------
-        # PART Description
-        lab_desc_part = QLabel('<font size=4>Description</font>')
-        ent_desc_part = QLineEdit()
-        grid.addWidget(lab_desc_part, row, 0)
-        grid.addWidget(ent_desc_part, row, 1, 1, 2)
-        row += 1
-
-        # ---------------------------------------------------------------------
-        # Horizontal Line 1
-        hline1 = QFrame(self)
-        hline1.setFrameShape(QFrame.HLine)
-        hline1.setFrameShadow(QFrame.Sunken)
-        hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        grid.addWidget(hline1, row, 0, 1, 4)
-        row += 1
-
-        # ---------------------------------------------------------------------
-        # Drawing (small label)
-        title = QLabel('<font size=4>Drawing</font>')
-        grid.addWidget(title, row, 0, 1, 4)
-        row += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
-        # PART Drawing Revision
-        lab_rev_drawing = QLabel('<font size=4>Revision</font>')
-        ent_rev_drawing = QLineEdit()
-        ent_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        but_rev_drawing = QPushButton()
-        but_rev_drawing.setIcon(QIcon(self.icons.CHECK))
-        but_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        grid.addWidget(lab_rev_drawing, row, 0)
-        grid.addWidget(ent_rev_drawing, row, 1)
-        grid.addWidget(but_rev_drawing, row, 3, 2, 1)
-        row += 1
-
-        # ---------------------------------------------------------------------
-        # PART Drawing file
-        lab_file_drawing = QLabel('<font size=4>PDF file</font>')
-        ent_file_drawing = QLineEdit()
-        but_file_drawing = QPushButton()
-        but_file_drawing.setIcon(QIcon(self.icons.ADD))
-        grid.addWidget(lab_file_drawing, row, 0)
-        grid.addWidget(ent_file_drawing, row, 1)
-        grid.addWidget(but_file_drawing, row, 2)
-        row += 1
-
-        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # SUPPLIER Label
         supplier = QLabel('<font size=14>SUPPLIER</font>')
         supplier.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
-        grid.addWidget(supplier, row, 0, 1, 4)
+        grid.addWidget(supplier, row, 0, 1, 6)
         row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME SHORT
         lab_name_supplier_short = QLabel('<font size=4>SHORT NAME</font>')
+        lab_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier_short = QLineEdit()
         ent_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         but_name_supplier_short = QPushButton()
@@ -300,26 +241,30 @@ class DBTab(QTabWidget):
         but_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         grid.addWidget(lab_name_supplier_short, row, 0)
         grid.addWidget(ent_name_supplier_short, row, 1)
-        grid.addWidget(but_name_supplier_short, row, 3, 3, 1)
+        grid.addWidget(but_name_supplier_short, row, 5, 3, 1)
         row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME FULL
         lab_name_supplier = QLabel('<font size=4>FULL NAME</font>')
+        lab_name_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier = QLineEdit()
+        ent_name_supplier.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         grid.addWidget(lab_name_supplier, row, 0)
-        grid.addWidget(ent_name_supplier, row, 1, 1, 2)
+        grid.addWidget(ent_name_supplier, row, 1, 1, 4)
         row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME in local language
         lab_name_supplier_local = QLabel('<font size=4>Local NAME</font>')
+        lab_name_supplier_local.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier_local = QLineEdit()
+        ent_name_supplier_local.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         grid.addWidget(lab_name_supplier_local, row, 0)
-        grid.addWidget(ent_name_supplier_local, row, 1, 1, 2)
+        grid.addWidget(ent_name_supplier_local, row, 1, 1, 4)
         row += 1
 
-        # button click
+        # click on but_name_supplier_short
         but_name_supplier_short.clicked.connect(
             lambda: self.on_click_set_supplier(
                 ent_name_supplier_short,
@@ -327,6 +272,108 @@ class DBTab(QTabWidget):
                 ent_name_supplier_local
             )
         )
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # PART Label
+        part = QLabel('<font size=14>PART</font>')
+        part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        grid.addWidget(part, row, 0, 1, 6)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # PART NUMBER
+        lab_num_part = QLabel('<font size=4>PART#</font>')
+        lab_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        ent_num_part = QLineEdit()
+        ent_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        but_num_part = QPushButton()
+        but_num_part.setIcon(QIcon(self.icons.CHECK))
+        but_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        grid.addWidget(lab_num_part, row, 0)
+        grid.addWidget(ent_num_part, row, 1)
+        grid.addWidget(but_num_part, row, 5, 3, 1)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # PART Description
+        lab_desc_part = QLabel('<font size=4>Description</font>')
+        lab_desc_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        ent_desc_part = QLineEdit()
+        ent_desc_part.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        grid.addWidget(lab_desc_part, row, 0)
+        grid.addWidget(ent_desc_part, row, 1, 1, 4)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # PART Supplier
+        lab_part_supplier = QLabel('<font size=4>Part Supplier</font>')
+        lab_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_part_supplier = QComboBox()
+        combo_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid.addWidget(lab_part_supplier, row, 0)
+        grid.addWidget(combo_part_supplier, row, 1)
+        row += 1
+
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # Drawing Label
+        part = QLabel('<font size=14>Drawing</font>')
+        part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        grid.addWidget(part, row, 0, 1, 6)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # Horizontal Line 1
+        #hline1 = QFrame(self)
+        #hline1.setFrameShape(QFrame.HLine)
+        #hline1.setFrameShadow(QFrame.Sunken)
+        #hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        #grid.addWidget(hline1, row, 0, 1, 6)
+        #row += 1
+
+        # ---------------------------------------------------------------------
+        # Drawing (small label)
+        #lab_title_drawing = QLabel('<font size=4>Drawing</font>')
+        #grid.addWidget(lab_title_drawing, row, 0, 1, 6)
+        #row += 1
+
+        # ---------------------------------------------------------------------
+        # PART Number
+        lab_num_part_drawing = QLabel('<font size=4>Part#</font>')
+        lab_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_drawing = QComboBox()
+        combo_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        but_num_part_drawing = QPushButton()
+        but_num_part_drawing.setIcon(QIcon(self.icons.CHECK))
+        but_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        grid.addWidget(lab_num_part_drawing, row, 0)
+        grid.addWidget(combo_num_part_drawing, row, 1)
+        grid.addWidget(but_num_part_drawing, row, 5, 3, 1)
+        row += 1
+
+
+        # ---------------------------------------------------------------------
+        # PART Drawing Revision
+        lab_rev_drawing = QLabel('<font size=4>Revision</font>')
+        lab_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        ent_rev_drawing = QLineEdit()
+        ent_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid.addWidget(lab_rev_drawing, row, 0)
+        grid.addWidget(ent_rev_drawing, row, 1)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # PART Drawing file
+        lab_file_drawing = QLabel('<font size=4>PDF file</font>')
+        lab_file_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        ent_file_drawing = QLineEdit()
+        ent_file_drawing.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        but_file_drawing = QPushButton()
+        but_file_drawing.setIcon(QIcon(self.icons.ADD))
+        but_file_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid.addWidget(lab_file_drawing, row, 0)
+        grid.addWidget(ent_file_drawing, row, 1, 1, 3)
+        grid.addWidget(but_file_drawing, row, 4)
+        row += 1
 
     # -------------------------------------------------------------------------
     #  on_click_supplier
@@ -380,6 +427,7 @@ class DBTab(QTabWidget):
         # ---------------------------------------------------------------------
         # SUPPLIER dump
         lab_dump_supplier = QLabel('<font size=4>DUMP table supplier</font>')
+        #lab_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         but_dump_supplier = QPushButton()
         but_dump_supplier.setIcon(QIcon(self.icons.CHECK))
         but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
