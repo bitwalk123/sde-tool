@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 import sqlite3
 
 
@@ -40,7 +42,7 @@ class SqlDB():
         for sql in init_sql:
             cur.execute(sql)
 
-        #cur.executemany("INSERT INTO stage VALUES(NULL, ?)", stages)
+        # cur.executemany("INSERT INTO stage VALUES(NULL, ?)", stages)
         con.commit()
         con.close()
 

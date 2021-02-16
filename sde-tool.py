@@ -27,6 +27,7 @@ import pathlib
 import platform
 import sys
 from database import SqlDB
+from resource import Icons
 
 
 class SDETool(QMainWindow):
@@ -192,7 +193,12 @@ class DBTab(QTabWidget):
         self.create_tab_add(tab_add)
         self.addTab(tab_add, QIcon(self.icons.PEN), 'Data Input')
 
-    # -------------------------------------------------------------------------
+        tab_misc = QScrollArea()
+        tab_misc.setWidgetResizable(True)
+        self.create_tab_misc(tab_misc)
+        self.addTab(tab_misc, QIcon(self.icons.CONF), 'Misc.')
+
+    # =========================================================================
     #  create_tab_add
     #  create tab 'tab_add"
     #
@@ -201,7 +207,7 @@ class DBTab(QTabWidget):
     #
     #  return
     #    (none)
-    # -------------------------------------------------------------------------
+    # =========================================================================
     def create_tab_add(self, parent: QScrollArea):
         base = QWidget(self)
         base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -315,7 +321,7 @@ class DBTab(QTabWidget):
 
         # button click
         but_name_supplier_short.clicked.connect(
-            lambda: self.on_click_supplier(
+            lambda: self.on_click_set_supplier(
                 ent_name_supplier_short,
                 ent_name_supplier,
                 ent_name_supplier_local
@@ -334,7 +340,7 @@ class DBTab(QTabWidget):
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def on_click_supplier(self, obj_short: QLineEdit, obj_full: QLineEdit, obj_local: QLineEdit):
+    def on_click_set_supplier(self, obj_short: QLineEdit, obj_full: QLineEdit, obj_local: QLineEdit):
         name_supplier_short = obj_short.text()
         name_supplier = obj_full.text()
         name_supplier_local = obj_local.text()
@@ -343,18 +349,50 @@ class DBTab(QTabWidget):
         obj_local.setText(None)
 
         sql = self.db.sql("INSERT INTO supplier VALUES(NULL, '?', '?', '?')", [name_supplier_short, name_supplier, name_supplier_local])
-        print(sql)
+        #print(sql)
         self.db.put(sql)
 
+    # =========================================================================
+    #  create_tab_misc
+    #  create tab 'tab_misc"
+    #
+    #  argument
+    #    parentparent: QScrollArea
+    #
+    #  return
+    #    (none)
+    # =========================================================================
+    def create_tab_misc(self, parent: QScrollArea):
+        base = QWidget(self)
+        base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        parent.setWidget(base)
+        grid = QGridLayout()
+        base.setLayout(grid)
+        row = 0
 
-class Icons():
-    # icons
-    ADD: str = 'images/iconfinder_insert-object_23421.png'
-    CHECK: str = 'images/iconfinder_Tick_Mark_1398911.png'
-    DB: str = 'images/iconfinder_database-px-png_63467.png'
-    EXIT: str = 'images/Apps-Dialog-Shutdown-icon.png'
-    PEN: str = 'images/iconfinder_General_Office_09_3592869.png'
+        # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
+        # TEST Label
+        test = QLabel('<font size=14>TEST</font>')
+        test.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        grid.addWidget(test, row, 0, 1, 2)
+        row += 1
 
+        # ---------------------------------------------------------------------
+        # SUPPLIER dump
+        lab_dump_supplier = QLabel('<font size=4>DUMP table supplier</font>')
+        but_dump_supplier = QPushButton()
+        but_dump_supplier.setIcon(QIcon(self.icons.CHECK))
+        but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        but_dump_supplier.clicked.connect(self.on_click_dump_supplier)
+        grid.addWidget(lab_dump_supplier, row, 0)
+        grid.addWidget(but_dump_supplier, row, 1)
+        row += 1
+
+    def on_click_dump_supplier(self):
+        sql = "SELECT * FROM supplier;"
+        out = self.db.get(sql)
+        for line in out:
+            print(line)
 
 def main():
     app = QApplication(sys.argv)
