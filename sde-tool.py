@@ -439,6 +439,7 @@ class DBTab(QTabWidget):
     def on_click_dump_supplier(self):
         sql = "SELECT * FROM supplier;"
         out = self.db.get(sql)
+        print(len(out))
         for line in out:
             print(line)
 
