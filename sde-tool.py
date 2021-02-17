@@ -5,6 +5,7 @@ from PySide2.QtGui import QIcon
 from PySide2.QtGui import Qt
 from PySide2.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QFrame,
     QLabel,
@@ -291,7 +292,27 @@ class DBTab(QTabWidget):
         but_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         grid.addWidget(lab_num_part, row, 0)
         grid.addWidget(ent_num_part, row, 1)
-        grid.addWidget(but_num_part, row, 5, 3, 1)
+        grid.addWidget(but_num_part, row, 5, 4, 1)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # Original PART NUMBER
+        lab_num_part_orig = QLabel('<font size=4>Orig. PART#</font>')
+        lab_num_part_orig.setStyleSheet("QLabel {color: gray;}")
+        lab_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_orig = QComboBox()
+        combo_num_part_orig.setEnabled(False)
+        combo_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        check_num_part_orig = QCheckBox('use original drawing')
+        check_num_part_orig.stateChanged.connect(
+            lambda: self.checkboxChanged(
+                combo_num_part_orig,
+                check_num_part_orig
+            )
+        )
+        grid.addWidget(lab_num_part_orig, row, 0)
+        grid.addWidget(combo_num_part_orig, row, 1)
+        grid.addWidget(check_num_part_orig, row, 2, 1, 3)
         row += 1
 
         # ---------------------------------------------------------------------
@@ -309,10 +330,22 @@ class DBTab(QTabWidget):
         lab_part_supplier = QLabel('<font size=4>Part Supplier</font>')
         lab_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_part_supplier = QComboBox()
+        self.add_supplier_list_to_combo(combo_part_supplier)
         combo_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         grid.addWidget(lab_part_supplier, row, 0)
         grid.addWidget(combo_part_supplier, row, 1)
         row += 1
+
+        # click on but_num_part
+        but_num_part.clicked.connect(
+            lambda: self.on_click_set_part(
+                ent_num_part,
+                combo_num_part_orig,
+                check_num_part_orig,
+                ent_desc_part,
+                combo_part_supplier
+            )
+        )
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # Drawing Label
@@ -323,18 +356,18 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # Horizontal Line 1
-        #hline1 = QFrame(self)
-        #hline1.setFrameShape(QFrame.HLine)
-        #hline1.setFrameShadow(QFrame.Sunken)
-        #hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        #grid.addWidget(hline1, row, 0, 1, 6)
-        #row += 1
+        # hline1 = QFrame(self)
+        # hline1.setFrameShape(QFrame.HLine)
+        # hline1.setFrameShadow(QFrame.Sunken)
+        # hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        # grid.addWidget(hline1, row, 0, 1, 6)
+        # row += 1
 
         # ---------------------------------------------------------------------
         # Drawing (small label)
-        #lab_title_drawing = QLabel('<font size=4>Drawing</font>')
-        #grid.addWidget(lab_title_drawing, row, 0, 1, 6)
-        #row += 1
+        # lab_title_drawing = QLabel('<font size=4>Drawing</font>')
+        # grid.addWidget(lab_title_drawing, row, 0, 1, 6)
+        # row += 1
 
         # ---------------------------------------------------------------------
         # PART Number
@@ -349,7 +382,6 @@ class DBTab(QTabWidget):
         grid.addWidget(combo_num_part_drawing, row, 1)
         grid.addWidget(but_num_part_drawing, row, 5, 3, 1)
         row += 1
-
 
         # ---------------------------------------------------------------------
         # PART Drawing Revision
@@ -375,6 +407,36 @@ class DBTab(QTabWidget):
         grid.addWidget(but_file_drawing, row, 4)
         row += 1
 
+    def checkboxChanged(self, combo: QComboBox, check: QCheckBox):
+        combo.clear()
+        combo.clearEditText()
+        if check.checkState() == Qt.Checked:
+            sql = "SELECT num_part FROM part;"
+            out = self.db.get(sql)
+            for supplier in out:
+                combo.addItem(supplier[0])
+            combo.setEnabled(True)
+        else:
+            combo.setEnabled(False)
+
+    # -------------------------------------------------------------------------
+    #  add_supplier_list_to_combo
+    #  add supplier list to specified combobox
+    #
+    #  argument
+    #    obj_combo: QComboBox  instance of QComboBox
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def add_supplier_list_to_combo(self, obj_combo: QComboBox):
+        obj_combo.clear()
+        obj_combo.clearEditText()
+        sql = "SELECT name_supplier_short FROM supplier;"
+        out = self.db.get(sql)
+        for supplier in out:
+            obj_combo.addItem(supplier[0])
+
     # -------------------------------------------------------------------------
     #  on_click_supplier
     #  add supplier to database
@@ -395,9 +457,64 @@ class DBTab(QTabWidget):
         obj_full.setText(None)
         obj_local.setText(None)
 
-        sql = self.db.sql("INSERT INTO supplier VALUES(NULL, '?', '?', '?')", [name_supplier_short, name_supplier, name_supplier_local])
-        #print(sql)
+        sql = self.db.sql(
+            "INSERT INTO supplier VALUES(NULL, '?', '?', '?');",
+            [name_supplier_short, name_supplier, name_supplier_local]
+        )
         self.db.put(sql)
+
+    # -------------------------------------------------------------------------
+    #  on_click_part
+    #  add part to database
+    #
+    #  argument
+    #    obj_short: QLineEdit  Common name of supplier
+    #    obj_full: QLineEdit   Full name of supplier in English
+    #    obj_local: QLineEdit  Full name of supplier in Local Language
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def on_click_set_part(self, obj_part: QLineEdit, obj_combo_1: QComboBox, obj_check: QCheckBox, obj_desc: QLineEdit, obj_combo_2: QComboBox):
+        num_part = obj_part.text()
+        description = obj_desc.text()
+        # name_supplier_local = obj_combo.text()
+        id_part_orig = 'NULL'
+        obj_part.setText(None)
+        if obj_combo_1.isEnabled():
+            num_part_org = obj_combo_1.currentText()
+            sql1 = self.db.sql(
+                "SELECT id_part FROM part WHERE num_part = '?';", [num_part_org])
+            print(sql1)
+            out = self.db.get(sql1)
+            for id in out:
+                id_part_orig = id[0]
+            obj_combo_1.clear()
+            obj_combo_1.clearEditText()
+            obj_combo_1.setEnabled(False)
+        if obj_check.isChecked():
+            obj_check.setEnabled(False)
+        obj_desc.setText(None)
+        supplier = obj_combo_2.currentText()
+
+        print(num_part)
+        print(description)
+        print(supplier)
+
+        sql2 = self.db.sql(
+            "SELECT id_supplier FROM supplier WHERE name_supplier_short = '?';", [supplier])
+        print(sql2)
+
+        out = self.db.get(sql2)
+        for id in out:
+            id_supplier = id[0]
+
+        sql3 = self.db.sql(
+            "INSERT INTO part VALUES(NULL, ?, ?, '?', '?', NULL);",
+            [id_part_orig, id_supplier, num_part, description]
+        )
+        print(sql3)
+        self.db.put(sql3)
 
     # =========================================================================
     #  create_tab_misc
@@ -427,7 +544,7 @@ class DBTab(QTabWidget):
         # ---------------------------------------------------------------------
         # SUPPLIER dump
         lab_dump_supplier = QLabel('<font size=4>DUMP table supplier</font>')
-        #lab_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # lab_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         but_dump_supplier = QPushButton()
         but_dump_supplier.setIcon(QIcon(self.icons.CHECK))
         but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -442,6 +559,7 @@ class DBTab(QTabWidget):
         print(len(out))
         for line in out:
             print(line)
+
 
 def main():
     app = QApplication(sys.argv)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# =============================================================================
+#  Icons - icon resource
+# =============================================================================
 class Icons():
     # icons
     ADD: str = 'images/iconfinder_insert-object_23421.png'
