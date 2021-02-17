@@ -476,11 +476,12 @@ class DBTab(QTabWidget):
     #    (none)
     # -------------------------------------------------------------------------
     def on_click_set_part(self, obj_part: QLineEdit, obj_combo_1: QComboBox, obj_check: QCheckBox, obj_desc: QLineEdit, obj_combo_2: QComboBox):
+        # obtain part number
         num_part = obj_part.text()
-        description = obj_desc.text()
-        # name_supplier_local = obj_combo.text()
-        id_part_orig = 'NULL'
         obj_part.setText(None)
+
+        # obtain original part number if selected
+        id_part_orig = 'NULL'
         if obj_combo_1.isEnabled():
             num_part_org = obj_combo_1.currentText()
             sql1 = self.db.sql(
@@ -492,23 +493,30 @@ class DBTab(QTabWidget):
             obj_combo_1.clear()
             obj_combo_1.clearEditText()
             obj_combo_1.setEnabled(False)
+
+        # clear QCheckBox
         if obj_check.isChecked():
             obj_check.setEnabled(False)
+
+        # obtain part description
+        description = obj_desc.text()
         obj_desc.setText(None)
+
+        # obtain id_supplier from selected supplier on the QComboBox
         supplier = obj_combo_2.currentText()
-
-        print(num_part)
-        print(description)
-        print(supplier)
-
         sql2 = self.db.sql(
             "SELECT id_supplier FROM supplier WHERE name_supplier_short = '?';", [supplier])
         print(sql2)
-
         out = self.db.get(sql2)
         for id in out:
             id_supplier = id[0]
 
+        print(num_part)
+        print(description)
+        print(supplier)
+        print(id_supplier)
+
+        # insert new part to part table
         sql3 = self.db.sql(
             "INSERT INTO part VALUES(NULL, ?, ?, '?', '?', NULL);",
             [id_part_orig, id_supplier, num_part, description]
@@ -544,13 +552,23 @@ class DBTab(QTabWidget):
         # ---------------------------------------------------------------------
         # SUPPLIER dump
         lab_dump_supplier = QLabel('<font size=4>DUMP table supplier</font>')
-        # lab_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         but_dump_supplier = QPushButton()
         but_dump_supplier.setIcon(QIcon(self.icons.CHECK))
         but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         but_dump_supplier.clicked.connect(self.on_click_dump_supplier)
         grid.addWidget(lab_dump_supplier, row, 0)
         grid.addWidget(but_dump_supplier, row, 1)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # PART dump
+        lab_dump_part = QLabel('<font size=4>DUMP table part</font>')
+        but_dump_part = QPushButton()
+        but_dump_part.setIcon(QIcon(self.icons.CHECK))
+        but_dump_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        but_dump_part.clicked.connect(self.on_click_dump_part)
+        grid.addWidget(lab_dump_part, row, 0)
+        grid.addWidget(but_dump_part, row, 1)
         row += 1
 
     def on_click_dump_supplier(self):
@@ -560,6 +578,12 @@ class DBTab(QTabWidget):
         for line in out:
             print(line)
 
+    def on_click_dump_part(self):
+        sql = "SELECT * FROM part;"
+        out = self.db.get(sql)
+        print(len(out))
+        for line in out:
+            print(line)
 
 def main():
     app = QApplication(sys.argv)
