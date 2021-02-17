@@ -305,7 +305,7 @@ class DBTab(QTabWidget):
         combo_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         check_num_part_orig = QCheckBox('use original drawing')
         check_num_part_orig.stateChanged.connect(
-            lambda: self.checkboxChanged(
+            lambda: self.getPartsOptionCombo(
                 combo_num_part_orig,
                 check_num_part_orig
             )
@@ -375,6 +375,7 @@ class DBTab(QTabWidget):
         lab_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_num_part_drawing = QComboBox()
         combo_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.getParts4Combo(combo_num_part_drawing)
         but_num_part_drawing = QPushButton()
         but_num_part_drawing.setIcon(QIcon(self.icons.CHECK))
         but_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -407,7 +408,37 @@ class DBTab(QTabWidget):
         grid.addWidget(but_file_drawing, row, 4)
         row += 1
 
-    def checkboxChanged(self, combo: QComboBox, check: QCheckBox):
+    # -------------------------------------------------------------------------
+    #  getParts4Combo
+    #  get parts list for combobox
+    #
+    #  argument
+    #    combo: QComboBox
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def getParts4Combo(self, combo: QComboBox):
+        combo.clear()
+        combo.clearEditText()
+        sql = "SELECT num_part FROM part;"
+        out = self.db.get(sql)
+        for supplier in out:
+            combo.addItem(supplier[0])
+        combo.setEnabled(True)
+
+    # -------------------------------------------------------------------------
+    #  getPartsOptionCombo
+    #  get parts list for combobox activated by checkbox
+    #
+    #  argument
+    #    combo: QComboBox
+    #    check: QCheckBox
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def getPartsOptionCombo(self, combo: QComboBox, check: QCheckBox):
         combo.clear()
         combo.clearEditText()
         if check.checkState() == Qt.Checked:
