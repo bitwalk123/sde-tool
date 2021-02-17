@@ -26,11 +26,11 @@ class SqlDB():
             ['Training'],  # 2
             ['PFD'],  # 3
             ['PFMEA'],  # 4
-            ['CP'],  # 5
+            ['Control Plan'],  # 5
             ['OCAP'],  # 8
             ['MSA'],  # 6
             ['SPC'],  # 7
-            ['SCR'],  # 9
+            ['SCAR'],  # 9
             ['FAI'],  # 10
             ['Others'],  # 11
         ]
