@@ -221,6 +221,12 @@ class DBTab(QTabWidget):
         base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         parent.setWidget(base)
         grid = QGridLayout()
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
+        grid.setColumnStretch(2, 2)
+        grid.setColumnStretch(3, 1)
+        grid.setColumnStretch(4, 1)
+        grid.setColumnStretch(5, 1)
         base.setLayout(grid)
         row = 0
 
@@ -308,8 +314,9 @@ class DBTab(QTabWidget):
         lab_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_num_part_orig = QComboBox()
         combo_num_part_orig.setEnabled(False)
-        combo_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_orig.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         check_num_part_orig = QCheckBox('use original drawing')
+        check_num_part_orig.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         check_num_part_orig.stateChanged.connect(
             lambda: self.getPartsOptionCombo(
                 lab_num_part_orig,
@@ -340,7 +347,7 @@ class DBTab(QTabWidget):
         lab_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_part_supplier = QComboBox()
         self.add_supplier_list_to_combo(combo_part_supplier)
-        combo_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_part_supplier.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         grid.addWidget(lab_part_supplier, row, 0)
         grid.addWidget(combo_part_supplier, row, 1)
         row += 1
@@ -370,7 +377,7 @@ class DBTab(QTabWidget):
         lab_num_part_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_num_part_drawing = QComboBox()
-        combo_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_drawing.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         combo_num_part_drawing.setEnabled(False)
         self.getParts4Combo(combo_num_part_drawing)
         lab_num_supplier_drawing = QLabel()
@@ -381,8 +388,8 @@ class DBTab(QTabWidget):
         but_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         grid.addWidget(lab_num_part_drawing, row, 0)
         grid.addWidget(combo_num_part_drawing, row, 1)
-        grid.addWidget(lab_num_supplier_drawing, row, 2)
-        grid.addWidget(but_num_part_drawing, row, 5, 3, 1)
+        grid.addWidget(lab_num_supplier_drawing, row, 2, 1, 3)
+        grid.addWidget(but_num_part_drawing, row, 5, 4, 1)
         row += 1
 
         # ---------------------------------------------------------------------
@@ -586,11 +593,6 @@ class DBTab(QTabWidget):
             id_part = id[0]
             id_supplier = id[1]
         print(id_part)
-
-        #sql2 = self.db.sql("SELECT id_supplier FROM part WHERE num_part = '?';", [num_part])
-        #out = self.db.get(sql2)
-        #for id in out:
-        #    id_supplier = id[0]
         print(id_supplier)
 
         sql3 = self.db.sql("SELECT name_supplier_short FROM supplier WHERE id_supplier = ?;", [id_supplier])
