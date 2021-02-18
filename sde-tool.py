@@ -196,10 +196,10 @@ class DBTab(QTabWidget):
         self.db = db
         self.icons = Icons()
 
-        tab_add = QScrollArea()
-        tab_add.setWidgetResizable(True)
-        self.create_tab_add(tab_add)
-        self.addTab(tab_add, QIcon(self.icons.PEN), 'Data Input')
+        tab_data = QScrollArea()
+        tab_data.setWidgetResizable(True)
+        self.create_tab_add(tab_data)
+        self.addTab(tab_data, QIcon(self.icons.PEN), 'Data Input')
 
         tab_misc = QScrollArea()
         tab_misc.setWidgetResizable(True)
@@ -217,7 +217,7 @@ class DBTab(QTabWidget):
     #    (none)
     # =========================================================================
     def create_tab_add(self, parent: QScrollArea):
-        base = QWidget(self)
+        base = QWidget()
         base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         parent.setWidget(base)
         grid = QGridLayout()
@@ -226,14 +226,16 @@ class DBTab(QTabWidget):
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # SUPPLIER Label
-        supplier = QLabel('<font size=14>SUPPLIER</font>')
+        supplier = QLabel('SUPPLIER')
+        supplier.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
         supplier.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(supplier, row, 0, 1, 6)
         row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME SHORT
-        lab_name_supplier_short = QLabel('<font size=4>SHORT NAME</font>')
+        lab_name_supplier_short = QLabel('SHORT NAME')
+        lab_name_supplier_short.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier_short = QLineEdit()
         ent_name_supplier_short.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -247,7 +249,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME FULL
-        lab_name_supplier = QLabel('<font size=4>FULL NAME</font>')
+        lab_name_supplier = QLabel('FULL NAME')
+        lab_name_supplier.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_name_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier = QLineEdit()
         ent_name_supplier.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -257,7 +260,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # SUPPLIER NAME in local language
-        lab_name_supplier_local = QLabel('<font size=4>Local NAME</font>')
+        lab_name_supplier_local = QLabel('Local NAME')
+        lab_name_supplier_local.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_name_supplier_local.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_name_supplier_local = QLineEdit()
         ent_name_supplier_local.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -276,14 +280,16 @@ class DBTab(QTabWidget):
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # PART Label
-        part = QLabel('<font size=14>PART</font>')
+        part = QLabel('PART')
+        part.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
         part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(part, row, 0, 1, 6)
         row += 1
 
         # ---------------------------------------------------------------------
         # PART NUMBER
-        lab_num_part = QLabel('<font size=4>PART#</font>')
+        lab_num_part = QLabel('PART#')
+        lab_num_part.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_num_part = QLineEdit()
         ent_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -297,8 +303,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # Original PART NUMBER
-        lab_num_part_orig = QLabel('<font size=4>Orig. PART#</font>')
-        lab_num_part_orig.setStyleSheet("QLabel {color: gray;}")
+        lab_num_part_orig = QLabel('Orig. PART#')
+        lab_num_part_orig.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;color: gray;}")
         lab_num_part_orig.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_num_part_orig = QComboBox()
         combo_num_part_orig.setEnabled(False)
@@ -306,6 +312,7 @@ class DBTab(QTabWidget):
         check_num_part_orig = QCheckBox('use original drawing')
         check_num_part_orig.stateChanged.connect(
             lambda: self.getPartsOptionCombo(
+                lab_num_part_orig,
                 combo_num_part_orig,
                 check_num_part_orig
             )
@@ -317,7 +324,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # PART Description
-        lab_desc_part = QLabel('<font size=4>Description</font>')
+        lab_desc_part = QLabel('Description')
+        lab_desc_part.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_desc_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_desc_part = QLineEdit()
         ent_desc_part.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -327,7 +335,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # PART Supplier
-        lab_part_supplier = QLabel('<font size=4>Part Supplier</font>')
+        lab_part_supplier = QLabel('Part Supplier')
+        lab_part_supplier.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_part_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_part_supplier = QComboBox()
         self.add_supplier_list_to_combo(combo_part_supplier)
@@ -349,44 +358,53 @@ class DBTab(QTabWidget):
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # Drawing Label
-        part = QLabel('<font size=14>Drawing</font>')
-        part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
-        grid.addWidget(part, row, 0, 1, 6)
+        drawing = QLabel('Drawing')
+        drawing.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
+        drawing.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        grid.addWidget(drawing, row, 0, 1, 6)
         row += 1
 
         # ---------------------------------------------------------------------
-        # Horizontal Line 1
-        # hline1 = QFrame(self)
-        # hline1.setFrameShape(QFrame.HLine)
-        # hline1.setFrameShadow(QFrame.Sunken)
-        # hline1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        # grid.addWidget(hline1, row, 0, 1, 6)
-        # row += 1
-
-        # ---------------------------------------------------------------------
-        # Drawing (small label)
-        # lab_title_drawing = QLabel('<font size=4>Drawing</font>')
-        # grid.addWidget(lab_title_drawing, row, 0, 1, 6)
-        # row += 1
-
-        # ---------------------------------------------------------------------
         # PART Number
-        lab_num_part_drawing = QLabel('<font size=4>Part#</font>')
+        lab_num_part_drawing = QLabel('Part#')
+        lab_num_part_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         combo_num_part_drawing = QComboBox()
         combo_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_drawing.setEnabled(False)
         self.getParts4Combo(combo_num_part_drawing)
+        lab_num_supplier_drawing = QLabel()
+        lab_num_supplier_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px; color:gray;}")
+        lab_num_supplier_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         but_num_part_drawing = QPushButton()
         but_num_part_drawing.setIcon(QIcon(self.icons.CHECK))
         but_num_part_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         grid.addWidget(lab_num_part_drawing, row, 0)
         grid.addWidget(combo_num_part_drawing, row, 1)
+        grid.addWidget(lab_num_supplier_drawing, row, 2)
         grid.addWidget(but_num_part_drawing, row, 5, 3, 1)
         row += 1
 
         # ---------------------------------------------------------------------
+        # PART Drawing Description
+        lab_num_desc_drawing = QLabel()
+        lab_num_desc_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px; color:gray;}")
+        lab_num_desc_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid.addWidget(lab_num_desc_drawing, row, 1, 1, 4)
+        row += 1
+
+        self.part_selection_change(combo_num_part_drawing, lab_num_supplier_drawing, lab_num_desc_drawing)
+        combo_num_part_drawing.currentIndexChanged.connect(
+            lambda: self.part_selection_change(
+                combo_num_part_drawing,
+                lab_num_supplier_drawing,
+                lab_num_desc_drawing
+            )
+        )
+        # ---------------------------------------------------------------------
         # PART Drawing Revision
-        lab_rev_drawing = QLabel('<font size=4>Revision</font>')
+        lab_rev_drawing = QLabel('Revision')
+        lab_rev_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_rev_drawing = QLineEdit()
         ent_rev_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -396,7 +414,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # PART Drawing file
-        lab_file_drawing = QLabel('<font size=4>PDF file</font>')
+        lab_file_drawing = QLabel('PDF file')
+        lab_file_drawing.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         lab_file_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         ent_file_drawing = QLineEdit()
         ent_file_drawing.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -438,7 +457,7 @@ class DBTab(QTabWidget):
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def getPartsOptionCombo(self, combo: QComboBox, check: QCheckBox):
+    def getPartsOptionCombo(self, label: QLabel, combo: QComboBox, check: QCheckBox):
         combo.clear()
         combo.clearEditText()
         if check.checkState() == Qt.Checked:
@@ -446,8 +465,10 @@ class DBTab(QTabWidget):
             out = self.db.get(sql)
             for supplier in out:
                 combo.addItem(supplier[0])
+            label.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;color: black;}")
             combo.setEnabled(True)
         else:
+            label.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;color: gray;}")
             combo.setEnabled(False)
 
     # -------------------------------------------------------------------------
@@ -555,6 +576,38 @@ class DBTab(QTabWidget):
         print(sql3)
         self.db.put(sql3)
 
+    def part_selection_change(self, obj_combo: QComboBox, obj_lab_supplier: QLabel, obj_lab_desc: QLabel):
+        num_part = obj_combo.currentText()
+        print(num_part)
+
+        sql1 = self.db.sql("SELECT id_part, id_supplier FROM part WHERE num_part = '?';", [num_part])
+        out = self.db.get(sql1)
+        for id in out:
+            id_part = id[0]
+            id_supplier = id[1]
+        print(id_part)
+
+        #sql2 = self.db.sql("SELECT id_supplier FROM part WHERE num_part = '?';", [num_part])
+        #out = self.db.get(sql2)
+        #for id in out:
+        #    id_supplier = id[0]
+        print(id_supplier)
+
+        sql3 = self.db.sql("SELECT name_supplier_short FROM supplier WHERE id_supplier = ?;", [id_supplier])
+        out = self.db.get(sql3)
+        for id in out:
+            name_supplier_short = id[0]
+        print(name_supplier_short)
+
+        sql4 = self.db.sql("SELECT description FROM part WHERE id_part = ?;", [id_part])
+        out = self.db.get(sql4)
+        for id in out:
+            description = id[0]
+        print(description)
+
+        obj_lab_supplier.setText(name_supplier_short)
+        obj_lab_desc.setText(description)
+
     # =========================================================================
     #  create_tab_misc
     #  create tab 'tab_misc"
@@ -575,14 +628,16 @@ class DBTab(QTabWidget):
 
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # TEST Label
-        test = QLabel('<font size=14>TEST</font>')
+        test = QLabel('TEST')
+        test.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
         test.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(test, row, 0, 1, 2)
         row += 1
 
         # ---------------------------------------------------------------------
         # SUPPLIER dump
-        lab_dump_supplier = QLabel('<font size=4>DUMP table supplier</font>')
+        lab_dump_supplier = QLabel('DUMP table supplier')
+        lab_dump_supplier.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         but_dump_supplier = QPushButton()
         but_dump_supplier.setIcon(QIcon(self.icons.CHECK))
         but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -593,7 +648,8 @@ class DBTab(QTabWidget):
 
         # ---------------------------------------------------------------------
         # PART dump
-        lab_dump_part = QLabel('<font size=4>DUMP table part</font>')
+        lab_dump_part = QLabel('DUMP table part')
+        lab_dump_part.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;}")
         but_dump_part = QPushButton()
         but_dump_part.setIcon(QIcon(self.icons.CHECK))
         but_dump_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -615,6 +671,7 @@ class DBTab(QTabWidget):
         print(len(out))
         for line in out:
             print(line)
+
 
 def main():
     app = QApplication(sys.argv)
