@@ -59,3 +59,12 @@ AUTHOR: iconic Hub
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL:
+
+
+IMAGE: iconfinder_Social_Media-04_2274399.png
+ORIGINAL FILENAME: iconfinder_Social_Media-04_2274399.png
+URL: https://www.iconfinder.com/icons/2274399/media_play_social_video_icon
+AUTHOR: Berkah Icon
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL: https://www.iconfinder.com/berkahicon
