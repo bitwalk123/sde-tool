@@ -7,6 +7,7 @@ from PySide2.QtWidgets import (
 )
 from database import SqlDB
 from win_db_basic import WinDBData
+from win_db_pcs import WinDBPCS
 from win_db_misc import WinDBMisc
 from resource import Icons
 
@@ -22,6 +23,9 @@ class TabDB(QTabWidget):
 
         tab_data = WinDBData(self.db)
         self.addTab(tab_data, QIcon(self.icons.PEN), 'Basic')
+
+        tab_pcs = WinDBPCS(self.db)
+        self.addTab(tab_pcs, QIcon(self.icons.CLIP), 'PCS')
 
         tab_misc = WinDBMisc(self.db)
         self.addTab(tab_misc, QIcon(self.icons.CONF), 'Misc.')

@@ -68,3 +68,12 @@ AUTHOR: Berkah Icon
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL: https://www.iconfinder.com/berkahicon
+
+
+IMAGE: iconfinder_Clipboard_728995.png
+ORIGINAL FILENAME: iconfinder_Clipboard_728995.png
+URL: https://www.iconfinder.com/icons/728995/clipboard_analysis_chart_checklist_data_list_report_icon
+AUTHOR: Recep Kütük
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
