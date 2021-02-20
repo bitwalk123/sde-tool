@@ -42,7 +42,7 @@ class WinDBData(QScrollArea):
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # SUPPLIER Label
         supplier = QLabel('SUPPLIER')
-        supplier.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
+        supplier.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px; background: #ddf;}")
         supplier.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(supplier, row, 0, 1, 6)
         row += 1
@@ -96,7 +96,7 @@ class WinDBData(QScrollArea):
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # PART Label
         part = QLabel('PART')
-        part.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
+        part.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px; background: #ddf;}")
         part.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(part, row, 0, 1, 6)
         row += 1
@@ -175,7 +175,7 @@ class WinDBData(QScrollArea):
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # Drawing Label
         drawing = QLabel('Drawing')
-        drawing.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
+        drawing.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px; background: #ddf;}")
         drawing.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(drawing, row, 0, 1, 6)
         row += 1
