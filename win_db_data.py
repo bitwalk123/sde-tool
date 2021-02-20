@@ -392,8 +392,22 @@ class WinDBData(QScrollArea):
         print(sql3)
         self.db.put(sql3)
 
+    # -------------------------------------------------------------------------
+    #  part_selection_change
+    #  PART selection change in Drwaing part
+    #
+    #  argument
+    #    obj_combo: QComboBox
+    #    obj_lab_supplier: QLabel
+    #    obj_lab_desc: QLabel
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
     def part_selection_change(self, obj_combo: QComboBox, obj_lab_supplier: QLabel, obj_lab_desc: QLabel):
         num_part = obj_combo.currentText()
+        if len(num_part) == 0:
+            return
         print(num_part)
 
         sql1 = self.db.sql("SELECT id_part, id_supplier FROM part WHERE num_part = '?';", [num_part])
