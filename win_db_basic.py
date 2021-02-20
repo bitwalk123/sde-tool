@@ -236,7 +236,7 @@ class WinDBData(QScrollArea):
         ent_file_drawing = QLineEdit()
         ent_file_drawing.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         but_file_drawing = QPushButton()
-        but_file_drawing.setIcon(QIcon(self.icons.ADD))
+        but_file_drawing.setIcon(QIcon(self.icons.PDF))
         but_file_drawing.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         grid.addWidget(lab_file_drawing, row, 0)
         grid.addWidget(ent_file_drawing, row, 1, 1, 3)

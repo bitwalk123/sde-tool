@@ -86,3 +86,21 @@ AUTHOR: Lucian Dinu
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL:
+
+
+IMAGE: iconfinder_excel_272703.png
+ORIGINAL FILENAME: iconfinder_excel_272703.png
+URL: https://www.iconfinder.com/icons/272703/excel_icon
+AUTHOR: the more
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
+
+
+IMAGE: iconfinder_pdf_272705.png
+ORIGINAL FILENAME: iconfinder_pdf_272705.png
+URL: https://www.iconfinder.com/icons/272705/pdf_icon
+AUTHOR: the more
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:

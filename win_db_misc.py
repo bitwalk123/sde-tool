@@ -32,7 +32,7 @@ class WinDBMisc(QScrollArea):
         # _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_
         # TEST Label
         test = QLabel('TEST')
-        test.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px;}")
+        test.setStyleSheet("QLabel {font-size:14pt; padding: 0 2px; background: #ddf;}")
         test.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         grid.addWidget(test, row, 0, 1, 2)
         row += 1
