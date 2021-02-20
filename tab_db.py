@@ -6,7 +6,7 @@ from PySide2.QtWidgets import (
     QTabWidget,
 )
 from database import SqlDB
-from win_db_data import WinDBData
+from win_db_basic import WinDBData
 from win_db_misc import WinDBMisc
 from resource import Icons
 
@@ -21,7 +21,7 @@ class TabDB(QTabWidget):
         self.icons = Icons()
 
         tab_data = WinDBData(self.db)
-        self.addTab(tab_data, QIcon(self.icons.PEN), 'Data Input')
+        self.addTab(tab_data, QIcon(self.icons.PEN), 'Basic')
 
         tab_misc = WinDBMisc(self.db)
         self.addTab(tab_misc, QIcon(self.icons.CONF), 'Misc.')
