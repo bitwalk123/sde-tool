@@ -15,3 +15,4 @@ class Icons():
     FIND: str = 'images/iconfinder_Magnifier_728952.png'
     PEN: str = 'images/iconfinder_General_Office_09_3592869.png'
     PLAY: str = 'images/iconfinder_Social_Media-04_2274399.png'
+    PLOT: str = 'images/iconfinder_options_graph_alt_3516617.png'

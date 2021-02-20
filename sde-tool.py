@@ -18,6 +18,8 @@ import os.path
 import sys
 from database import SqlDB
 from tab_db import TabDB
+from tab_pcs import TabPCS
+from tab_spc import TabSPC
 from resource import Icons
 
 
@@ -124,7 +126,15 @@ class SDETool(QMainWindow):
     #    (none)
     # -------------------------------------------------------------------------
     def createTabs(self, parent: QTabWidget):
-        # tab_database
+        # tab_pcs
+        tab_pcs = TabPCS(self.db)
+        parent.addTab(tab_pcs, QIcon(self.icons.CLIP), 'PCS')
+
+        # tab_spc
+        tab_spc = TabSPC(self.db)
+        parent.addTab(tab_spc, QIcon(self.icons.PLOT), 'SPC')
+
+        # tab_db
         tab_db = TabDB(self.db)
         parent.addTab(tab_db, QIcon(self.icons.DB), 'Database')
 

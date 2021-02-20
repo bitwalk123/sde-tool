@@ -77,3 +77,12 @@ AUTHOR: Recep Kütük
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL:
+
+
+IMAGE: iconfinder_options_graph_alt_3516617.png
+ORIGINAL FILENAME: iconfinder_options_graph_alt_3516617.png
+URL: https://www.iconfinder.com/icons/3516617/alt_chart_graph_options_statistics_icon
+AUTHOR: Lucian Dinu
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
