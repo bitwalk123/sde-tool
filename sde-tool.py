@@ -16,6 +16,7 @@ from PySide2.QtWidgets import (
 import configparser
 import os.path
 import sys
+from about_dialog import AboutDlg
 from database import SqlDB
 from tab_db import TabDB
 from tab_pcs import TabPCS
@@ -96,6 +97,7 @@ class SDETool(QMainWindow):
         but_info = QToolButton()
         but_info.setIcon(QIcon(self.icons.INFO))
         but_info.setStatusTip('About this application')
+        but_info.clicked.connect(self.aboutApp)
         toolbar.addWidget(but_info)
 
         # button for application exit
@@ -157,6 +159,21 @@ class SDETool(QMainWindow):
     def getAppTitle(self):
         title: str = self.APP_NAME + ' - ' + self.APP_VER
         return (title)
+
+    # -------------------------------------------------------------------------
+    #  aboutApp
+    #  Application Information
+    #
+    #  argument
+    #    event
+    #
+    #  return
+    #    (none)
+    # -------------------------------------------------------------------------
+    def aboutApp(self, event):
+        sender = self.sender()
+        dlg = AboutDlg(self)
+        dlg.show()
 
     # -------------------------------------------------------------------------
     #  closeEvent
