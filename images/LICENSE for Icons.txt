@@ -104,3 +104,21 @@ AUTHOR: the more
 LICENSE:
 Commercial usage: Free for commercial use
 AUTHOR URL:
+
+
+IMAGE: iconfinder_Info_728979.png
+ORIGINAL FILENAME: iconfinder_Info_728979.png
+URL: https://www.iconfinder.com/icons/728979/info_communication_data_help_information_service_support_icon
+AUTHOR: Recep Kütük
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
+
+
+IMAGE: 182-1821638_logout-icon-png-red-clipart.png
+ORIGINAL 182-1821638_logout-icon-png-red-clipart.png
+URL: https://www.pinclipart.com/pindetail/oJwxbb_logout-icon-png-red-clipart/
+AUTHOR:
+LICENSE: public domain
+Commercial usage:
+AUTHOR URL:

@@ -92,6 +92,12 @@ class SDETool(QMainWindow):
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         toolbar.addWidget(spacer)
 
+        # button for application information
+        but_info = QToolButton()
+        but_info.setIcon(QIcon(self.icons.INFO))
+        but_info.setStatusTip('About this application')
+        toolbar.addWidget(but_info)
+
         # button for application exit
         but_exit = QToolButton()
         but_exit.setIcon(QIcon(self.icons.EXIT))
