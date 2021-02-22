@@ -55,8 +55,12 @@ class SqlDB():
     def put(self, sql):
         con = sqlite3.connect(self.dbname)
         cur = con.cursor()
-        cur.execute(sql)
-        con.commit()
+        try:
+            cur.execute(sql)
+            con.commit()
+        except Exception as e:
+            print(e)
+
         con.close()
 
     # -------------------------------------------------------------------------
