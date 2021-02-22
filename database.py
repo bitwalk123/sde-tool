@@ -7,7 +7,12 @@ import sqlite3
 #  SqlDB - handle Database
 # =============================================================================
 class SqlDB():
+    # SQLite database file name
     dbname: str = None
+
+    # Transaction flag
+    OK = None
+    ERRORMSG = None
 
     def __init__(self, dbname):
         self.dbname = dbname
@@ -58,8 +63,12 @@ class SqlDB():
         try:
             cur.execute(sql)
             con.commit()
+            self.OK = True
+            self.ERRORMSG = None
         except Exception as e:
             print(e)
+            self.OK = False
+            self.ERRORMSG = e
 
         con.close()
 

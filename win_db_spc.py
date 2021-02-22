@@ -44,6 +44,7 @@ class WinDBSPC(QScrollArea):
         but_dump_supplier = QPushButton()
         but_dump_supplier.setIcon(QIcon(self.icons.EXCEL))
         but_dump_supplier.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        but_dump_supplier.setStatusTip('read SPC Excel file')
         #but_dump_supplier.clicked.connect(self.on_click_dump_supplier)
         grid.addWidget(lab_dump_supplier, row, 0)
         grid.addWidget(but_dump_supplier, row, 1)

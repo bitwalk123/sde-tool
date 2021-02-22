@@ -111,8 +111,8 @@ class SDETool(QMainWindow):
         # Tab widget
         tabwidget: QTabWidget = QTabWidget()
         tabwidget.setTabPosition(QTabWidget.South)
-        self.setCentralWidget(tabwidget)
         self.createTabs(tabwidget)
+        self.setCentralWidget(tabwidget)
 
         # Status Bar
         statusbar: QStatusBar = QStatusBar()
