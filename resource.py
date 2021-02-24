@@ -16,6 +16,7 @@ class Icons():
     EXIT: str = 'images/182-1821638_logout-icon-png-red-clipart.png'
     FIND: str = 'images/iconfinder_Magnifier_728952.png'
     INFO: str = 'images/iconfinder_Info_728979.png'
+    LOGO: str = 'images/iconfinder_9_3319600.png'
     PDF: str = 'images/iconfinder_pdf_272705.png'
     PEN: str = 'images/iconfinder_General_Office_09_3592869.png'
     PLAY: str = 'images/iconfinder_Social_Media-04_2274399.png'

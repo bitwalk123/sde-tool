@@ -16,7 +16,7 @@ from PySide2.QtWidgets import (
 import configparser
 import os.path
 import sys
-from about_dialog import AboutDlg
+from dialog import AboutDlg
 from database import SqlDB
 from tab_db import TabDB
 from tab_pcs import TabPCS
@@ -31,6 +31,8 @@ class SDETool(QMainWindow):
     # Application information
     APP_NAME: str = 'SPC Tool'
     APP_VER: str = '0.3 (alpha)'
+    APP_COPYRIGHT: str = '2021 Keiichi Takahashi'
+    APP_LICENSE: str = '''<a href='https://opensource.org/licenses/MIT'>MIT</a>'''
 
     # initial windows position and size
     x_init: int = 100
@@ -44,6 +46,7 @@ class SDETool(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.icons = Icons()
 
         # CONFIGURATION FILE READ
         self.config = configparser.ConfigParser()
@@ -57,7 +60,6 @@ class SDETool(QMainWindow):
     #  initDB
     # -------------------------------------------------------------------------
     def initDB(self):
-        self.icons = Icons()
         # ---------------------------------------------------------------------
         #  DATABASE CONNECTION
         # ---------------------------------------------------------------------
@@ -97,7 +99,7 @@ class SDETool(QMainWindow):
         but_info = QToolButton()
         but_info.setIcon(QIcon(self.icons.INFO))
         but_info.setStatusTip('About this application')
-        but_info.clicked.connect(self.aboutApp)
+        but_info.clicked.connect(lambda: AboutDlg(self))
         toolbar.addWidget(but_info)
 
         # button for application exit
@@ -119,6 +121,7 @@ class SDETool(QMainWindow):
         self.setStatusBar(statusbar)
 
         # show window
+        self.setWindowIcon(QIcon(self.icons.LOGO))
         self.setWindowTitle(self.getAppTitle())
         self.setGeometry(self.x_init, self.y_init, self.w_init, self.h_init)
         self.show()
@@ -159,21 +162,6 @@ class SDETool(QMainWindow):
     def getAppTitle(self):
         title: str = self.APP_NAME + ' - ' + self.APP_VER
         return (title)
-
-    # -------------------------------------------------------------------------
-    #  aboutApp
-    #  Application Information
-    #
-    #  argument
-    #    event
-    #
-    #  return
-    #    (none)
-    # -------------------------------------------------------------------------
-    def aboutApp(self, event):
-        sender = self.sender()
-        dlg = AboutDlg(self)
-        dlg.show()
 
     # -------------------------------------------------------------------------
     #  closeEvent

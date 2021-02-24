@@ -122,3 +122,30 @@ AUTHOR:
 LICENSE: public domain
 Commercial usage:
 AUTHOR URL:
+
+
+IMAGE: iconfinder_kfm_18009.png
+ORIGINAL iconfinder_kfm_18009.png
+URL: https://www.iconfinder.com/icons/18009/documents_drawer_folders_icon
+AUTHOR: Everaldo Coelho
+LICENSE: LGPL
+Commercial usage:
+AUTHOR URL:
+
+
+IMAGE: iconfinder_40_3319604.png
+ORIGINAL iconfinder_40_3319604.png
+URL: https://www.iconfinder.com/icons/3319604/diamond_gemstone_investment_jewelry_icon
+AUTHOR: Ruma Entertainment
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
+
+
+IMAGE: iconfinder_9_3319600.png
+ORIGINAL iconfinder_9_3319600.png
+URL: https://www.iconfinder.com/icons/3319600/clip_board_graph_pie_chart_report_icon
+AUTHOR: Ruma Entertainment
+LICENSE:
+Commercial usage: Free for commercial use
+AUTHOR URL:
