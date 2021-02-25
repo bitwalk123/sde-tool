@@ -22,7 +22,7 @@ class SqlDB():
     # -------------------------------------------------------------------------
     def init(self):
         init_sql = [
-            'CREATE TABLE part (id_part INTEGER PRIMARY KEY, id_part_orig INTEGER, id_supplier INTEGER, num_part TEXT NOT NULL UNIQUE, description TEXT, name_product TEXT)',
+            'CREATE TABLE part (id_part INTEGER PRIMARY KEY, id_part_orig INTEGER, id_supplier INTEGER, num_part TEXT NOT NULL UNIQUE, description TEXT, name_product TEXT, id_assy INTEGER)',
             'CREATE TABLE drawing (id_drawing INTEGER PRIMARY KEY, id_part INTEGER, id_rev INTEGER, name_file TEXT, drawing NONE)',
             'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier_short TEXT NOT NULL UNIQUE, name_supplier TEXT, name_supplier_local TEXT)',
         ]

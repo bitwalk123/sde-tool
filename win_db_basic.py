@@ -113,7 +113,7 @@ class WinDBData(QScrollArea):
         but_num_part.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         grid.addWidget(lab_num_part, row, 0)
         grid.addWidget(ent_num_part, row, 1)
-        grid.addWidget(but_num_part, row, 5, 4, 1)
+        grid.addWidget(but_num_part, row, 5, 5, 1)
         row += 1
 
         # ---------------------------------------------------------------------
@@ -159,6 +159,28 @@ class WinDBData(QScrollArea):
         combo_part_supplier.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         grid.addWidget(lab_part_supplier, row, 0)
         grid.addWidget(combo_part_supplier, row, 1)
+        row += 1
+
+        # ---------------------------------------------------------------------
+        # Assy PART NUMBER
+        lab_num_part_assy = QLabel('Assy PART#')
+        lab_num_part_assy.setStyleSheet("QLabel {font-size:10pt; padding: 0 2px;color: gray;}")
+        lab_num_part_assy.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        combo_num_part_assy = QComboBox()
+        combo_num_part_assy.setEnabled(False)
+        combo_num_part_assy.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        check_num_part_assy = QCheckBox('link to Assy')
+        check_num_part_assy.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        #check_num_part_assy.stateChanged.connect(
+        #    lambda: self.getPartsOptionCombo(
+        #        lab_num_part_assy,
+        #        combo_num_part_assy,
+        #        check_num_part_assy
+        #    )
+        #)
+        grid.addWidget(lab_num_part_assy, row, 0)
+        grid.addWidget(combo_num_part_assy, row, 1)
+        grid.addWidget(check_num_part_assy, row, 2, 1, 3)
         row += 1
 
         # click on but_num_part
@@ -386,7 +408,7 @@ class WinDBData(QScrollArea):
 
         # insert new part to part table
         sql3 = self.db.sql(
-            "INSERT INTO part VALUES(NULL, ?, ?, '?', '?', NULL);",
+            "INSERT INTO part VALUES(NULL, ?, ?, '?', '?', NULL, NULL);",
             [id_part_orig, id_supplier, num_part, description]
         )
         print(sql3)
