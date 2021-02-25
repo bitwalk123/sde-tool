@@ -20,7 +20,6 @@ from dialog import AboutDlg
 from database import SqlDB
 from tab_db import TabDB
 from tab_pcs import TabPCS
-from tab_spc import TabSPC
 from resource import Icons
 
 
@@ -38,7 +37,7 @@ class SDETool(QMainWindow):
     x_init: int = 100
     y_init: int = 100
     w_init: int = 800
-    h_init: int = 600
+    h_init: int = 800
 
     # configuraion file
     confFile: str = 'sde.ini'
@@ -140,10 +139,6 @@ class SDETool(QMainWindow):
         # tab_pcs
         tab_pcs = TabPCS(self.db)
         parent.addTab(tab_pcs, QIcon(self.icons.CLIP), 'PCS')
-
-        # tab_spc
-        tab_spc = TabSPC(self.db)
-        parent.addTab(tab_spc, QIcon(self.icons.PLOT), 'SPC')
 
         # tab_db
         tab_db = TabDB(self.db)
