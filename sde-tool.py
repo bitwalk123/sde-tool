@@ -18,9 +18,9 @@ from PySide2.QtWidgets import (
 )
 from dialog import AboutDlg
 from database import SqlDB
+from resource import Icons
 from tab_db import TabDB
 from tab_pcs import TabPCS
-from resource import Icons
 
 
 # =============================================================================
