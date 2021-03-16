@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import configparser
+import os.path
+import sys
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
@@ -13,9 +16,6 @@ from PySide2.QtWidgets import (
     QToolButton,
     QWidget,
 )
-import configparser
-import os.path
-import sys
 from dialog import AboutDlg
 from database import SqlDB
 from tab_db import TabDB
