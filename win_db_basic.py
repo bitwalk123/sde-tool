@@ -314,18 +314,20 @@ class WinDBData(QScrollArea):
     #  add supplier list to specified combobox
     #
     #  argument
-    #    obj_combo: QComboBox  instance of QComboBox
+    #    combo: QComboBox  instance of QComboBox
     #
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def add_supplier_list_to_combo(self, obj_combo: QComboBox):
-        obj_combo.clear()
-        obj_combo.clearEditText()
+    def add_supplier_list_to_combo(self, combo: QComboBox):
+        # clear QComboBox
+        combo.clear()
+        combo.clearEditText()
+        # DB Query and update QConboBox
         sql = "SELECT name_supplier_short FROM supplier;"
         out = self.db.get(sql)
         for supplier in out:
-            obj_combo.addItem(supplier[0])
+            combo.addItem(supplier[0])
 
     # -------------------------------------------------------------------------
     #  on_click_supplier
@@ -354,46 +356,44 @@ class WinDBData(QScrollArea):
         self.db.put(sql)
 
     # -------------------------------------------------------------------------
-    #  on_click_part
+    #  on_click_set_part
     #  add part to database
     #
     #  argument
-    #    obj_short: QLineEdit  Common name of supplier
-    #    obj_full: QLineEdit   Full name of supplier in English
-    #    obj_local: QLineEdit  Full name of supplier in Local Language
+    #    ...
     #
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def on_click_set_part(self, obj_part: QLineEdit, obj_combo_1: QComboBox, obj_check: QCheckBox, obj_desc: QLineEdit, obj_combo_2: QComboBox):
+    def on_click_set_part(self, ent_part: QLineEdit, combo_1: QComboBox, check: QCheckBox, ent_desc: QLineEdit, combo_2: QComboBox):
         # obtain part number
-        num_part = obj_part.text()
-        obj_part.setText(None)
+        num_part = ent_part.text()
+        ent_part.setText(None)
 
         # obtain original part number if selected
         id_part_orig = 'NULL'
-        if obj_combo_1.isEnabled():
-            num_part_org = obj_combo_1.currentText()
+        if combo_1.isEnabled():
+            num_part_org = combo_1.currentText()
             sql1 = self.db.sql(
                 "SELECT id_part FROM part WHERE num_part = '?';", [num_part_org])
             print(sql1)
             out = self.db.get(sql1)
             for id in out:
                 id_part_orig = id[0]
-            obj_combo_1.clear()
-            obj_combo_1.clearEditText()
-            obj_combo_1.setEnabled(False)
+            combo_1.clear()
+            combo_1.clearEditText()
+            combo_1.setEnabled(False)
 
         # clear QCheckBox
-        if obj_check.isChecked():
-            obj_check.setEnabled(False)
+        if check.isChecked():
+            check.setEnabled(False)
 
         # obtain part description
-        description = obj_desc.text()
-        obj_desc.setText(None)
+        description = ent_desc.text()
+        ent_desc.setText(None)
 
         # obtain id_supplier from selected supplier on the QComboBox
-        supplier = obj_combo_2.currentText()
+        supplier = combo_2.currentText()
         sql2 = self.db.sql(
             "SELECT id_supplier FROM supplier WHERE name_supplier_short = '?';", [supplier])
         print(sql2)
@@ -419,15 +419,15 @@ class WinDBData(QScrollArea):
     #  PART selection change in Drwaing part
     #
     #  argument
-    #    obj_combo: QComboBox
-    #    obj_lab_supplier: QLabel
-    #    obj_lab_desc: QLabel
+    #    combo:        QComboBox
+    #    lab_supplier: QLabel
+    #    lab_desc:     QLabel
     #
     #  return
     #    (none)
     # -------------------------------------------------------------------------
-    def part_selection_change(self, obj_combo: QComboBox, obj_lab_supplier: QLabel, obj_lab_desc: QLabel):
-        num_part = obj_combo.currentText()
+    def part_selection_change(self, combo: QComboBox, lab_supplier: QLabel, lab_desc: QLabel):
+        num_part = combo.currentText()
         if len(num_part) == 0:
             return
         print(num_part)
@@ -452,6 +452,6 @@ class WinDBData(QScrollArea):
             description = id[0]
         print(description)
 
-        obj_lab_supplier.setText(name_supplier_short)
-        obj_lab_desc.setText(description)
+        lab_supplier.setText(name_supplier_short)
+        lab_desc.setText(description)
 
