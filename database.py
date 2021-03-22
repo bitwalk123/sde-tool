@@ -25,7 +25,7 @@ class SqlDB():
             'CREATE TABLE part (id_part INTEGER PRIMARY KEY, id_part_orig INTEGER, id_supplier INTEGER, num_part TEXT NOT NULL UNIQUE, description TEXT, name_product TEXT, id_assy INTEGER);',
             'CREATE TABLE drawing (id_drawing INTEGER PRIMARY KEY, id_part INTEGER, id_rev INTEGER, name_file TEXT, drawing NONE);',
             'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier_short TEXT NOT NULL UNIQUE, name_supplier TEXT, name_supplier_local TEXT);',
-            'CREATE TABLE param (id_param INTEGER PRIMARY KEY, id_supplier INTEGER, id_part INTEGER, num_part_excel TEXT, name_param TEXT NOT NULL, lsl REAL, target REAL, usl REAL, charttype TEXT, metrology TEXT, multiple TEXT, spectype TEXT, frozen INTEGER, lcl REAL, mean REAL, ucl REAL);',
+            'CREATE TABLE param (id_param INTEGER PRIMARY KEY, id_supplier INTEGER, id_part INTEGER, num_part_excel TEXT, name_param TEXT NOT NULL, num_key TEXT, lsl REAL, target REAL, usl REAL, charttype TEXT, metrology TEXT, multiple TEXT, spectype TEXT, frozen INTEGER, lcl REAL, mean REAL, ucl REAL);',
         ]
         stages = [
             ['CA'],  # 1
