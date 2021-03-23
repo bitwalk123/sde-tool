@@ -27,6 +27,7 @@ class SqlDB():
             'CREATE TABLE supplier (id_supplier INTEGER PRIMARY KEY, name_supplier_short TEXT NOT NULL UNIQUE, name_supplier TEXT, name_supplier_local TEXT);',
             'CREATE TABLE param (id_param INTEGER PRIMARY KEY, id_supplier INTEGER, id_part INTEGER, num_part_excel TEXT, name_param TEXT NOT NULL, num_key TEXT, lsl REAL, target REAL, usl REAL, charttype TEXT, metrology TEXT, multiple TEXT, spectype TEXT, frozen INTEGER, lcl REAL, mean REAL, ucl REAL);',
             'CREATE TABLE batch (id_batch INTEGER PRIMARY KEY, sample INTEGER, timestamp INTEGER, id_lot TEXT, serial TEXT);',
+            'CREATE TABLE measure (id_measure INTEGER PRIMARY KEY, id_param INTEGER, id_batch INTEGER, value REAL);',
         ]
         stages = [
             ['CA'],  # 1
