@@ -5,6 +5,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QLabel,
     QGridLayout,
+    QScrollArea,
+    QSizePolicy,
     QWidget,
 )
 from database import SqlDB
@@ -17,15 +19,19 @@ from resource import Icons
 # =============================================================================
 #  DBTab - Tab related to Database
 # =============================================================================
-class TabPCS(QWidget):
+class TabPCS(QScrollArea):
     def __init__(self, db: SqlDB):
         super().__init__()
+        self.setWidgetResizable(True)
         self.db = db
         self.icons = Icons()
 
-        #self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        base = QWidget()
+        base.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setWidget(base)
+
         grid = QGridLayout()
-        self.setLayout(grid)
+        base.setLayout(grid)
         row = 0
 
         # ---------------------------------------------------------------------
