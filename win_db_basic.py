@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from PySide2.QtGui import QIcon
-from PySide2.QtGui import Qt
-from PySide2.QtWidgets import (
+from PySide6.QtGui import QIcon
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFrame,
