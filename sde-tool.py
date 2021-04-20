@@ -171,7 +171,7 @@ class SDETool(QMainWindow):
     def closeEvent(self, event):
         sender = self.sender()
 
-        reply: QMessageBox.StandardButton = QMessageBox.warning(
+        reply = QMessageBox.warning(
             self,
             'Quit App',
             'Are you sure you want to quit?',
@@ -182,7 +182,8 @@ class SDETool(QMainWindow):
         if sender is not None:
             # Exit button is clicked
             if reply == QMessageBox.Yes:
-                QApplication.quit()
+                #QApplication.quit()
+                sys.exit()
             return
         else:
             # 'X' on the window is clicked
